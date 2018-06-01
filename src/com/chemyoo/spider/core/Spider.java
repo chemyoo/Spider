@@ -2,8 +2,10 @@ package com.chemyoo.spider.core;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
@@ -34,6 +36,8 @@ public class Spider {
 	private JButton button;
 	
 	private Timer time;
+	
+	private Map<String,Integer> urlVisitedCount = new HashMap<>();
 	
 	public Spider(String url, String dir, JButton button) {
 		this.url = url;
@@ -128,14 +132,42 @@ public class Spider {
 		Iterator<Element> it = href.iterator();
 		Element ele;
 		String herfurl;
+		String text;
 		String baseUrl = this.getBaseUri();
 		while(it.hasNext()) {
 			ele = it.next();
 			herfurl = ele.absUrl("href");
-			if(herfurl.startsWith(baseUrl) 
-					&& (herfurl.endsWith(".htm") || herfurl.endsWith(".html"))) {
+			text = ele.text();
+			
+			this.recognizeUrl(herfurl);
+			
+			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
+				continue;
+			}
+			//非本站链接不参与访问
+			if(herfurl.startsWith(baseUrl) && (herfurl.contains(".htm") || herfurl.contains(".html"))) {
+				LinkQueue.push(herfurl);
+			} else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
 				LinkQueue.push(herfurl);
 			}
+		}
+	}
+	
+	/**
+	 * 辨识URL,对重复出现多次的URL可认为是网站的导航链接
+	 * @param url
+	 */
+	private void recognizeUrl(String url) {
+		if(urlVisitedCount.containsKey(url)) {
+			int count = urlVisitedCount.get(url) + 1;
+			if(count < 5) {
+				urlVisitedCount.replace(url, count);
+			} else if(count < 6){
+				urlVisitedCount.replace(url, count + 1);
+				LinkQueue.addmenuUrl(url);
+			}
+		} else {
+			urlVisitedCount.put(url, 1);
 		}
 	}
 	

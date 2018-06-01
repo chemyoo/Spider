@@ -18,13 +18,16 @@ public class LinkQueue {
 	
 	private static Set<String> visited = new HashSet<>();
 	
+	private static Set<String> menuUrl = new HashSet<>();
+	
 	// 未访问的URL出队列
 	public static String unVisitedPop() {
 		
 		if (!unVisited.isEmpty()) {
 			String link = unVisited.remove(0);
-			if(visited.size() > 100000) {
+			if(visited.size() > 10000) {
 				visited.clear();
+				visited.addAll(menuUrl);
 			}
 			visited.add(link);
 			return link;
@@ -40,6 +43,12 @@ public class LinkQueue {
 		return null;
 	}
 	
+	
+	public static void addmenuUrl(String url) {
+		if(isNotBlank(url) && !menuUrl.contains(url)) {
+			menuUrl.add(url);
+		}
+	}
 	
 	public static void imageUrlpush(String url) {
 		if (isNotBlank(url) && url.startsWith("http") && !imageUrl.contains(url))
@@ -72,6 +81,7 @@ public class LinkQueue {
 	public static void clear() {
 		unVisited.clear();
 		visited.clear();
+		menuUrl.clear();
 	}
 	
 }

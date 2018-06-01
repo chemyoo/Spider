@@ -152,6 +152,8 @@ public class SpiderUI extends JFrame{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				start.setText("开始爬取");
+				pause.setVisible(false);
+				tip.setVisible(false);
 			}
 		});
         
