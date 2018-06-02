@@ -106,9 +106,14 @@ public class SpiderUI extends JFrame{
         pane4.add(tip);
         
         final JLabel pause = new JLabel("程序暂停中...");
-        pause.setVisible(false);
-        pause.setForeground(Color.RED);
-        pane4.add(pause);
+		pause.setVisible(false);
+		pause.setForeground(Color.RED);
+		pane4.add(pause);
+
+		final JLabel message = new JLabel();
+		message.setForeground(Color.BLUE);
+		message.setVisible(false);
+		pane4.add(message);
         
         start.addMouseListener(new MouseEventAdapter() {
 			@Override
@@ -119,13 +124,16 @@ public class SpiderUI extends JFrame{
 					start.setEnabled(false);
 					pause.setVisible(false);
 					tip.setVisible(false);
+					message.setVisible(true);
 					Thread thread = new Thread("Spider") {
 						@Override
 						public void run() {
 							start.setText("正在爬取");
-							Spider spider = new Spider(netUrl, fileDir, start);
+							Spider spider = new Spider(netUrl, fileDir, start, message);
 							spider.start();
-							tip.setVisible(true);
+							if(!pause.isVisible()) {
+								tip.setVisible(true);
+							}
 						}
 					};
 					
@@ -145,6 +153,7 @@ public class SpiderUI extends JFrame{
 				if(!start.isEnabled()) {
 					start.setEnabled(true);
 					pause.setVisible(true);
+					message.setVisible(false);
 				}
 			}
 		});
@@ -152,9 +161,9 @@ public class SpiderUI extends JFrame{
         stop.addMouseListener(new MouseEventAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				start.setText("开始爬取");
 				pause.setVisible(false);
 				tip.setVisible(false);
+				message.setVisible(false);
 				LinkQueue.clear();
 			}
 		});

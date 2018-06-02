@@ -8,7 +8,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.JButton;
+import javax.swing.*;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -36,13 +37,16 @@ public class Spider {
 	private JButton button;
 	
 	private Timer time;
+
+	private JLabel message;
 	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
 	
-	public Spider(String url, String dir, JButton button) {
+	public Spider(String url, String dir, JButton button, JLabel message) {
 		this.url = url;
 		this.dir = dir;
 		this.button = button;
+		this.message = message;
 		deletetimer();
 	}
 	
@@ -53,12 +57,9 @@ public class Spider {
 		String link;
 		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled()) {
 			link = LinkQueue.unVisitedPop();
+			this.message.setText("正在访问网址连接:" + link);
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir);
-			if("开始爬取".equals(button.getText())) {
-				LinkQueue.clear();
-			}
-			System.out.println("访问网址链接：" + link);
 		}
 		button.setEnabled(true);
 		button.setText("开始爬取");
