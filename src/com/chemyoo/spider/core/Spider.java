@@ -117,15 +117,41 @@ public class Spider {
 	
 	private void connectUrl(String url) {
 		try {
-			Document doc = Jsoup.connect(url).userAgent("Mozilla").timeout(15 * 1000).get();
+			if("gif,png,jpg,jpeg,bmp".contains(getFileExt(url))) {
+				LinkQueue.imageUrlpush(url);
+				return;
+			}
+			//.ignoreContentType(true)忽略请求头
+			Document doc = Jsoup.connect(url).userAgent("Mozilla").timeout(60 * 1000).get();
 			Elements body = doc.getElementsByTag("body");
 			this.getUrls(body);
 			this.getImagesUrls(body);
+			this.getIframe(body);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
+	private void getIframe(Elements body){
+		Elements href = body.select("iframe");
+		Iterator<Element> it = href.iterator();
+		Element ele;
+		String herfurl;
+		String text;
+		String baseUrl = this.getBaseUri();
+		while(it.hasNext()) {
+			ele = it.next();
+			herfurl = ele.absUrl("src");
+			this.recognizeUrl(herfurl);
+
+			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
+				continue;
+			}
+			if("gif,png,jpg,jpeg,bmp".contains(getFileExt(herfurl))) {
+				LinkQueue.push(herfurl);
+			}
+		}
+	}
 	
 	private void getUrls(Elements body) {
 		Elements href = body.select("a[href]");
@@ -144,15 +170,23 @@ public class Spider {
 			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
-			//非本站链接不参与访问
-			if(herfurl.startsWith(baseUrl) && (herfurl.contains(".htm") || herfurl.contains(".html"))) {
+			//非图片，不进行下载
+			if("gif,png,jpg,jpeg,bmp".contains(getFileExt(herfurl))) {
+				LinkQueue.imageUrlpush(herfurl);
+			} else if(herfurl.startsWith(baseUrl) && (herfurl.contains(".htm") || herfurl.contains(".html"))) {
 				LinkQueue.push(herfurl);
 			} else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
+				LinkQueue.push(herfurl);
+			} else if(text.contains("查看") && text.contains("大图")){
 				LinkQueue.push(herfurl);
 			}
 		}
 	}
-	
+
+	private static String getFileExt(String fileName) {
+		return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+	}
+
 	/**
 	 * 辨识URL,对重复出现多次的URL可认为是网站的导航链接
 	 * @param url
@@ -161,9 +195,9 @@ public class Spider {
 		if(urlVisitedCount.containsKey(url)) {
 			int count = urlVisitedCount.get(url) + 1;
 			if(count < 5) {
-				urlVisitedCount.replace(url, count);
+				urlVisitedCount.put(url, count);
 			} else if(count < 6){
-				urlVisitedCount.replace(url, count + 1);
+				urlVisitedCount.put(url, count + 1);
 				LinkQueue.addmenuUrl(url);
 			}
 		} else {

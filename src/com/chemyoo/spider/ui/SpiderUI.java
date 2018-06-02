@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
 import com.chemyoo.spider.core.Spider;
@@ -154,6 +155,7 @@ public class SpiderUI extends JFrame{
 				start.setText("开始爬取");
 				pause.setVisible(false);
 				tip.setVisible(false);
+				LinkQueue.clear();
 			}
 		});
         
