@@ -41,7 +41,7 @@ public class DeleteImages {
 							System.out.println(f.getPath() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth);
 							System.out.println("图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
 						} else {
-							moveFile(f, dir,null);
+							moveFile(f, dir);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -55,7 +55,7 @@ public class DeleteImages {
 		}
 	}
 	
-	public static void checkImageSize(File file, String dir, String type) {
+	public static void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
 			try (FileInputStream fis = new FileInputStream(file)){
 				BufferedImage sourceImg =ImageIO.read(fis);
@@ -66,7 +66,7 @@ public class DeleteImages {
 				if(width < 1000 || heigth < 700) {
 					FileUtils.deleteQuietly(file);
 				} else {
-					moveFile(file, dir, type);
+					moveFile(file, dir);
 					System.out.println(file.getPath() + "已保存，分辨率(宽 * 高):"+width+" * "+heigth);
 				}
 			} catch (Exception e) {
@@ -75,17 +75,14 @@ public class DeleteImages {
 		}
 	}
 	
-	private static void moveFile(File file,final String dir, final String type) {
+	private static void moveFile(File file,final String dir) {
 		try {
 			String path = dir + IMAGES_DIR + convertDateToString();
-			if(type != null){
-				path += getFileSeparator() + type;
-			}
 			FileUtils.moveToDirectory(file, new File(path), true);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("进行文件重命名...");
-			reName(file, dir, type);
+			reName(file, dir);
 		}
 	}
 	
@@ -93,12 +90,9 @@ public class DeleteImages {
 		return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
 	}
 	
-	private static void reName(File file, String dir, final String type) {
+	private static void reName(File file, String dir) {
 		int index = 0;
 		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
-		if(type != null){
-			path += type  + getFileSeparator();
-		}
 		File newFile = new File(path + file.getName());
 		while(newFile.exists()) {
 			String fileName = file.getName();

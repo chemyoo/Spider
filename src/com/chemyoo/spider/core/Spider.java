@@ -159,7 +159,7 @@ public class Spider {
 		Iterator<Element> it = href.iterator();
 		Element ele;
 		String herfurl;
-		String tempuri;
+//		String tempuri;
 		String text;
 		String baseUrl = this.getBaseUri();
 
@@ -168,21 +168,29 @@ public class Spider {
 			herfurl = ele.absUrl("href");
 			text = ele.text();
 
-			if(this.url.contains(".")){
-				tempuri = herfurl.substring(herfurl.indexOf('.') + 1);
-			} else {
-				tempuri = herfurl;
-			}
+//			if(this.url.contains(".")){
+//				tempuri = herfurl.substring(herfurl.indexOf('.') + 1);
+//			} else {
+//				tempuri = herfurl;
+//			}
 			
 			this.recognizeUrl(herfurl);
 			
-			if(tempuri.equals(baseUrl) || (tempuri.endsWith("/") && tempuri.equals(baseUrl+"/"))) {
+//			保证为本站链接
+//			if(tempuri.equals(baseUrl) || (tempuri.endsWith("/") && tempuri.equals(baseUrl+"/"))) {
+//				continue;
+//			}
+			
+//			保证为本站链接
+			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
+			
+			
 
 			if("gif,png,jpg,jpeg,bmp".contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
-			} else if(tempuri.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html"))) {
+			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html"))) {
 				LinkQueue.push(herfurl);
 			} else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
 				LinkQueue.push(herfurl);
@@ -260,10 +268,10 @@ public class Spider {
 	
 	private String getBaseUri() {
 		int index = this.url.replaceFirst("//", "--").indexOf('/');
-		String uri = this.url.substring(0, index);
-		if(this.url.contains(".")){
-			return uri.substring(uri.indexOf('.') + 1);
-		}
+//		String uri = this.url.substring(0, index);
+//		if(this.url.contains(".")){
+//			return uri.substring(uri.indexOf('.') + 1);
+//		}
 		return this.url.substring(0, index);
 	}
 	

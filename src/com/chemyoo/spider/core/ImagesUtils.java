@@ -124,18 +124,12 @@ public class ImagesUtils {
 		FileOutputStream fileOutStream = null;
 		String url;
 		String imageName = null;
-		String type = "";
-		String replaceType;
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				url = LinkQueue.imageUrlPop();
 				imageName = url.substring(url.lastIndexOf('/') + 1,
 						url.length());
-				replaceType = url.replace(imageName,"");
-				if(replaceType.endsWith("/")){
-					replaceType = replaceType.substring(0, replaceType.lastIndexOf('/'));
-				}
-				type = replaceType.substring(replaceType.lastIndexOf('/') + 1);
+				
 				if(imageName.contains("?")) {
 					imageName = imageName.substring(0,imageName.lastIndexOf('?'));
 				}
@@ -162,7 +156,7 @@ public class ImagesUtils {
 				Spider.closeQuietly(in);
 				Spider.closeQuietly(fileOutStream);
 			}
-			DeleteImages.checkImageSize(new File(dir + imageName), dir, type);
+			DeleteImages.checkImageSize(new File(dir + imageName), dir);
 		}
 	}
 	
