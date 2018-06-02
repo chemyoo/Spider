@@ -30,7 +30,7 @@ public class DeleteImages {
 		if(files != null){
 			for(File f : files) {
 				if(f.isFile() && f.lastModified() < (time - 1 * 1000 * 60L)) {
-					try (FileInputStream fis = new FileInputStream(f);){
+					try (FileInputStream fis = new FileInputStream(f)){
 						BufferedImage sourceImg =ImageIO.read(fis);
 						double width = sourceImg.getWidth();
 						double heigth=sourceImg.getHeight();
@@ -38,7 +38,7 @@ public class DeleteImages {
 						fis.close();
 						if(width < 1000 || heigth < 700) {
 							FileUtils.deleteQuietly(f);
-							System.out.println(f.getName() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth); 
+							System.out.println(f.getPath() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth);
 							System.out.println("图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
 						} else {
 							moveFile(f, dir);
@@ -57,7 +57,7 @@ public class DeleteImages {
 	
 	public static void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-			try (FileInputStream fis = new FileInputStream(file);){
+			try (FileInputStream fis = new FileInputStream(file)){
 				BufferedImage sourceImg =ImageIO.read(fis);
 				double width = sourceImg.getWidth();
 				double heigth=sourceImg.getHeight();
@@ -67,6 +67,7 @@ public class DeleteImages {
 					FileUtils.deleteQuietly(file);
 				} else {
 					moveFile(file, dir);
+					System.out.println(file.getPath() + "已保存，分辨率(宽 * 高):"+width+" * "+heigth);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
