@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import org.jsoup.select.Elements;
  * java抓取网络图片
  */
 public class ImagesUtils {
-
+	
 	// 编码
 	private static final String ECODING = "UTF-8";
 	// 获取img标签正则
@@ -27,9 +28,9 @@ public class ImagesUtils {
 	// 获取src路径的正则
 	private static final String IMGSRC_REG = "http:\"?(.*?)(\"|>|\\s+)";
 
-	public static void downloadPic(String dir) {
+	public static void downloadPic(String dir, String referer) {
 		// 获得html文本内容
-		download(dir);
+		download(dir, referer);
 	}
 
 	/***
@@ -114,10 +115,14 @@ public class ImagesUtils {
 	 * 
 	 * @param dir
 	 */
-	private static void download(String dir) {
+	private static void download(String dir,String referer) {
 		
 		if(!(dir.endsWith("/") || dir.endsWith("\\"))) {
 			dir += System.getProperty("file.separator");
+		}
+		File path = new File(dir);
+		if(!path.exists()) {
+			path.mkdirs();
 		}
 		
 		InputStream in = null;
@@ -140,7 +145,11 @@ public class ImagesUtils {
 				}
 				
 				URL uri = new URL(url);
-				in = uri.openStream();
+				URLConnection urlConnection = uri.openConnection();
+				HttpURLConnection httpConnection = (HttpURLConnection) urlConnection;
+				httpConnection.setRequestProperty("referer", referer);
+				httpConnection.setRequestProperty("cookie", "");
+				in = httpConnection.getInputStream();
 				fileOutStream = new FileOutputStream(new File(dir + imageName));
 				byte[] buf = new byte[1024];
 				int length = 0;
@@ -149,15 +158,21 @@ public class ImagesUtils {
 				}
 				in.close();
 				fileOutStream.close();
-				
+//						
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
 				Spider.closeQuietly(in);
 				Spider.closeQuietly(fileOutStream);
+				//待文件流被释放后，下载成功，进行文件分辨率辨识		
+				DeleteImages.checkImageSize(new File(dir + imageName), dir);
 			}
-			DeleteImages.checkImageSize(new File(dir + imageName), dir);
 		}
+	}
+	
+	private static String getBaseUri(String url) {
+		int index = url.replaceFirst("//", "--").indexOf('/');
+		return url.substring(0, index);
 	}
 	
 	private static String getFileExt(String fileName) {

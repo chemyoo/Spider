@@ -6,10 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /** 
  * @author 作者 : jianqing.liu
@@ -30,22 +29,22 @@ public class DeleteImages {
 		if(files != null){
 			for(File f : files) {
 				if(f.isFile() && f.lastModified() < (time - 1 * 1000 * 60L)) {
-					try (FileInputStream fis = new FileInputStream(f)){
+					double width = 0d;
+					double heigth = 0d;
+					try (FileInputStream fis = new FileInputStream(file)){
 						BufferedImage sourceImg =ImageIO.read(fis);
-						double width = sourceImg.getWidth();
-						double heigth=sourceImg.getHeight();
+						width = sourceImg.getWidth();
+						heigth=sourceImg.getHeight();
 						sourceImg.flush();
-						fis.close();
-						if(width < 1000 || heigth < 700) {
-							FileUtils.deleteQuietly(f);
-							System.out.println(f.getPath() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth);
-							System.out.println("图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
-						} else {
-							moveFile(f, dir);
-						}
 					} catch (Exception e) {
 						e.printStackTrace();
+					}
+					if(width < 1000 || heigth < 700) {
 						FileUtils.deleteQuietly(f);
+						System.out.println(f.getPath() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth);
+						System.out.println("图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
+					} else {
+						moveFile(f, dir);
 					}
 				} else if(f.isFile() && !"gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
 					FileUtils.deleteQuietly(f);
@@ -57,20 +56,22 @@ public class DeleteImages {
 	
 	public static void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
+			double width = 0d;
+			double heigth = 0d;
+			//try结束后会自动释放文件流fis
 			try (FileInputStream fis = new FileInputStream(file)){
 				BufferedImage sourceImg =ImageIO.read(fis);
-				double width = sourceImg.getWidth();
-				double heigth=sourceImg.getHeight();
+				width = sourceImg.getWidth();
+				heigth=sourceImg.getHeight();
 				sourceImg.flush();
-				fis.close();
-				if(width < 1000 || heigth < 700) {
-					FileUtils.deleteQuietly(file);
-				} else {
-					moveFile(file, dir);
-					System.out.println(file.getPath() + "已保存，分辨率(宽 * 高):"+width+" * "+heigth);
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+			if(width < 1000 || heigth < 700) {
+				FileUtils.deleteQuietly(file);
+			} else {
+				moveFile(file, dir);
+				System.out.println(file.getPath() + "已保存，分辨率(宽 * 高):"+width+" * "+heigth);
 			}
 		}
 	}

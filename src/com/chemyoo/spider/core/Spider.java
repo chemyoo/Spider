@@ -40,6 +40,8 @@ public class Spider {
 
 	private JLabel message;
 	
+	private String referer;
+	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
 	
 	public Spider(String url, String dir, JButton button, JLabel message) {
@@ -47,7 +49,18 @@ public class Spider {
 		this.dir = dir;
 		this.button = button;
 		this.message = message;
+		this.setReferer("http://www.jj20.com/");
 		deletetimer();
+	}
+	
+	private void setReferer(String referer) {
+		if(this.referer == null) {
+			this.referer = referer;
+		}
+	}
+	
+	private String getReferer() {
+		return this.referer;
 	}
 	
 	public void start() {
@@ -59,10 +72,11 @@ public class Spider {
 			link = LinkQueue.unVisitedPop();
 			this.message.setText("正在访问网址连接:" + link);
 			this.connectUrl(link);
-			ImagesUtils.downloadPic(this.dir);
+			ImagesUtils.downloadPic(this.dir, getReferer());
 		}
 		button.setEnabled(true);
 		button.setText("开始爬取");
+		this.message.setVisible(false);
 		time.cancel();
 	}
 	
@@ -123,7 +137,9 @@ public class Spider {
 				return;
 			}
 			//.ignoreContentType(true)忽略请求头
-			Document doc = Jsoup.connect(url).userAgent("Mozilla").timeout(60 * 1000).get();
+			Document doc = Jsoup.connect(url)
+					.userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko")
+					.timeout(60 * 1000).get();
 			Elements body = doc.getElementsByTag("body");
 			this.getUrls(body);
 			this.getImagesUrls(body);
@@ -138,7 +154,6 @@ public class Spider {
 		Iterator<Element> it = href.iterator();
 		Element ele;
 		String herfurl;
-		String text;
 		String baseUrl = this.getBaseUri();
 		while(it.hasNext()) {
 			ele = it.next();
@@ -181,7 +196,7 @@ public class Spider {
 //				continue;
 //			}
 			
-//			保证为本站链接
+//			如果是源网址，则忽略
 			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
