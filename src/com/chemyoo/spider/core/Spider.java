@@ -42,6 +42,8 @@ public class Spider {
 	
 	private String referer;
 	
+	private final String pictureExt = "gif,png,jpg,jpeg,bmp"; 
+	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
 	
 	public Spider(String url, String dir, JButton button, JLabel message) {
@@ -49,13 +51,13 @@ public class Spider {
 		this.dir = dir;
 		this.button = button;
 		this.message = message;
-		this.setReferer("http://www.jj20.com/");
 		deletetimer();
 	}
 	
 	private void setReferer(String referer) {
 		if(this.referer == null) {
-			this.referer = referer;
+			int index = referer.replaceFirst("//", "--").indexOf('/');
+			this.referer = referer.substring(0, index);
 		}
 	}
 	
@@ -132,7 +134,7 @@ public class Spider {
 	
 	private void connectUrl(String url) {
 		try {
-			if("gif,png,jpg,jpeg,bmp".contains(getFileExt(url))) {
+			if(pictureExt.contains(getFileExt(url))) {
 				LinkQueue.imageUrlpush(url);
 				return;
 			}
@@ -140,6 +142,9 @@ public class Spider {
 			Document doc = Jsoup.connect(url)
 					.userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko")
 					.timeout(60 * 1000).get();
+			
+			this.setReferer(doc.baseUri());
+			
 			Elements body = doc.getElementsByTag("body");
 			this.getUrls(body);
 			this.getImagesUrls(body);
@@ -163,7 +168,7 @@ public class Spider {
 			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
-			if("gif,png,jpg,jpeg,bmp".contains(getFileExt(herfurl))) {
+			if(pictureExt.contains(getFileExt(herfurl))) {
 				LinkQueue.push(herfurl);
 			}
 		}
@@ -203,7 +208,7 @@ public class Spider {
 			
 			
 
-			if("gif,png,jpg,jpeg,bmp".contains(getFileExt(herfurl))) {
+			if(pictureExt.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
 			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html"))) {
 				LinkQueue.push(herfurl);
