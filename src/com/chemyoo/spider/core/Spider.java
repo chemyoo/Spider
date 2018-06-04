@@ -10,6 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -46,16 +47,17 @@ public class Spider {
 	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
 	
-	public Spider(String url, String dir, JButton button, JLabel message) {
+	public Spider(String url, String dir, JButton button, JLabel message,String referer) {
 		this.url = url;
 		this.dir = dir;
 		this.button = button;
 		this.message = message;
+		this.setReferer(referer);
 		deletetimer();
 	}
 	
 	private void setReferer(String referer) {
-		if(this.referer == null) {
+		if(this.referer == null && StringUtils.isNotBlank(referer)) {
 			int index = referer.replaceFirst("//", "--").indexOf('/');
 			this.referer = referer.substring(0, index);
 		}
@@ -74,7 +76,7 @@ public class Spider {
 			link = LinkQueue.unVisitedPop();
 			this.message.setText("正在访问网址连接:" + link);
 			this.connectUrl(link);
-			ImagesUtils.downloadPic(this.dir, getReferer());
+			ImagesUtils.downloadPic(this.dir, this.getReferer());
 		}
 		button.setEnabled(true);
 		button.setText("开始爬取");
@@ -142,8 +144,6 @@ public class Spider {
 			Document doc = Jsoup.connect(url)
 					.userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko")
 					.timeout(60 * 1000).get();
-			
-			this.setReferer(doc.baseUri());
 			
 			Elements body = doc.getElementsByTag("body");
 			this.getUrls(body);

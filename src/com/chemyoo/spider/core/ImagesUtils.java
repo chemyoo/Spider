@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -147,8 +149,9 @@ public class ImagesUtils {
 				URL uri = new URL(url);
 				URLConnection urlConnection = uri.openConnection();
 				HttpURLConnection httpConnection = (HttpURLConnection) urlConnection;
-				httpConnection.setRequestProperty("referer", referer);
-				httpConnection.setRequestProperty("cookie", "");
+				if(StringUtils.isNotBlank(referer))
+					httpConnection.setRequestProperty("referer", referer);
+//				httpConnection.setRequestProperty("cookie", "");
 				in = httpConnection.getInputStream();
 				fileOutStream = new FileOutputStream(new File(dir + imageName));
 				byte[] buf = new byte[1024];

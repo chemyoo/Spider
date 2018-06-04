@@ -41,14 +41,15 @@ public class SpiderUI extends JFrame{
         final JPanel contentPane= new JPanel();  
         contentPane.setBorder(new EmptyBorder(20,5,5,5));  
         this.setContentPane(contentPane);  
-        contentPane.setLayout(new GridLayout(4,1,5,5));  
+        contentPane.setLayout(new GridLayout(5,1,5,5));  
         contentPane.setAlignmentY(LEFT_ALIGNMENT);
         JPanel pane1=new JPanel();  
+        JPanel pane5=new JPanel();  
         JPanel pane2=new JPanel();  
         JPanel pane3=new JPanel();  
         JPanel pane4=new JPanel(); 
 
-        JLabel label1=new JLabel("网址：");  
+        JLabel label1=new JLabel("网址*:");  
         Dimension preferredSize = new Dimension(98,20);//设置尺寸
         label1.setPreferredSize(preferredSize);
         label1.setHorizontalAlignment(JTextField.RIGHT);
@@ -57,10 +58,19 @@ public class SpiderUI extends JFrame{
         pane1.add(label1);  
         pane1.add(url);  
         
+        JLabel label4 = new JLabel("网址源:");  
+        label4.setPreferredSize(preferredSize);
+        label4.setHorizontalAlignment(JTextField.RIGHT);
+        final JTextField referer = new JTextField();  
+        referer.setColumns(31);  
+        pane5.add(label4);  
+        pane5.add(referer);
+        
         pane1.setAlignmentX(LEFT_ALIGNMENT);
+        pane5.setAlignmentX(LEFT_ALIGNMENT);
         
         
-        JLabel label2=new JLabel("本地保存路径：");  
+        JLabel label2=new JLabel("本地保存路径*:");  
         preferredSize = new Dimension(98,20);//设置尺寸
         label2.setPreferredSize(preferredSize);
         label2.setHorizontalAlignment(JTextField.RIGHT);
@@ -120,6 +130,7 @@ public class SpiderUI extends JFrame{
 			public void mouseClicked(MouseEvent e) {
 				final String netUrl = url.getText();
 				final String fileDir = path.getText();
+				final String refererUrl = referer.getText();
 				if(isNotBlank(netUrl, fileDir)) {
 					start.setEnabled(false);
 					pause.setVisible(false);
@@ -129,7 +140,7 @@ public class SpiderUI extends JFrame{
 						@Override
 						public void run() {
 							start.setText("正在爬取");
-							Spider spider = new Spider(netUrl, fileDir, start, message);
+							Spider spider = new Spider(netUrl, fileDir, start, message, refererUrl);
 							spider.start();
 							if(!pause.isVisible()) {
 								tip.setVisible(true);
@@ -140,7 +151,7 @@ public class SpiderUI extends JFrame{
 					thread.start();
 					
 				} else {
-					JOptionPane.showMessageDialog(contentPane, "所有的内容都不允许为空", "提示", 
+					JOptionPane.showMessageDialog(contentPane, "网址或保存路径不允许为空", "提示", 
 							JOptionPane.PLAIN_MESSAGE);
 				}
 			}
@@ -169,6 +180,7 @@ public class SpiderUI extends JFrame{
 		});
         
         contentPane.add(pane1);  
+        contentPane.add(pane5); 
         contentPane.add(pane2); 
         contentPane.add(pane3); 
         contentPane.add(pane4); 
