@@ -149,9 +149,12 @@ public class ImagesUtils {
 				URL uri = new URL(url);
 				URLConnection urlConnection = uri.openConnection();
 				HttpURLConnection httpConnection = (HttpURLConnection) urlConnection;
+				/**
+				 * 如果有cookie限制则可添加cookies值：
+				 * httpConnection.setRequestProperty("cookie", "");
+				 */
 				if(StringUtils.isNotBlank(referer))
 					httpConnection.setRequestProperty("referer", referer);
-//				httpConnection.setRequestProperty("cookie", "");
 				in = httpConnection.getInputStream();
 				fileOutStream = new FileOutputStream(new File(dir + imageName));
 				byte[] buf = new byte[1024];

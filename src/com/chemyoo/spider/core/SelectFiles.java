@@ -9,7 +9,7 @@ import javax.swing.filechooser.FileSystemView;
  * @author 作者 : jianqing.liu
  * @version 创建时间：2018年5月30日 上午9:47:01 
  * @since 2018年5月30日 上午9:47:01 
- * @description 类说明 
+ * @description 文件选择框
  */
 public class SelectFiles {
 

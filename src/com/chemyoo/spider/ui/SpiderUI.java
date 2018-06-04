@@ -22,7 +22,7 @@ import com.chemyoo.spider.core.Spider;
  * @author 作者 : jianqing.liu
  * @version 创建时间：2018年5月30日 上午9:35:07 
  * @since 2018年5月30日 上午9:35:07 
- * @description 类说明 
+ * @description 用户图形界面
  */
 public class SpiderUI extends JFrame{
 
