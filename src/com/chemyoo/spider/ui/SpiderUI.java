@@ -187,9 +187,9 @@ public class SpiderUI extends JFrame{
         stop.addMouseListener(new MouseEventAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				pause.setVisible(false);
+				tip.setVisible(true);
 				if(!start.isEnabled()) {
-					pause.setVisible(false);
-					tip.setVisible(true);
 					message.setVisible(false);
 					cancle.setEnabled(false);
 					tip.setText("正在停止...");
