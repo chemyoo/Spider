@@ -142,8 +142,14 @@ public class SpiderUI extends JFrame{
 						@Override
 						public void run() {
 							start.setText("正在爬取");
+							try {
 							Spider spider = new Spider(netUrl, fileDir, start, message, refererUrl);
 							spider.start();
+							} catch (Exception e) {
+								e.printStackTrace();
+								start.setText("开始爬取");
+								start.setEnabled(true);
+							}
 							tip.setText("网站爬取完成...");
 							if(!pause.isVisible()) {
 								tip.setVisible(true);

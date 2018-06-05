@@ -14,10 +14,10 @@ import javax.swing.filechooser.FileSystemView;
 public class SelectFiles {
 
 	public static File getSavePath() {
-		JFileChooser fileChooser = new JFileChooser("F:/pic");
-//		FileSystemView fsv = FileSystemView.getFileSystemView();  //注意了，这里重要的一句
+		JFileChooser fileChooser = new JFileChooser();//"F:/pic"
+		FileSystemView fsv = FileSystemView.getFileSystemView();  //注意了，这里重要的一句
 		//设置最初路径为桌面路径              
-//		fileChooser.setCurrentDirectory(fsv.getHomeDirectory());
+		fileChooser.setCurrentDirectory(fsv.getHomeDirectory());
 		fileChooser.setDialogTitle("请选择文件夹...");
 		fileChooser.setApproveButtonText("确定");
 		//只选择文件夹

@@ -59,6 +59,9 @@ public class Spider {
 	private void setReferer(String referer) {
 		if(this.referer == null && StringUtils.isNotBlank(referer)) {
 			int index = referer.replaceFirst("//", "--").indexOf('/');
+			if(index == -1) {
+				index = referer.length();
+			}
 			this.referer = referer.substring(0, index);
 		}
 	}
