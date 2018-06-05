@@ -144,9 +144,11 @@ public class SpiderUI extends JFrame{
 							start.setText("正在爬取");
 							Spider spider = new Spider(netUrl, fileDir, start, message, refererUrl);
 							spider.start();
+							tip.setText("网站爬取完成...");
 							if(!pause.isVisible()) {
 								tip.setVisible(true);
 							}
+							cancle.setEnabled(true);
 						}
 					};
 					
@@ -174,9 +176,13 @@ public class SpiderUI extends JFrame{
         stop.addMouseListener(new MouseEventAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				pause.setVisible(false);
-				tip.setVisible(false);
-				message.setVisible(false);
+				if(!start.isEnabled()) {
+					pause.setVisible(false);
+					tip.setVisible(true);
+					message.setVisible(false);
+					cancle.setEnabled(false);
+					tip.setText("正在停止...");
+				}
 				LinkQueue.clear();
 			}
 		});
