@@ -77,7 +77,7 @@ public class Spider {
 		String link;
 		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled()) {
 			link = LinkQueue.unVisitedPop();
-			this.message.setText("正在访问网址连接:" + link);
+			this.message.setText("正在访问网址链接:" + link);
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
 		}
