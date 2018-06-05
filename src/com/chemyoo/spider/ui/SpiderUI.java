@@ -134,6 +134,10 @@ public class SpiderUI extends JFrame{
 				final String fileDir = path.getText();
 				final String refererUrl = referer.getText();
 				if(isNotBlank(netUrl, fileDir)) {
+					//如果取消按钮不可用说明，真正执行暂停过程，则返回，不新建线程进行爬取
+					if(!cancle.isEnabled()) {
+						return;
+					}
 					start.setEnabled(false);
 					pause.setVisible(false);
 					tip.setVisible(false);
@@ -172,9 +176,10 @@ public class SpiderUI extends JFrame{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(!start.isEnabled()) {
-					start.setEnabled(true);
 					pause.setVisible(true);
+					cancle.setEnabled(false);
 					message.setVisible(false);
+					start.setEnabled(true);
 				}
 			}
 		});
