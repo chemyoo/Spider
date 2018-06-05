@@ -31,7 +31,9 @@ public class SpiderUI extends JFrame{
 	 */
 	private static final long serialVersionUID = -1987615425247905123L;
 	
-	public SpiderUI() {}
+	public SpiderUI() {
+		super();
+	}
 	
 	public void initSpiderUI() {
 		this.setTitle("SpiderUI");  
