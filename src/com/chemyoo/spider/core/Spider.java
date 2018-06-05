@@ -43,7 +43,7 @@ public class Spider {
 	
 	private String referer;
 	
-	private final String pictureExt = "gif,png,jpg,jpeg,bmp"; 
+	private static final String PICTURE_EXT = "gif,png,jpg,jpeg,bmp"; 
 	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
 	
@@ -139,7 +139,7 @@ public class Spider {
 	
 	private void connectUrl(String url) {
 		try {
-			if(pictureExt.contains(getFileExt(url))) {
+			if(PICTURE_EXT.contains(getFileExt(url))) {
 				LinkQueue.imageUrlpush(url);
 				return;
 			}
@@ -171,7 +171,7 @@ public class Spider {
 			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
-			if(pictureExt.contains(getFileExt(herfurl))) {
+			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.push(herfurl);
 			}
 		}
@@ -211,7 +211,7 @@ public class Spider {
 			
 			
 
-			if(pictureExt.contains(getFileExt(herfurl))) {
+			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
 			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html"))) {
 				LinkQueue.push(herfurl);
