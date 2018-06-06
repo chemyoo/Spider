@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-
+import org.apache.log4j.Logger;
 import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
@@ -31,10 +31,15 @@ public class SpiderUI extends JFrame{
 	 */
 	private static final long serialVersionUID = -1987615425247905123L;
 	
+	private static final Logger LOG = Logger.getLogger(SpiderUI.class);
+	
 	public SpiderUI() {
 		super();
 	}
 	
+	/**
+	 * 初始化UI进行显示
+	 */
 	public void initSpiderUI() {
 		this.setTitle("SpiderUI");  
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
@@ -150,7 +155,7 @@ public class SpiderUI extends JFrame{
 							Spider spider = new Spider(netUrl, fileDir, start, message, refererUrl);
 							spider.start();
 							} catch (Exception e) {
-								e.printStackTrace();
+								LOG.error("程序运行发生异常:", e);
 								start.setText("开始爬取");
 								start.setEnabled(true);
 							}
