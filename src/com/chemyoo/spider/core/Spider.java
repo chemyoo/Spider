@@ -91,13 +91,14 @@ public class Spider {
 	}
 	
 	private void deletetimer() {
+		/* 
+		 * 注意Timer的缺陷，同时注入多个schedule会有延时问题，
+	     * 只用当前的执行完，后面的任务才会执行，并且前面抛出异常，
+	     * 后面的任务就不会执行
+	     * 可以使用java.util.concurrent.ScheduledExecutorService来优化
+	     * <li><font size = +1>每分钟执行一次</font><li>
+	     */
         time = new Timer();
-        //每天定时发送
-        /**注意Timer的缺陷，同时注入多个schedule会有延时问题，
-         * 只用当前的执行完，后面的任务才会执行，并且前面抛出异常，
-         * 后面的任务就不会执行
-         * 可以使用java.util.concurrent.ScheduledExecutorService来优化
-         */
         time.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -111,7 +112,7 @@ public class Spider {
 		}}, 0, 1 * 60 * 1000L);
 	}
 	
-	private void openUrl(String url) {
+	/*private void openUrl(String url) {
 		try (WebClient wc = new WebClient(BrowserVersion.CHROME);){
 			
 		    wc.getOptions().setUseInsecureSSL(true);  
@@ -140,7 +141,7 @@ public class Spider {
 			LOG.error("打开网页发生异常");
 		}
 			
-	}
+	}*/
 	
 	private void connectUrl(String url) {
 		LOG.info("连接网址：" + url);
@@ -264,15 +265,15 @@ public class Spider {
 		}
 	}
 	
-	private void printlnBody(Document doc) {
+	/*private void printlnBody(Document doc) {
 		Elements body = doc.getElementsByTag("body");
 		Iterator<Element> it = body.iterator();
 		while(it.hasNext()) {
 			LOG.debug(it.next().toString());
 		}
-	}
+	}/*
 	
-	private void printlnElements(Elements Elements) {
+	/*private void printlnElements(Elements Elements) {
 		Iterator<Element> it = Elements.iterator();
 		Element ele;
 		while(it.hasNext()) {
@@ -280,9 +281,9 @@ public class Spider {
 			LOG.debug(ele.toString());
 			LOG.debug(ele.absUrl("href"));
 		}
-	}
+	}*/
 	
-	private void getHtmlElement(DomNodeList<HtmlElement> htmlElements,int type) {
+	/*private void getHtmlElement(DomNodeList<HtmlElement> htmlElements,int type) {
 		ListIterator<HtmlElement> list = htmlElements.listIterator();
 		HtmlElement element;
 	    while(list.hasNext()) {
@@ -296,7 +297,7 @@ public class Spider {
 				LinkQueue.push(element.getAttribute("src"));
 			}
 	    }
-	}
+	}*/
 	
 	private String getBaseUri() {
 		int index = this.url.replaceFirst("//", "--").indexOf('/');
