@@ -1,7 +1,6 @@
 package com.chemyoo.spider.core;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,7 +8,8 @@ import java.util.Set;
 
 public class LinkQueue {
 
-
+	private LinkQueue() {}
+	
 	// 未访问的url
 	private static List<String> unVisited = new LinkedList<>();
 	
