@@ -1,5 +1,7 @@
 package com.chemyoo.spider.run;
 
+import org.apache.log4j.Logger;
+
 import com.chemyoo.spider.ui.SpiderUI;
 
 /** 
@@ -9,12 +11,14 @@ import com.chemyoo.spider.ui.SpiderUI;
  * @description 类说明 
  */
 public class RunSpider {
+	
+	private static final Logger LOG = Logger.getLogger(RunSpider.class);
 
 	public static void main(String[] args) {
 		
 		SpiderUI ui = new SpiderUI();
 		ui.initSpiderUI();
-		
+		LOG.info("启动服务...");
 	}
 
 }

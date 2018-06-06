@@ -9,13 +9,12 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.*;
-
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomNode;
@@ -30,6 +29,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @description 类说明 
  */
 public class Spider {
+	
+	private static final Logger LOG = Logger.getLogger(Spider.class);
 	
 	private String url;
 	
@@ -71,6 +72,7 @@ public class Spider {
 	}
 	
 	public void start() {
+		LOG.info("程序已启动...");
 		if(LinkQueue.unVisitedEmpty()) {
 			LinkQueue.push(this.url);
 		}
@@ -85,6 +87,7 @@ public class Spider {
 		button.setText("开始爬取");
 		this.message.setVisible(false);
 		time.cancel();
+		LOG.info("程序终止...");
 	}
 	
 	private void deletetimer() {
@@ -99,9 +102,11 @@ public class Spider {
 			@Override
 			public void run() {
 				try {
+					LOG.info("定时任务已启动...");
 					DeleteImages.delete(dir);
+					LOG.info("定时任务执行完成...");
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOG.error("定时任务执行异常：", e);
 				}
 		}}, 0, 1 * 60 * 1000L);
 	}
@@ -121,7 +126,7 @@ public class Spider {
 		    Iterable<DomNode> domnode = body.getChildren();
 		    Iterator<DomNode> it = domnode.iterator();
 		    while(it.hasNext()) {
-		    	System.err.println(it.next().asText());
+		    	LOG.debug(it.next().asText());
 		    }
 		    
 		    DomNodeList<HtmlElement> imgNode= body.getElementsByTagName("img");
@@ -132,12 +137,13 @@ public class Spider {
 		    this.getHtmlElement(frame, 2);
 			    
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("打开网页发生异常：",e);
 		}
 			
 	}
 	
 	private void connectUrl(String url) {
+		LOG.info("连接网址：" + url);
 		try {
 			if(PICTURE_EXT.contains(getFileExt(url))) {
 				LinkQueue.imageUrlpush(url);
@@ -155,7 +161,7 @@ public class Spider {
 			this.getImagesUrls(body);
 			this.getIframe(body);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("打开网页发生异常：",e);
 		}
 	}
 
@@ -261,7 +267,7 @@ public class Spider {
 		Elements body = doc.getElementsByTag("body");
 		Iterator<Element> it = body.iterator();
 		while(it.hasNext()) {
-			System.err.println(it.next().toString());
+			LOG.debug(it.next().toString());
 		}
 	}
 	
@@ -270,8 +276,8 @@ public class Spider {
 		Element ele;
 		while(it.hasNext()) {
 			ele = it.next();
-			System.err.println(ele.toString());
-			System.err.println(ele.absUrl("href"));
+			LOG.debug(ele.toString());
+			LOG.debug(ele.absUrl("href"));
 		}
 	}
 	

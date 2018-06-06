@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,6 +23,10 @@ import org.jsoup.select.Elements;
  * java抓取网络图片
  */
 public class ImagesUtils {
+	
+	private ImagesUtils() {}
+	
+	private static final Logger LOG = Logger.getLogger(ImagesUtils.class);
 	
 	// 编码
 	private static final String ECODING = "UTF-8";
@@ -166,7 +171,7 @@ public class ImagesUtils {
 				fileOutStream.close();
 //						
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOG.error("下载图片发生异常：", e);
 			} finally {
 				Spider.closeQuietly(in);
 				Spider.closeQuietly(fileOutStream);
@@ -174,11 +179,6 @@ public class ImagesUtils {
 				DeleteImages.checkImageSize(new File(dir + imageName), dir);
 			}
 		}
-	}
-	
-	private static String getBaseUri(String url) {
-		int index = url.replaceFirst("//", "--").indexOf('/');
-		return url.substring(0, index);
 	}
 	
 	private static String getFileExt(String fileName) {

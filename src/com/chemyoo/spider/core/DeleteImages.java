@@ -8,8 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
+import org.apache.log4j.Logger;
 /** 
  * @author 作者 : jianqing.liu
  * @version 创建时间：2018年5月31日 下午12:55:13 
@@ -19,6 +18,8 @@ import org.apache.commons.io.IOUtils;
 public class DeleteImages {
 	
 	private DeleteImages() {}
+	
+	private static final Logger LOG = Logger.getLogger(Spider.class);
 	
 	private static final String IMAGES_DIR = "/images/";
 	
@@ -37,12 +38,12 @@ public class DeleteImages {
 						heigth=sourceImg.getHeight();
 						sourceImg.flush();
 					} catch (Exception e) {
-						e.printStackTrace();
+						LOG.error("获取图片分辨率失败：", e);
 					}
 					if(width < 1000 || heigth < 700) {
 						FileUtils.deleteQuietly(f);
-						System.out.println(f.getPath() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth);
-						System.out.println("图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
+						LOG.info(f.getPath() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth);
+						LOG.info("图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
 					} else {
 						moveFile(f, dir);
 					}
@@ -65,13 +66,13 @@ public class DeleteImages {
 				heigth=sourceImg.getHeight();
 				sourceImg.flush();
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOG.error("获取图片分辨率失败：", e);
 			}
 			if(width < 1000 || heigth < 700) {
 				FileUtils.deleteQuietly(file);
 			} else {
 				moveFile(file, dir);
-				System.out.println(file.getPath() + "已保存，分辨率(宽 * 高):"+width+" * "+heigth);
+				LOG.info(file.getPath() + "已保存，分辨率(宽 * 高):"+width+" * "+heigth);
 			}
 		}
 	}
@@ -81,8 +82,8 @@ public class DeleteImages {
 			String path = dir + IMAGES_DIR + convertDateToString();
 			FileUtils.moveToDirectory(file, new File(path), true);
 		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("进行文件重命名...");
+			LOG.error("移动文件失败：", e);
+			LOG.info("进行文件重命名...");
 			reName(file, dir);
 		}
 	}
@@ -107,7 +108,7 @@ public class DeleteImages {
 			FileUtils.copyFile(file, newFile);
 			FileUtils.deleteQuietly(file);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("重命名文件失败：", e);
 		}
 	}
 	
