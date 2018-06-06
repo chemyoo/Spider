@@ -87,7 +87,7 @@ public class Spider {
 		button.setText("开始爬取");
 		this.message.setVisible(false);
 		time.cancel();
-		LOG.info("程序终止...");
+		LOG.info("程序中止...");
 	}
 	
 	private void deletetimer() {
