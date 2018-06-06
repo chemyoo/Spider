@@ -213,7 +213,7 @@ public class Spider {
 //			}
 			
 //			如果是源网址，则忽略
-			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
+			if("".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
 			
@@ -221,7 +221,8 @@ public class Spider {
 
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
-			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html"))) {
+			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html")
+					|| herfurl.contains(".shtml"))) {
 				LinkQueue.push(herfurl);
 			} else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
 				LinkQueue.push(herfurl);
