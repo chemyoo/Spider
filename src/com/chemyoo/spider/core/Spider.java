@@ -106,7 +106,7 @@ public class Spider {
 					DeleteImages.delete(dir);
 					LOG.info("定时任务执行完成...");
 				} catch (Exception e) {
-					LOG.error("定时任务执行异常：", e);
+					LOG.error("定时任务执行异常");
 				}
 		}}, 0, 1 * 60 * 1000L);
 	}
@@ -137,7 +137,7 @@ public class Spider {
 		    this.getHtmlElement(frame, 2);
 			    
 		} catch (IOException e) {
-			LOG.error("打开网页发生异常：",e);
+			LOG.error("打开网页发生异常");
 		}
 			
 	}
@@ -161,7 +161,7 @@ public class Spider {
 			this.getImagesUrls(body);
 			this.getIframe(body);
 		} catch (IOException e) {
-			LOG.error("打开网页发生异常：",e);
+			LOG.error("打开网页发生异常");
 		}
 	}
 

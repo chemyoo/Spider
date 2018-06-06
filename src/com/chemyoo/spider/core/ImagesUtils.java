@@ -171,7 +171,7 @@ public class ImagesUtils {
 				fileOutStream.close();
 //						
 			} catch (Exception e) {
-				LOG.error("下载图片发生异常：", e);
+				LOG.error("下载图片发生异常");
 			} finally {
 				Spider.closeQuietly(in);
 				Spider.closeQuietly(fileOutStream);

@@ -155,7 +155,7 @@ public class SpiderUI extends JFrame{
 							Spider spider = new Spider(netUrl, fileDir, start, message, refererUrl);
 							spider.start();
 							} catch (Exception e) {
-								LOG.error("程序运行发生异常:", e);
+								LOG.error("程序运行发生异常");
 								start.setText("开始爬取");
 								start.setEnabled(true);
 							}

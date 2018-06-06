@@ -38,7 +38,7 @@ public class DeleteImages {
 						heigth=sourceImg.getHeight();
 						sourceImg.flush();
 					} catch (Exception e) {
-						LOG.error("获取图片分辨率失败：", e);
+						LOG.error("获取图片分辨率失败");
 					}
 					if(width < 1000 || heigth < 700) {
 						FileUtils.deleteQuietly(f);
@@ -66,7 +66,7 @@ public class DeleteImages {
 				heigth=sourceImg.getHeight();
 				sourceImg.flush();
 			} catch (Exception e) {
-				LOG.error("获取图片分辨率失败：", e);
+				LOG.error("获取图片分辨率失败");
 			}
 			if(width < 1000 || heigth < 700) {
 				FileUtils.deleteQuietly(file);
@@ -82,7 +82,7 @@ public class DeleteImages {
 			String path = dir + IMAGES_DIR + convertDateToString();
 			FileUtils.moveToDirectory(file, new File(path), true);
 		} catch (IOException e) {
-			LOG.error("移动文件失败：", e);
+			LOG.error("移动文件失败");
 			LOG.info("进行文件重命名...");
 			reName(file, dir);
 		}
@@ -108,7 +108,7 @@ public class DeleteImages {
 			FileUtils.copyFile(file, newFile);
 			FileUtils.deleteQuietly(file);
 		} catch (IOException e) {
-			LOG.error("重命名文件失败：", e);
+			LOG.error("重命名文件失败");
 		}
 	}
 	
