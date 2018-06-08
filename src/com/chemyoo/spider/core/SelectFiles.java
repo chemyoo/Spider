@@ -3,6 +3,7 @@ package com.chemyoo.spider.core;
 import java.io.File;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
 /** 
@@ -22,9 +23,10 @@ public class SelectFiles {
 		fileChooser.setApproveButtonText("确定");
 		//只选择文件夹
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		//设置文件单选
+		//设置文件是否可多选
 		fileChooser.setMultiSelectionEnabled(false);
-		fileChooser.setAcceptAllFileFilterUsed(true);// 去掉显示所有文件的按钮
+		fileChooser.setAcceptAllFileFilterUsed(false);// 去掉显示所有文件的按钮
+		fileChooser.setFileFilter(new SelectFileFilter());
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			return fileChooser.getSelectedFile();
 		}
