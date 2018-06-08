@@ -47,7 +47,7 @@ public class DeleteImages {
 					} else {
 						moveFile(f, dir);
 					}
-				} else if(f.isFile() && !"gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
+				} else if(f.isFile() && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
 					FileUtils.deleteQuietly(f);
 				}
 				

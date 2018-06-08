@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -152,14 +153,19 @@ public class ImagesUtils {
 				}
 				
 				URL uri = new URL(url);
-				URLConnection urlConnection = uri.openConnection();
-				HttpURLConnection httpConnection = (HttpURLConnection) urlConnection;
+				HttpURLConnection httpConnection = (HttpURLConnection) uri.openConnection();
 				/**
 				 * 如果有cookie限制则可添加cookies值：
 				 * httpConnection.setRequestProperty("cookie", "");
 				 */
 				if(StringUtils.isNotBlank(referer))
 					httpConnection.setRequestProperty("referer", referer);
+				//网址连接失败就继续向下一个网址执行。
+				if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+					LOG.info("网址：" + url + "访问失败：" 
+							+ IOUtils.toString(httpConnection.getErrorStream(),"utf-8"));
+					continue;
+				}
 				in = httpConnection.getInputStream();
 				fileOutStream = new FileOutputStream(new File(dir + imageName));
 				byte[] buf = new byte[1024];
