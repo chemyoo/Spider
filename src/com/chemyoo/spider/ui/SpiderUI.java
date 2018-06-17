@@ -1,22 +1,16 @@
 package com.chemyoo.spider.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-import org.apache.log4j.Logger;
 import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
 import com.chemyoo.spider.core.Spider;
+import org.apache.log4j.Logger;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
 
 /** 
  * @author 作者 : jianqing.liu
@@ -32,6 +26,10 @@ public class SpiderUI extends JFrame{
 	private static final long serialVersionUID = -1987615425247905123L;
 	
 	private static final Logger LOG = Logger.getLogger(SpiderUI.class);
+
+	private final static SystemTray tray = SystemTray.getSystemTray();
+
+	private static TrayIcon trayIcon = null;
 	
 	public SpiderUI() {
 		super();
@@ -207,7 +205,16 @@ public class SpiderUI extends JFrame{
         contentPane.add(pane5); 
         contentPane.add(pane2); 
         contentPane.add(pane3); 
-        contentPane.add(pane4); 
+        contentPane.add(pane4);
+
+        this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowIconified(WindowEvent e) {
+				setVisible(false);
+				miniTray();
+			}
+		});
+
         this.setVisible(true);  
 	}
 	
@@ -218,6 +225,68 @@ public class SpiderUI extends JFrame{
 			}
 		}
 		return true;
+	}
+
+	private void miniTray() { //窗口最小化到任务栏托盘
+
+		ImageIcon trayImg = new ImageIcon(
+				"F:/picture/images/2018-06-02/4404.jpg");//托盘图标
+
+		PopupMenu pop = new PopupMenu(); //增加托盘右击菜单
+		MenuItem show = new MenuItem("还原");
+		MenuItem exit = new MenuItem("退出");
+
+		show.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) { // 按下还原键
+
+				tray.remove(trayIcon);
+				setVisible(true);
+				setExtendedState(JFrame.NORMAL);
+				toFront();
+			}
+
+		});
+
+		exit.addActionListener(new ActionListener() { // 按下退出键
+
+			public void actionPerformed(ActionEvent e) {
+				tray.remove(trayIcon);
+				dispose();
+			}
+
+		});
+
+		pop.add(show);
+		pop.add(exit);
+
+		trayIcon = new TrayIcon(trayImg.getImage(), "自动更换壁纸后台任务", pop);
+		trayIcon.setImageAutoSize(true);
+
+		trayIcon.addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) { // 鼠标器双击事件
+
+				if (e.getClickCount() == 2) {
+
+					tray.remove(trayIcon); // 移去托盘图标
+					setVisible(true);
+					setExtendedState(JFrame.NORMAL); // 还原窗口
+					toFront();
+				}
+
+			}
+
+		});
+
+		try {
+
+			tray.add(trayIcon);
+
+		} catch (AWTException e1) {
+			e1.printStackTrace();
+		}
+
 	}
 
 }
