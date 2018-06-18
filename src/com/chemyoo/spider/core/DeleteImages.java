@@ -32,7 +32,7 @@ public class DeleteImages {
 		if(files != null){
 			for(File f : files) {
 				if(f.isFile() && f.lastModified() < (time - 1 * 1000 * 60L)) {
-					if(isAllowedSave(file)) {
+					if(isAllowedSave(f)) {
 						FileUtils.deleteQuietly(f);
 						LOG.info("删除图片，图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
 					} else {
@@ -50,12 +50,12 @@ public class DeleteImages {
 			double heigth = 0d;
 			//try结束后会自动释放文件流fis
 			try (FileInputStream fis = new FileInputStream(file)){
-				BufferedImage sourceImg =ImageIO.read(fis);
+				BufferedImage sourceImg = ImageIO.read(fis);
 				width = sourceImg.getWidth();
-				heigth=sourceImg.getHeight();
+				heigth = sourceImg.getHeight();
 				sourceImg.flush();
 			} catch (Exception e) {
-				LOG.error("获取图片分辨率失败");
+				LOG.error("获取图片分辨率失败：", e);
 			}
 			boolean flag = width < 1300 || heigth < 700;
 			if(!flag)
@@ -82,7 +82,9 @@ public class DeleteImages {
 			LOG.error("移动文件失败");
 			LOG.info("判断已存在的图片和当前下载的图片相似度...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
-			if(pictrueSimilarity(file, new File(path + file.getName())) > 0.90D) {
+            double similar = pictrueSimilarity(file, new File(path + file.getName()));
+            LOG.info("图片相似度："+String.format("%.3f"));
+			if(similar > 0.90D) {
 				LOG.info("图片基本相似，删除图片不保存...");
 				FileUtils.deleteQuietly(file);
 			} else {
