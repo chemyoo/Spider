@@ -59,8 +59,8 @@ public class Spider {
 	
 	private void setReferer(String referer) {
 		if(this.referer == null && StringUtils.isNotBlank(referer)) {
-			int index = referer.replaceFirst("//", "--").indexOf('/');
-			if(index == -1) {
+			int index = referer.replaceFirst("//", "--").indexOf('/') + 1;
+			if(index == 0) {
 				index = referer.length();
 			}
 			this.referer = referer.substring(0, index);
@@ -150,6 +150,11 @@ public class Spider {
 				LinkQueue.imageUrlpush(url);
 				return;
 			}
+			if(!url.startsWith(this.referer)) {
+				return;
+			} else if(!url.contains("meinv") && !url.contains("desk")){
+				return;
+			}
 			//.ignoreContentType(true)忽略请求头
 			//Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko 这是IE11的userAgent
 			//Mozilla 为大多数浏览器
@@ -171,7 +176,7 @@ public class Spider {
 		Iterator<Element> it = href.iterator();
 		Element ele;
 		String herfurl;
-		String baseUrl = this.getBaseUri();
+		String baseUrl = this.referer;
 		while(it.hasNext()) {
 			ele = it.next();
 			herfurl = ele.absUrl("src");
@@ -222,8 +227,8 @@ public class Spider {
 
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
-			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html")
-					|| herfurl.contains(".shtml"))) {
+			} else if(herfurl.startsWith(baseUrl) /*|| (herfurl.contains(".htm") || herfurl.contains(".html")
+					|| herfurl.contains(".shtml"))*/) {
 				LinkQueue.push(herfurl);
 			} else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
 				LinkQueue.push(herfurl);
@@ -244,9 +249,9 @@ public class Spider {
 	private void recognizeUrl(String url) {
 		if(urlVisitedCount.containsKey(url)) {
 			int count = urlVisitedCount.get(url) + 1;
-			if(count < 5) {
+			if(count < 2) {
 				urlVisitedCount.put(url, count);
-			} else if(count < 6){
+			} else if(count < 3){
 				urlVisitedCount.put(url, count + 1);
 				LinkQueue.addmenuUrl(url);
 			}

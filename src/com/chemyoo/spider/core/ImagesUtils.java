@@ -163,7 +163,7 @@ public class ImagesUtils {
 				//网址连接失败就继续向下一个网址执行。
 				if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 					LOG.info("网址：" + url + "访问失败：" 
-							+ IOUtils.toString(httpConnection.getErrorStream(),"utf-8"));
+							+ IOUtils.toString(httpConnection.getErrorStream(),"gb2312"));
 					continue;
 				}
 				in = httpConnection.getInputStream();

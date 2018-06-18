@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.imageio.ImageIO;
+
+import com.chemyoo.image.analysis.SimilarityAnalysisor;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 /** 
@@ -30,20 +32,9 @@ public class DeleteImages {
 		if(files != null){
 			for(File f : files) {
 				if(f.isFile() && f.lastModified() < (time - 1 * 1000 * 60L)) {
-					double width = 0d;
-					double heigth = 0d;
-					try (FileInputStream fis = new FileInputStream(file)){
-						BufferedImage sourceImg =ImageIO.read(fis);
-						width = sourceImg.getWidth();
-						heigth=sourceImg.getHeight();
-						sourceImg.flush();
-					} catch (Exception e) {
-						LOG.error("获取图片分辨率失败");
-					}
-					if(width < 1000 || heigth < 700) {
+					if(isAllowedSave(file)) {
 						FileUtils.deleteQuietly(f);
-						LOG.info(f.getPath() + "被删除，分辨率(宽 * 高):"+width+" * "+heigth);
-						LOG.info("图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
+						LOG.info("删除图片，图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
 					} else {
 						moveFile(f, dir);
 					}
@@ -54,9 +45,7 @@ public class DeleteImages {
 			}
 		}
 	}
-	
-	public static void checkImageSize(File file, String dir) {
-		if(file.exists() && file.isFile()) {
+	private static boolean isAllowedSave(File file){
 			double width = 0d;
 			double heigth = 0d;
 			//try结束后会自动释放文件流fis
@@ -68,24 +57,43 @@ public class DeleteImages {
 			} catch (Exception e) {
 				LOG.error("获取图片分辨率失败");
 			}
-			if(width < 1000 || heigth < 700) {
+			boolean flag = width < 1300 || heigth < 700;
+			if(!flag)
+				LOG.info(file.getPath() + "即将被保存，分辨率(宽 * 高):"+width+" * "+heigth);
+			return flag;
+	}
+
+	public static void checkImageSize(File file, String dir) {
+		if(file.exists() && file.isFile()) {
+
+			if(isAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
 			} else {
 				moveFile(file, dir);
-				LOG.info(file.getPath() + "已保存，分辨率(宽 * 高):"+width+" * "+heigth);
 			}
 		}
 	}
 	
 	private static void moveFile(File file,final String dir) {
+		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
 		try {
-			String path = dir + IMAGES_DIR + convertDateToString();
 			FileUtils.moveToDirectory(file, new File(path), true);
 		} catch (IOException e) {
 			LOG.error("移动文件失败");
-			LOG.info("进行文件重命名...");
-			reName(file, dir);
+			LOG.info("判断已存在的图片和当前下载的图片相似度...");
+			// 如果图片相似度大于0.95则删除图片，否则进行重命名
+			if(pictrueSimilarity(file, new File(path + file.getName())) > 0.90D) {
+				LOG.info("图片基本相似，删除图片不保存...");
+				FileUtils.deleteQuietly(file);
+			} else {
+				LOG.info("文件相似度不大于0.95，进行文件重命名...");
+				reName(file, dir);
+			}
 		}
+	}
+
+	private static double pictrueSimilarity(File f1, File f2){
+		return SimilarityAnalysisor.getSimilarity(f1,f2);
 	}
 	
 	private static String getFileExt(String fileName) {
