@@ -235,7 +235,7 @@ public class SpiderUI extends JFrame{
 		PopupMenu pop = new PopupMenu(); //增加托盘右击菜单
 		MenuItem show = new MenuItem("还原");
 		MenuItem exit = new MenuItem("退出");
-
+		
 		show.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) { // 按下还原键

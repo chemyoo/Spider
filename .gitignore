@@ -6,3 +6,5 @@
 /.git
 /logs/
 /Spider.iml
+*.class
+/out/
