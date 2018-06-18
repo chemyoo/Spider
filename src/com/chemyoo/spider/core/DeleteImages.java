@@ -47,19 +47,22 @@ public class DeleteImages {
 	}
 	private static boolean isAllowedSave(File file){
 			double width = 0d;
-			double heigth = 0d;
-			//try结束后会自动释放文件流fis
-			try (FileInputStream fis = new FileInputStream(file)){
+			double height = 0d;
+			FileInputStream fis = null;
+			try {
+				fis = new FileInputStream(file);
 				BufferedImage sourceImg = ImageIO.read(fis);
 				width = sourceImg.getWidth();
-				heigth = sourceImg.getHeight();
+				height = sourceImg.getHeight();
 				sourceImg.flush();
+				Spider.closeQuietly(fis);
 			} catch (Exception e) {
 				LOG.error("获取图片分辨率失败：", e);
+				Spider.closeQuietly(fis);
 			}
-			boolean flag = width < 1300 || heigth < 700;
+			boolean flag = width < 1300 || height < 700;
 			if(!flag)
-				LOG.info(file.getPath() + " 将被保存，分辨率(宽 * 高):"+width+" * "+heigth);
+				LOG.info(file.getPath() + " 将被保存，分辨率(宽 * 高):"+width+" * "+height);
 			return flag;
 	}
 
