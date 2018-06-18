@@ -107,7 +107,7 @@ public class Spider {
 					DeleteImages.delete(dir);
 					LOG.info("定时任务执行完成...");
 				} catch (Exception e) {
-					LOG.error("定时任务执行异常");
+					LOG.error("定时任务执行异常", e);
 				}
 		}}, 0, 1 * 60 * 1000L);
 	}

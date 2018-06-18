@@ -59,7 +59,7 @@ public class DeleteImages {
 			}
 			boolean flag = width < 1300 || heigth < 700;
 			if(!flag)
-				LOG.info(file.getPath() + "即将被保存，分辨率(宽 * 高):"+width+" * "+heigth);
+				LOG.info(file.getPath() + " 将被保存，分辨率(宽 * 高):"+width+" * "+heigth);
 			return flag;
 	}
 
@@ -83,7 +83,7 @@ public class DeleteImages {
 			LOG.info("判断已存在的图片和当前下载的图片相似度...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
             double similar = pictrueSimilarity(file, new File(path + file.getName()));
-            LOG.info("图片相似度："+String.format("%.3f"));
+            LOG.info("图片相似度："+String.format("%.2f", similar * 100) + "%");
 			if(similar > 0.90D) {
 				LOG.info("图片基本相似，删除图片不保存...");
 				FileUtils.deleteQuietly(file);
