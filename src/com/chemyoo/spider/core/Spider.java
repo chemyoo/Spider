@@ -77,7 +77,7 @@ public class Spider {
 			LinkQueue.push(this.url);
 		}
 		String link;
-		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled()) {
+		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
 			link = LinkQueue.unVisitedPop();
 			this.message.setText("正在访问网址链接:" + link);
 			this.connectUrl(link);
@@ -96,7 +96,7 @@ public class Spider {
 	     * 只用当前的执行完，后面的任务才会执行，并且前面抛出异常，
 	     * 后面的任务就不会执行
 	     * 可以使用java.util.concurrent.ScheduledExecutorService来优化
-	     * <li><font size = +1>每分钟执行一次</font><li>
+	     * <li><font size = +1>每5分钟执行一次</font><li>
 	     */
         time = new Timer();
         time.schedule(new TimerTask() {
@@ -109,7 +109,7 @@ public class Spider {
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
 				}
-		}}, 0, 15 * 1000L);
+		}}, 0, 5 * 60 * 1000L);
 	}
 	
 	/*private void openUrl(String url) {

@@ -169,6 +169,7 @@ public class SpiderUI extends JFrame{
 							}
 							message.setVisible(false);
 							cancle.setEnabled(true);
+							start.setSelected(false);
 							DeleteImages.delete(fileDir.trim());
 						}
 					};
@@ -190,6 +191,7 @@ public class SpiderUI extends JFrame{
 					pause.setVisible(true);
 					cancle.setEnabled(false);
 					message.setVisible(false);
+					start.setSelected(true);
 					new Thread() {
 						@Override
 						public void run() {

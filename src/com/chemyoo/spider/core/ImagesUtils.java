@@ -179,6 +179,7 @@ public class ImagesUtils {
 				Spider.closeQuietly(in);
 				Spider.closeQuietly(fileOutStream);
 //				待文件流被释放后，下载成功，进行文件分辨率辨识		
+				in = null;fileOutStream = null;
 				DeleteImages.checkImageSize(new File(dir + imageName), dir);
 			}
 		}
