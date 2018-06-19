@@ -241,6 +241,7 @@ public class SpiderUI extends JFrame{
 				if(new File(dir).isDirectory()) {
 					DeleteImages.delete(dir);
 				}
+				tray.remove(trayIcon);
 				super.windowClosing(e);
 			}
 			
