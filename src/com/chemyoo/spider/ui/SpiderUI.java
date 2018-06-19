@@ -131,7 +131,7 @@ public class SpiderUI extends JFrame{
 		message.setVisible(false);
 		pane4.add(message);
 
-		final String workdir = SpiderUI.class.getClassLoader().getResource("settings.png").getPath();
+		final URL workdir = SpiderUI.class.getClassLoader().getResource("settings.png");
 		
         start.addMouseListener(new MouseEventAdapter() {
 			@Override
@@ -230,9 +230,9 @@ public class SpiderUI extends JFrame{
 		return true;
 	}
 
-	private void miniTray(final String workdir) { //窗口最小化到任务栏托盘
+	private void miniTray(final URL workdir) { //窗口最小化到任务栏托盘
 
-		ImageIcon trayImg = new ImageIcon(workdir.replace("%20"," "));//托盘图标
+		ImageIcon trayImg = new ImageIcon(workdir);//托盘图标
 		PopupMenu pop = new PopupMenu(); //增加托盘右击菜单
 		MenuItem show = new MenuItem("还原");
 		MenuItem exit = new MenuItem("退出");
