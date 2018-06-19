@@ -49,6 +49,7 @@ public class DeleteImages {
 			double width = 0d;
 			double height = 0d;
 			FileInputStream fis = null;
+			//这里使用try with resources 读取gif报错后，资源无法释放。原因不明。
 			try {
 				fis = new FileInputStream(file);
 				BufferedImage sourceImg = ImageIO.read(fis);
@@ -91,7 +92,7 @@ public class DeleteImages {
 				LOG.info("图片基本相似，删除图片不保存...");
 				FileUtils.deleteQuietly(file);
 			} else {
-				LOG.info("文件相似度不大于0.95，进行文件重命名...");
+				LOG.info("文件相似度不大于0.90，进行文件重命名...");
 				reName(file, dir);
 			}
 		}
