@@ -237,8 +237,9 @@ public class SpiderUI extends JFrame{
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				if(new File(path.getText()).isDirectory()) {
-					DeleteImages.delete(path.getText());
+				String dir = path.getText().trim();
+				if(new File(dir).isDirectory()) {
+					DeleteImages.delete(dir);
 				}
 				super.windowClosing(e);
 			}
