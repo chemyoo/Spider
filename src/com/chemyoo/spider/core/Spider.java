@@ -160,7 +160,7 @@ public class Spider {
 			//Mozilla 为大多数浏览器
 			Document doc = Jsoup.connect(url)
 					.userAgent("Mozilla")
-					.timeout(60 * 1000).get();
+					.timeout(30 * 1000).get();
 			
 			Elements body = doc.getElementsByTag("body");
 			this.getUrls(body);

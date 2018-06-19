@@ -58,6 +58,7 @@ public class DeleteImages {
 				width = sourceImg.getWidth();
 				height = sourceImg.getHeight();
 				sourceImg.flush();
+				Spider.closeQuietly(fis);
 			} catch (Exception e) {
 				LOG.error("获取图片分辨率失败：", e);
 			} 
@@ -67,7 +68,7 @@ public class DeleteImages {
 			return flag;
 	}
 
-	public static void checkImageSize(File file, String dir) {
+	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
 
 			if(isAllowedSave(file)) {
@@ -83,7 +84,7 @@ public class DeleteImages {
 		try {
 			FileUtils.moveToDirectory(file, new File(path), true);
 		} catch (IOException e) {
-			LOG.error("移动文件失败");
+			LOG.error("文件 ["+ file.getPath() + "]移动失败!");
 			LOG.info("判断已存在的图片和当前下载的图片相似度...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
             double similar = pictrueSimilarity(file, new File(path + file.getName()));
