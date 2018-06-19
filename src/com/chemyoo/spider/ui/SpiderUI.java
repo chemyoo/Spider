@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.net.URL;
 
 /** 
  * @author 作者 : jianqing.liu
@@ -130,8 +131,8 @@ public class SpiderUI extends JFrame{
 		message.setVisible(false);
 		pane4.add(message);
 
-		final String workdir = SpiderUI.class.getClassLoader().getResource("").getPath();
-
+		final String workdir = SpiderUI.class.getClassLoader().getResource("settings.png").getPath();
+		
         start.addMouseListener(new MouseEventAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -231,7 +232,7 @@ public class SpiderUI extends JFrame{
 
 	private void miniTray(final String workdir) { //窗口最小化到任务栏托盘
 
-		ImageIcon trayImg = new ImageIcon(workdir.replace("%20"," ") + "settings.png");//托盘图标
+		ImageIcon trayImg = new ImageIcon(workdir.replace("%20"," "));//托盘图标
 		PopupMenu pop = new PopupMenu(); //增加托盘右击菜单
 		MenuItem show = new MenuItem("还原");
 		MenuItem exit = new MenuItem("退出");
