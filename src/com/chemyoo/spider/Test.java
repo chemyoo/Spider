@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 public class Test {
 
     public static void main(String[] args){
-        File file = new File("D:/ad.gif");
+        File file = new File("D:/a.jpg");
         try (FileInputStream fis = new FileInputStream(file);) {
             BufferedImage sourceImg = ImageIO.read(fis);
             sourceImg.flush();

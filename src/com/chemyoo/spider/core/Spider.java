@@ -109,7 +109,7 @@ public class Spider {
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
 				}
-		}}, 0, 1 * 60 * 1000L);
+		}}, 0, 15 * 1000L);
 	}
 	
 	/*private void openUrl(String url) {

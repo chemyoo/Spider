@@ -31,36 +31,36 @@ public class DeleteImages {
 		File[] files = file.listFiles();
 		if(files != null){
 			for(File f : files) {
-				if(f.isFile() && f.lastModified() < (time - 1 * 1000 * 60L)) {
+				if(f.isFile() && (f.lastModified() +  1000 * 25L) < time && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))) {
 					if(isAllowedSave(f)) {
 						FileUtils.deleteQuietly(f);
-						LOG.info("删除图片，图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
 					} else {
 						moveFile(f, dir);
 					}
-				} else if(f.isFile() && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
-					FileUtils.deleteQuietly(f);
-				}
+				} 
+//				else if(f.isFile() && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
+//					FileUtils.deleteQuietly(f);
+//				}
 				
 			}
 		}
 	}
+	/**
+	 * 定时任务和下载任务调用时会发生冲突，使用线程同步解决该问题
+	 * @param file
+	 * @return
+	 */
 	private static boolean isAllowedSave(File file){
 			double width = 0d;
 			double height = 0d;
-			FileInputStream fis = null;
-			//这里使用try with resources 读取gif报错后，资源无法释放。原因不明。
-			try {
-				fis = new FileInputStream(file);
+			try (FileInputStream fis = new FileInputStream(file);){
 				BufferedImage sourceImg = ImageIO.read(fis);
 				width = sourceImg.getWidth();
 				height = sourceImg.getHeight();
 				sourceImg.flush();
-				Spider.closeQuietly(fis);
 			} catch (Exception e) {
 				LOG.error("获取图片分辨率失败：", e);
-				Spider.closeQuietly(fis);
-			}
+			} 
 			boolean flag = width < 1300 || height < 700;
 			if(!flag)
 				LOG.info(file.getPath() + " 将被保存，分辨率(宽 * 高):"+width+" * "+height);
