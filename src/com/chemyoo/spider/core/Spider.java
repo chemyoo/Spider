@@ -83,11 +83,11 @@ public class Spider {
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
 		}
-		button.setEnabled(true);
-		button.setText("开始爬取");
-		this.message.setVisible(false);
 		time.cancel();
-		LOG.info("程序中止...");
+		if(button.isSelected())
+			LOG.info("程序暂停...");
+		else
+			LOG.info("程序终止...");
 	}
 	
 	private void deletetimer() {

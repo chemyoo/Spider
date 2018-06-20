@@ -170,6 +170,8 @@ public class SpiderUI extends JFrame{
 							message.setVisible(false);
 							cancle.setEnabled(true);
 							start.setSelected(false);
+							start.setText("开始爬取");
+							start.setEnabled(true);
 							DeleteImages.delete(fileDir.trim());
 						}
 					};

@@ -170,7 +170,7 @@ public class ImagesUtils {
 				
 				// 连接网站
 				httpConnection.connect();
-				LOG.info("下载文件：【" + url + "】");
+				// LOG.info("下载文件：【" + url + "】");
 				
 				// 网址连接失败就继续向下一个网址执行。
 				if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {

@@ -72,7 +72,7 @@ public class DeleteImages {
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-			LOG.info("校检文件：【" + file.getPath()+ "】");
+//			LOG.info("校检文件：【" + file.getPath()+ "】");
 			if(isAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
 			} else {
@@ -84,9 +84,9 @@ public class DeleteImages {
 	private static void moveFile(File file,final String dir) {
 		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
 		try {
-			double size = file.length() / 1024.0;
+			// double size = file.length() / 1024.0;
 			FileUtils.moveToDirectory(file, new File(path), true);
-			LOG.info("保存文件：【" + file.getPath() + " 】，文件大小：" + String.format("%.2f kb", size));
+			// LOG.info("保存文件：【" + file.getPath() + " 】，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
 			LOG.error("保存失败：【"+ file.getPath() + "】，文件已存在，正在进行图像相似度分析...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
