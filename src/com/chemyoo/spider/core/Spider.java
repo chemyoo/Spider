@@ -247,6 +247,9 @@ public class Spider {
 	 * @param url
 	 */
 	private void recognizeUrl(String url) {
+		if(urlVisitedCount.size() > 50000) {
+			urlVisitedCount.clear();
+		}
 		if(urlVisitedCount.containsKey(url)) {
 			int count = urlVisitedCount.get(url) + 1;
 			if(count < 2) {
@@ -263,10 +266,11 @@ public class Spider {
 	private void getImagesUrls(Elements body) {
 		Elements href = body.select("img[src]");
 		Iterator<Element> it = href.iterator();
-		Element ele;
+		String src;
 		while(it.hasNext()) {
-			ele = it.next();
-			LinkQueue.imageUrlpush(ele.absUrl("src"));
+			src = it.next().absUrl("src");
+			LinkQueue.imageUrlpush(src);
+			this.recognizeUrl(src);
 		}
 	}
 	

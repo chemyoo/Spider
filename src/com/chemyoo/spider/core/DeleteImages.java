@@ -64,13 +64,15 @@ public class DeleteImages {
 			} 
 			boolean flag = width < 1300 || height < 700;
 			if(!flag)
-				LOG.info("[" + file.getPath() + "] 将被保存，分辨率(宽 * 高):"+width+" * "+height);
+				LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
+			else
+				LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
 			return flag;
 	}
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-
+			LOG.info("校检文件：【" + file.getPath()+ "】");
 			if(isAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
 			} else {
@@ -84,9 +86,9 @@ public class DeleteImages {
 		try {
 			double size = file.length() / 1024.0;
 			FileUtils.moveToDirectory(file, new File(path), true);
-			LOG.info(file.getPath() + " 已保存，文件大小：" + String.format("%.2f kb", size));
+			LOG.info("文件：【" + file.getPath() + " 】已保存，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
-			LOG.error("文件 ["+ file.getPath() + "] 移动失败，文件已存在!");
+			LOG.error("文件：【"+ file.getPath() + "】移动失败，文件已存在!");
 			LOG.info("判断已存在的图片和当前下载的图片相似度...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
             double similar = pictrueSimilarity(file, new File(path + file.getName()));
@@ -122,8 +124,10 @@ public class DeleteImages {
 			newFile = new File(path + newName);
 		}
 		try {
+			double size = file.length() / 1024.0;
 			FileUtils.copyFile(file, newFile);
 			FileUtils.deleteQuietly(file);
+			LOG.info("文件：【" + file.getPath() + " 】已保存，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
 			LOG.error("重命名文件失败");
 		}

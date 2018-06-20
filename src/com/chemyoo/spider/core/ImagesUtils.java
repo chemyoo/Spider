@@ -135,6 +135,7 @@ public class ImagesUtils {
 		
 		InputStream in = null;
 		FileOutputStream fileOutStream = null;
+		HttpURLConnection httpConnection = null;
 		String url;
 		String imageName = null;
 		while(!LinkQueue.imageUrlEmpty()) {
@@ -146,14 +147,16 @@ public class ImagesUtils {
 				if(imageName.contains("?")) {
 					imageName = imageName.substring(0,imageName.lastIndexOf('?'));
 				}
-
+				
 				//非图片，不进行下载
 				if(!"gif,png,jpg,jpeg,bmp".contains(getFileExt(imageName))) {
 					continue;
 				}
 				
+				LOG.info("开始下载文件，地址：" + url);
+				
 				URL uri = new URL(url);
-				HttpURLConnection httpConnection = (HttpURLConnection) uri.openConnection();
+				httpConnection = (HttpURLConnection) uri.openConnection();
 				/**
 				 * 如果有cookie限制则可添加cookies值：
 				 * httpConnection.setRequestProperty("cookie", "");
@@ -164,6 +167,7 @@ public class ImagesUtils {
 				if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 					LOG.info("网址：" + url + "访问失败：" 
 							+ IOUtils.toString(httpConnection.getErrorStream(),"gb2312"));
+					httpConnection.disconnect();
 					continue;
 				}
 				in = httpConnection.getInputStream();
@@ -181,6 +185,8 @@ public class ImagesUtils {
 //				待文件流被释放后，下载成功，进行文件分辨率辨识		
 				in = null;fileOutStream = null;
 				DeleteImages.checkImageSize(new File(dir + imageName), dir);
+				if(httpConnection != null)
+					httpConnection.disconnect();
 			}
 		}
 	}
