@@ -144,7 +144,7 @@ public class Spider {
 	}*/
 	
 	private void connectUrl(String url) {
-		LOG.info("连接网址：" + url);
+		LOG.info("连接网址：【" + url + "】");
 		try {
 			if(PICTURE_EXT.contains(getFileExt(url))) {
 				LinkQueue.imageUrlpush(url);

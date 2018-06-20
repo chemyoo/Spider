@@ -86,10 +86,9 @@ public class DeleteImages {
 		try {
 			double size = file.length() / 1024.0;
 			FileUtils.moveToDirectory(file, new File(path), true);
-			LOG.info("文件：【" + file.getPath() + " 】已保存，文件大小：" + String.format("%.2f kb", size));
+			LOG.info("保存文件：【" + file.getPath() + " 】，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
-			LOG.error("文件：【"+ file.getPath() + "】移动失败，文件已存在!");
-			LOG.info("判断已存在的图片和当前下载的图片相似度...");
+			LOG.error("保存失败：【"+ file.getPath() + "】，文件已存在，正在进行图像相似度分析...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
             double similar = pictrueSimilarity(file, new File(path + file.getName()));
             LOG.info("图片相似度："+String.format("%.2f", similar * 100) + "%");
@@ -127,7 +126,7 @@ public class DeleteImages {
 			double size = file.length() / 1024.0;
 			FileUtils.copyFile(file, newFile);
 			FileUtils.deleteQuietly(file);
-			LOG.info("文件：【" + file.getPath() + " 】已保存，文件大小：" + String.format("%.2f kb", size));
+			LOG.info("保存文件：【" + file.getPath() + " 】，已重新命名，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
 			LOG.error("重命名文件失败");
 		}

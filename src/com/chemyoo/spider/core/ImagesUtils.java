@@ -153,8 +153,6 @@ public class ImagesUtils {
 					continue;
 				}
 				
-				LOG.info("开始下载文件，地址：" + url);
-				
 				URL uri = new URL(url);
 				httpConnection = (HttpURLConnection) uri.openConnection();
 				/**
@@ -163,7 +161,18 @@ public class ImagesUtils {
 				 */
 				if(StringUtils.isNotBlank(referer))
 					httpConnection.setRequestProperty("referer", referer);
-				//网址连接失败就继续向下一个网址执行。
+				
+				// 默认GET方法，httpConnection.setRequestMethod("get".toUpperCase());
+				// 设置连接主机超时（单位：毫秒）  
+				httpConnection.setConnectTimeout(60 * 1000);
+				// 设置从主机读取数据超时（单位：毫秒） 
+				httpConnection.setReadTimeout(60 * 1000);
+				
+				// 连接网站
+				httpConnection.connect();
+				LOG.info("下载文件：【" + url + "】");
+				
+				// 网址连接失败就继续向下一个网址执行。
 				if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 					LOG.info("网址：" + url + "访问失败：" 
 							+ IOUtils.toString(httpConnection.getErrorStream(),"gb2312"));
