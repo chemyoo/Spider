@@ -199,7 +199,7 @@ public class SpiderUI extends JFrame{
 						public void run() {
 							try {
 								while(!cancle.isEnabled()) {
-									TimeUnit.SECONDS.sleep(1);
+									TimeUnit.MILLISECONDS.sleep(250);
 								}
 								start.setEnabled(true);
 							} catch (InterruptedException e) {
