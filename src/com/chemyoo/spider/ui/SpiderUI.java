@@ -233,13 +233,20 @@ public class SpiderUI extends JFrame{
         contentPane.add(pane4);
 
         this.addWindowListener(new WindowAdapter() {
+			
+			// 窗口激活时调用的方法 windowActivated
 			@Override
-			public void windowIconified(WindowEvent e) {
-				setVisible(false);
-				miniTray(workdir,path.getText());
+			// 窗口被最小化时调用的方法
+			public void windowIconified(WindowEvent e){
+				// 只当点击最小化按钮时才最小化到托盘，失去活性时不触发
+				if(e.getWindow().isFocused()) {
+					setVisible(false);
+					miniTray(workdir,path.getText());
+				}
 			}
 			
 			@Override
+			// 关闭窗口
 			public void windowClosing(WindowEvent e) {
 				String dir = path.getText().trim();
 				if(new File(dir).isDirectory()) {
