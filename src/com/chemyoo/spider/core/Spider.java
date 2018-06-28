@@ -64,6 +64,8 @@ public class Spider {
 				index = referer.length();
 			}
 			this.referer = referer.substring(0, index);
+		} else {
+			this.referer = getBaseUri();
 		}
 	}
 	
@@ -150,11 +152,9 @@ public class Spider {
 				LinkQueue.imageUrlpush(url);
 				return;
 			}
-			if(!url.startsWith(this.referer)) {
+			if(this.referer != null && !url.startsWith(this.referer)) {
 				return;
-			} else if(!url.contains("meinv") && !url.contains("desk")){
-				return;
-			}
+			} 
 			//.ignoreContentType(true)忽略请求头
 			//Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko 这是IE11的userAgent
 			//Mozilla 为大多数浏览器
@@ -198,7 +198,7 @@ public class Spider {
 		String herfurl;
 //		String tempuri;
 		String text;
-		String baseUrl = this.getBaseUri();
+		String baseUrl = this.referer;
 
 		while(it.hasNext()) {
 			ele = it.next();

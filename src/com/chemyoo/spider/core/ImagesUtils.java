@@ -174,8 +174,12 @@ public class ImagesUtils {
 				
 				// 网址连接失败就继续向下一个网址执行。
 				if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					LOG.info("网址：" + url + "访问失败：" 
-							+ IOUtils.toString(httpConnection.getErrorStream(),"gb2312"));
+					in = httpConnection.getErrorStream();
+					if(in == null)
+						in = httpConnection.getInputStream();
+					
+					LOG.error("网址：" + url + "访问失败：" 
+							+ IOUtils.toString(in, "gb2312"));
 					httpConnection.disconnect();
 					continue;
 				}
