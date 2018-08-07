@@ -135,6 +135,7 @@ public class ImagesUtils {
 		
 		InputStream in = null;
 		FileOutputStream fileOutStream = null;
+		HttpURLConnection httpConnection = null;
 		String url;
 		String imageName = null;
 		while(!LinkQueue.imageUrlEmpty()) {
@@ -146,24 +147,40 @@ public class ImagesUtils {
 				if(imageName.contains("?")) {
 					imageName = imageName.substring(0,imageName.lastIndexOf('?'));
 				}
-
+				
 				//非图片，不进行下载
 				if(!"gif,png,jpg,jpeg,bmp".contains(getFileExt(imageName))) {
 					continue;
 				}
 				
 				URL uri = new URL(url);
-				HttpURLConnection httpConnection = (HttpURLConnection) uri.openConnection();
+				httpConnection = (HttpURLConnection) uri.openConnection();
 				/**
 				 * 如果有cookie限制则可添加cookies值：
 				 * httpConnection.setRequestProperty("cookie", "");
 				 */
 				if(StringUtils.isNotBlank(referer))
 					httpConnection.setRequestProperty("referer", referer);
-				//网址连接失败就继续向下一个网址执行。
+				
+				// 默认GET方法，httpConnection.setRequestMethod("get".toUpperCase());
+				// 设置连接主机超时（单位：毫秒）  
+				httpConnection.setConnectTimeout(60 * 1000);
+				// 设置从主机读取数据超时（单位：毫秒） 
+				httpConnection.setReadTimeout(60 * 1000);
+				
+				// 连接网站
+				httpConnection.connect();
+				// LOG.info("下载文件：【" + url + "】");
+				
+				// 网址连接失败就继续向下一个网址执行。
 				if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					LOG.info("网址：" + url + "访问失败：" 
-							+ IOUtils.toString(httpConnection.getErrorStream(),"gb2312"));
+					in = httpConnection.getErrorStream();
+					if(in == null)
+						in = httpConnection.getInputStream();
+					
+					LOG.error("网址：" + url + "访问失败：" 
+							+ IOUtils.toString(in, "gb2312"));
+					httpConnection.disconnect();
 					continue;
 				}
 				in = httpConnection.getInputStream();
@@ -173,16 +190,16 @@ public class ImagesUtils {
 				while ((length = in.read(buf, 0, buf.length)) != -1) {
 					fileOutStream.write(buf, 0, length);
 				}
-				in.close();
-				fileOutStream.close();
-//						
 			} catch (Exception e) {
 				LOG.error("下载图片发生异常");
 			} finally {
 				Spider.closeQuietly(in);
 				Spider.closeQuietly(fileOutStream);
-				//待文件流被释放后，下载成功，进行文件分辨率辨识		
+//				待文件流被释放后，下载成功，进行文件分辨率辨识		
+				in = null;fileOutStream = null;
 				DeleteImages.checkImageSize(new File(dir + imageName), dir);
+				if(httpConnection != null)
+					httpConnection.disconnect();
 			}
 		}
 	}

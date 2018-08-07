@@ -31,41 +31,48 @@ public class DeleteImages {
 		File[] files = file.listFiles();
 		if(files != null){
 			for(File f : files) {
-				if(f.isFile() && f.lastModified() < (time - 1 * 1000 * 60L)) {
+				if(f.isFile() && (f.lastModified() +  1000 * 60 * 5L) < time && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))) {
 					if(isAllowedSave(f)) {
-						FileUtils.deleteQuietly(f);
-						LOG.info("删除图片，图片大小:"+String.format("%.1f",f.length()/1024.0)+" kb");
+						FileUtils.deleteQuietly(f); 
 					} else {
 						moveFile(f, dir);
 					}
-				} else if(f.isFile() && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
-					FileUtils.deleteQuietly(f);
-				}
+				} 
+//				else if(f.isFile() && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
+//					FileUtils.deleteQuietly(f);
+//				}
 				
 			}
 		}
 	}
+	/**
+	 * 定时任务和下载任务调用时会发生冲突，使用线程同步解决该问题
+	 * @param file
+	 * @return
+	 */
 	private static boolean isAllowedSave(File file){
 			double width = 0d;
-			double heigth = 0d;
-			//try结束后会自动释放文件流fis
-			try (FileInputStream fis = new FileInputStream(file)){
+			double height = 0d;
+			try (FileInputStream fis = new FileInputStream(file);){
 				BufferedImage sourceImg = ImageIO.read(fis);
 				width = sourceImg.getWidth();
-				heigth = sourceImg.getHeight();
+				height = sourceImg.getHeight();
 				sourceImg.flush();
+				Spider.closeQuietly(fis);
 			} catch (Exception e) {
 				LOG.error("获取图片分辨率失败：", e);
-			}
-			boolean flag = width < 1300 || heigth < 700;
+			} 
+			boolean flag = width < 1300 || height < 700;
 			if(!flag)
-				LOG.info(file.getPath() + " 将被保存，分辨率(宽 * 高):"+width+" * "+heigth);
+				LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
+			else
+				LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
 			return flag;
 	}
 
-	public static void checkImageSize(File file, String dir) {
+	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-
+//			LOG.info("校检文件：【" + file.getPath()+ "】");
 			if(isAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
 			} else {
@@ -77,10 +84,11 @@ public class DeleteImages {
 	private static void moveFile(File file,final String dir) {
 		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
 		try {
+			// double size = file.length() / 1024.0;
 			FileUtils.moveToDirectory(file, new File(path), true);
+			// LOG.info("保存文件：【" + file.getPath() + " 】，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
-			LOG.error("移动文件失败");
-			LOG.info("判断已存在的图片和当前下载的图片相似度...");
+			LOG.error("保存失败：【"+ file.getPath() + "】，文件已存在，正在进行图像相似度分析...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
             double similar = pictrueSimilarity(file, new File(path + file.getName()));
             LOG.info("图片相似度："+String.format("%.2f", similar * 100) + "%");
@@ -88,7 +96,7 @@ public class DeleteImages {
 				LOG.info("图片基本相似，删除图片不保存...");
 				FileUtils.deleteQuietly(file);
 			} else {
-				LOG.info("文件相似度不大于0.95，进行文件重命名...");
+				LOG.info("文件相似度不大于0.90，进行文件重命名...");
 				reName(file, dir);
 			}
 		}
@@ -115,8 +123,10 @@ public class DeleteImages {
 			newFile = new File(path + newName);
 		}
 		try {
+			double size = file.length() / 1024.0;
 			FileUtils.copyFile(file, newFile);
 			FileUtils.deleteQuietly(file);
+			LOG.info("保存文件：【" + file.getPath() + " 】，已重新命名，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
 			LOG.error("重命名文件失败");
 		}

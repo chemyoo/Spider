@@ -64,6 +64,8 @@ public class Spider {
 				index = referer.length();
 			}
 			this.referer = referer.substring(0, index);
+		} else {
+			this.referer = getBaseUri();
 		}
 	}
 	
@@ -77,17 +79,17 @@ public class Spider {
 			LinkQueue.push(this.url);
 		}
 		String link;
-		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled()) {
+		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
 			link = LinkQueue.unVisitedPop();
 			this.message.setText("正在访问网址链接:" + link);
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
 		}
-		button.setEnabled(true);
-		button.setText("开始爬取");
-		this.message.setVisible(false);
 		time.cancel();
-		LOG.info("程序中止...");
+		if(button.isSelected())
+			LOG.info("程序暂停...");
+		else
+			LOG.info("程序终止...");
 	}
 	
 	private void deletetimer() {
@@ -96,7 +98,7 @@ public class Spider {
 	     * 只用当前的执行完，后面的任务才会执行，并且前面抛出异常，
 	     * 后面的任务就不会执行
 	     * 可以使用java.util.concurrent.ScheduledExecutorService来优化
-	     * <li><font size = +1>每分钟执行一次</font><li>
+	     * <li><font size = +1>每5分钟执行一次</font><li>
 	     */
         time = new Timer();
         time.schedule(new TimerTask() {
@@ -109,7 +111,7 @@ public class Spider {
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
 				}
-		}}, 0, 1 * 60 * 1000L);
+		}}, 0, 5 * 60 * 1000L);
 	}
 	
 	/*private void openUrl(String url) {
@@ -144,23 +146,21 @@ public class Spider {
 	}*/
 	
 	private void connectUrl(String url) {
-		LOG.info("连接网址：" + url);
+		LOG.info("连接网址：【" + url + "】");
 		try {
 			if(PICTURE_EXT.contains(getFileExt(url))) {
 				LinkQueue.imageUrlpush(url);
 				return;
 			}
-			if(!url.startsWith(this.referer)) {
+			if(this.referer != null && !url.startsWith(this.referer)) {
 				return;
-			} else if(!url.contains("meinv") && !url.contains("desk")){
-				return;
-			}
+			} 
 			//.ignoreContentType(true)忽略请求头
 			//Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko 这是IE11的userAgent
 			//Mozilla 为大多数浏览器
 			Document doc = Jsoup.connect(url)
 					.userAgent("Mozilla")
-					.timeout(60 * 1000).get();
+					.timeout(30 * 1000).get();
 			
 			Elements body = doc.getElementsByTag("body");
 			this.getUrls(body);
@@ -198,7 +198,7 @@ public class Spider {
 		String herfurl;
 //		String tempuri;
 		String text;
-		String baseUrl = this.getBaseUri();
+		String baseUrl = this.referer;
 
 		while(it.hasNext()) {
 			ele = it.next();
@@ -247,6 +247,9 @@ public class Spider {
 	 * @param url
 	 */
 	private void recognizeUrl(String url) {
+		if(urlVisitedCount.size() > 50000) {
+			urlVisitedCount.clear();
+		}
 		if(urlVisitedCount.containsKey(url)) {
 			int count = urlVisitedCount.get(url) + 1;
 			if(count < 2) {
@@ -263,10 +266,11 @@ public class Spider {
 	private void getImagesUrls(Elements body) {
 		Elements href = body.select("img[src]");
 		Iterator<Element> it = href.iterator();
-		Element ele;
+		String src;
 		while(it.hasNext()) {
-			ele = it.next();
-			LinkQueue.imageUrlpush(ele.absUrl("src"));
+			src = it.next().absUrl("src");
+			LinkQueue.imageUrlpush(src);
+			this.recognizeUrl(src);
 		}
 	}
 	

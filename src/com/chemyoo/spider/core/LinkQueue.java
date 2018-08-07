@@ -25,7 +25,7 @@ public class LinkQueue {
 		
 		if (!unVisited.isEmpty()) {
 			String link = unVisited.remove(0);
-			if(visited.size() > 10000 && menuUrl.size() < 10000) {
+			if(visited.size() > 60000 && menuUrl.size() < 50000) {
 				visited.clear();
 				visited.addAll(menuUrl);
 			}
@@ -51,7 +51,7 @@ public class LinkQueue {
 	}
 	
 	public static void imageUrlpush(String url) {
-		if (isNotBlank(url) && url.startsWith("http") && !imageUrl.contains(url))
+		if (isNotBlank(url) && url.startsWith("http") && !imageUrl.contains(url) && !menuUrl.contains(url))
 			imageUrl.add(url);
 	}
 	

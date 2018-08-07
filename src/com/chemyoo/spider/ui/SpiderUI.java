@@ -1,5 +1,6 @@
 package com.chemyoo.spider.ui;
 
+import com.chemyoo.spider.core.DeleteImages;
 import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
@@ -11,6 +12,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 /** 
  * @author 作者 : jianqing.liu
@@ -27,7 +30,7 @@ public class SpiderUI extends JFrame{
 	
 	private static final Logger LOG = Logger.getLogger(SpiderUI.class);
 
-	private final static SystemTray tray = SystemTray.getSystemTray();
+	private static final SystemTray tray = SystemTray.getSystemTray();
 
 	private static TrayIcon trayIcon = null;
 	
@@ -130,8 +133,8 @@ public class SpiderUI extends JFrame{
 		message.setVisible(false);
 		pane4.add(message);
 
-		final String workdir = SpiderUI.class.getClassLoader().getResource("").getPath();
-
+		final URL workdir = SpiderUI.class.getClassLoader().getResource("settings.png");
+		
         start.addMouseListener(new MouseEventAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -152,7 +155,8 @@ public class SpiderUI extends JFrame{
 						public void run() {
 							start.setText("正在爬取");
 							try {
-							Spider spider = new Spider(netUrl, fileDir, start, message, refererUrl);
+							Spider spider = new Spider(netUrl.trim(), fileDir.trim(), 
+									start, message, refererUrl.trim());
 							spider.start();
 							} catch (Exception e) {
 								LOG.error("程序运行发生异常");
@@ -163,7 +167,12 @@ public class SpiderUI extends JFrame{
 							if(!pause.isVisible()) {
 								tip.setVisible(true);
 							}
+							message.setVisible(false);
 							cancle.setEnabled(true);
+							start.setSelected(false);
+							start.setText("开始爬取");
+							start.setEnabled(true);
+							DeleteImages.delete(fileDir.trim());
 						}
 					};
 					
@@ -184,7 +193,21 @@ public class SpiderUI extends JFrame{
 					pause.setVisible(true);
 					cancle.setEnabled(false);
 					message.setVisible(false);
-					start.setEnabled(true);
+					start.setSelected(true);
+					new Thread() {
+						@Override
+						public void run() {
+							try {
+								while(!cancle.isEnabled()) {
+									TimeUnit.MILLISECONDS.sleep(250);
+								}
+								start.setEnabled(true);
+							} catch (InterruptedException e) {
+								LOG.error("暂停异常", e);
+								Thread.currentThread().interrupt();
+							}
+						}
+					}.start();
 				}
 			}
 		});
@@ -210,11 +233,29 @@ public class SpiderUI extends JFrame{
         contentPane.add(pane4);
 
         this.addWindowListener(new WindowAdapter() {
+			
+			// 窗口激活时调用的方法 windowActivated
 			@Override
-			public void windowIconified(WindowEvent e) {
-				setVisible(false);
-				miniTray(workdir);
+			// 窗口被最小化时调用的方法
+			public void windowIconified(WindowEvent e){
+				// 只当点击最小化按钮时才最小化到托盘，失去活性时不触发
+				if(e.getWindow().isFocused()) {
+					setVisible(false);
+					miniTray(workdir,path.getText());
+				}
 			}
+			
+			@Override
+			// 关闭窗口
+			public void windowClosing(WindowEvent e) {
+				String dir = path.getText().trim();
+				if(new File(dir).isDirectory()) {
+					DeleteImages.delete(dir);
+				}
+				tray.remove(trayIcon);
+				super.windowClosing(e);
+			}
+			
 		});
 
         this.setVisible(true);  
@@ -229,15 +270,15 @@ public class SpiderUI extends JFrame{
 		return true;
 	}
 
-	private void miniTray(final String workdir) { //窗口最小化到任务栏托盘
+	private void miniTray(final URL workdir,final String path) { //窗口最小化到任务栏托盘
 
-		ImageIcon trayImg = new ImageIcon(workdir.replace("%20"," ") + "settings.png");//托盘图标
+		ImageIcon trayImg = new ImageIcon(workdir);//托盘图标
 		PopupMenu pop = new PopupMenu(); //增加托盘右击菜单
 		MenuItem show = new MenuItem("还原");
 		MenuItem exit = new MenuItem("退出");
-
+		
 		show.addActionListener(new ActionListener() {
-
+			@Override
 			public void actionPerformed(ActionEvent e) { // 按下还原键
 
 				tray.remove(trayIcon);
@@ -249,9 +290,12 @@ public class SpiderUI extends JFrame{
 		});
 
 		exit.addActionListener(new ActionListener() { // 按下退出键
-
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				tray.remove(trayIcon);
+				if(new File(path).isDirectory()) {
+					DeleteImages.delete(path);
+				}
 				dispose();
 			}
 
@@ -260,11 +304,11 @@ public class SpiderUI extends JFrame{
 		pop.add(show);
 		pop.add(exit);
 
-		trayIcon = new TrayIcon(trayImg.getImage(), "自动更换壁纸后台任务", pop);
+		trayIcon = new TrayIcon(trayImg.getImage(), "壁纸下载后台任务", pop);
 		trayIcon.setImageAutoSize(true);
 
 		trayIcon.addMouseListener(new MouseAdapter() {
-
+			@Override
 			public void mouseClicked(MouseEvent e) { // 鼠标器双击事件
 
 				if (e.getClickCount() == 2) {
@@ -284,7 +328,7 @@ public class SpiderUI extends JFrame{
 			tray.add(trayIcon);
 
 		} catch (AWTException e1) {
-			e1.printStackTrace();
+			LOG.error(e1.getMessage(), e1);
 		}
 
 	}
