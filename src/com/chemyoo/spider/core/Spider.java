@@ -223,7 +223,9 @@ public class Spider {
 				continue;
 			}
 			
-			
+			String replaceUrl = herfurl.replace(baseUrl, "");
+			if(!(replaceUrl.startsWith("meinv") || replaceUrl.startsWith("desk")))
+				continue;
 
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
