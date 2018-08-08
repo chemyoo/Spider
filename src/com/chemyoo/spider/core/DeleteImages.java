@@ -63,9 +63,8 @@ public class DeleteImages {
 				LOG.error("获取图片分辨率失败：", e);
 			} 
 			boolean flag = width < 1300 || height < 700;
-			if(!flag)
-				LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
-			else
+			if(flag)
+//				LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
 				LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
 			return flag;
 	}
