@@ -71,9 +71,9 @@ public class MainTest {
 		double similar =  SimilarityAnalysisor.getSimilarity(curfile,file2);
 		if(similar > 0.9D) {
 			FileUtils.deleteQuietly(curfile);
+			System.err.println("删除文件：" + curfile.getAbsolutePath());
 //			try {
 //				FileUtils.moveFileToDirectory(curfile, directory, true);
-//				System.err.println("删除文件：" + curfile.getAbsolutePath());
 //			} catch (IOException e) {
 //				System.err.println("删除文件失败：" + curfile.getAbsolutePath());
 //				e.printStackTrace();
