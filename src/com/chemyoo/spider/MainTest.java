@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
