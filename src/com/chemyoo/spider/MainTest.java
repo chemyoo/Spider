@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
@@ -14,7 +16,7 @@ import com.chemyoo.spider.core.SelectFiles;
 
 public class MainTest {
 	
-//	private static File directory = null;
+	private static int count = 0;
 
 	public static void main(String[] args) {
 		File file = SelectFiles.getSavePath();
@@ -23,10 +25,10 @@ public class MainTest {
 //			directory = new File("F:/deletedir");
 			Map<String,String> md5Values = new LinkedHashMap<>();
 			getMd5Values(file, md5Values);
-			System.err.println("处理文件个数：" + md5Values.size());
+			System.out.println("处理文件个数：" + md5Values.size());
 			md5Values.clear();
 			md5Values = null;
-			System.out.println();
+			System.out.println("删除文件个数：" + count);
 			System.out.println("处理结束...");
 		}
 	}
@@ -46,13 +48,6 @@ public class MainTest {
 					getMd5Values(f, md5Values);
 				}
 			}
-		} else {
-			String md5 = getMD5(file);
-			if(!md5Values.containsKey(md5)) {
-				md5Values.put(md5, file.getAbsolutePath());
-			}
-			else
-				checkExists(file, new File(md5Values.get(md5)));
 		}
 	}
 	
@@ -72,12 +67,10 @@ public class MainTest {
 		if(similar > 0.9D) {
 			FileUtils.deleteQuietly(curfile);
 			System.err.println("删除文件：" + curfile.getAbsolutePath());
-//			try {
-//				FileUtils.moveFileToDirectory(curfile, directory, true);
-//			} catch (IOException e) {
-//				System.err.println("删除文件失败：" + curfile.getAbsolutePath());
-//				e.printStackTrace();
-//			}
+//			FileUtils.moveFileToDirectory(curfile, directory, true);
+			count ++;
+		} else {
+			System.err.println("保留文件：" + curfile.getAbsolutePath());
 		}
 	}
 

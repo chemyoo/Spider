@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.digest.DigestUtils;
+//import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -192,7 +192,7 @@ public class ImagesUtils {
 					fileOutStream.write(buf, 0, length);
 				}
 			} catch (Exception e) {
-				LOG.error("下载图片发生异常");
+				LOG.error("下载图片发生异常",e);
 			} finally {
 				Spider.closeQuietly(in);
 				Spider.closeQuietly(fileOutStream);

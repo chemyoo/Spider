@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.*;
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -56,7 +58,7 @@ public class Spider {
 		this.setReferer(referer);
 		deletetimer();
 	}
-	
+//	http://www.win4000.com/wallpaper_2285_0_10_1.html
 	private void setReferer(String referer) {
 		if(this.referer == null && StringUtils.isNotBlank(referer)) {
 			int index = referer.replaceFirst("//", "--").indexOf('/') + 1;
@@ -107,6 +109,7 @@ public class Spider {
 				try {
 					LOG.info("定时任务已启动...");
 					DeleteImages.delete(dir);
+					System.out.println("待访问的网址数量：" + LinkQueue.getUnVisitedSize());
 					LOG.info("定时任务执行完成...");
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
@@ -167,7 +170,7 @@ public class Spider {
 			this.getImagesUrls(body);
 			this.getIframe(body);
 		} catch (IOException e) {
-			LOG.error("打开网页发生异常");
+			LOG.error("打开网页发生异常",e);
 		}
 	}
 
@@ -192,7 +195,9 @@ public class Spider {
 	}
 	
 	private void getUrls(Elements body) {
-		Elements href = body.select("a[href]");
+		Elements main = body.select(".main");
+		Elements href = main.select(".Left_bar a[href]");
+		href.addAll(main.select(".pic_main a[href]"));
 		Iterator<Element> it = href.iterator();
 		Element ele;
 		String herfurl;
@@ -219,13 +224,13 @@ public class Spider {
 //			}
 			
 //			如果是源网址，则忽略
-			if("".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
+			if(text.contains("更多") || herfurl.endsWith("/feedback.html") || "".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
 			
-			String replaceUrl = herfurl.replace(baseUrl, "");
-			if(!(replaceUrl.startsWith("meinv") || replaceUrl.startsWith("desk")))
-				continue;
+//			String replaceUrl = herfurl.replace(baseUrl, "");
+//			if(!(replaceUrl.startsWith("meinv") || replaceUrl.startsWith("desk")))
+//				continue;
 
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
@@ -252,16 +257,15 @@ public class Spider {
 		if(urlVisitedCount.size() > 50000) {
 			urlVisitedCount.clear();
 		}
-		if(urlVisitedCount.containsKey(url)) {
-			int count = urlVisitedCount.get(url) + 1;
-			if(count < 2) {
-				urlVisitedCount.put(url, count);
-			} else if(count < 3){
-				urlVisitedCount.put(url, count + 1);
-				LinkQueue.addmenuUrl(url);
+		String value = DigestUtils.md5Hex(url);
+		if(urlVisitedCount.containsKey(value)) {
+			int count = urlVisitedCount.get(value) + 1;
+			if(count < 3){
+				urlVisitedCount.put(value, count + 1);
+				LinkQueue.addmenuUrl(value);
 			}
 		} else {
-			urlVisitedCount.put(url, 1);
+			urlVisitedCount.put(value, 1);
 		}
 	}
 	

@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public class LinkQueue {
 
 	private LinkQueue() {}
@@ -29,10 +31,14 @@ public class LinkQueue {
 				visited.clear();
 				visited.addAll(menuUrl);
 			}
-			visited.add(link);
+			visited.add(DigestUtils.md5Hex(link));
 			return link;
 		}
 		return null;
+	}
+	
+	public static int getUnVisitedSize() {
+		return unVisited.size();
 	}
 	
 	// 未访问的imageUrl出队列
@@ -44,9 +50,9 @@ public class LinkQueue {
 	}
 	
 	
-	public static void addmenuUrl(String url) {
-		if(isNotBlank(url) && !menuUrl.contains(url)) {
-			menuUrl.add(url);
+	public static void addmenuUrl(String value) {
+		if(isNotBlank(value) && !menuUrl.contains(value)) {
+			menuUrl.add(value);
 		}
 	}
 	
@@ -56,7 +62,7 @@ public class LinkQueue {
 	}
 	
 	public static void push(String url) {
-		if (isNotBlank(url) && !visited.contains(url) && url.startsWith("http") && !unVisited.contains(url))
+		if (isNotBlank(url) && !visited.contains(DigestUtils.md5Hex(url)) && url.startsWith("http") && !unVisited.contains(url))
 			unVisited.add(url);
 	}
 	
