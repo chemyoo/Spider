@@ -28,10 +28,10 @@ public class MainTest {
 			System.out.println("开始处理...");
 //			directory = new File("F:/deletedir");
 			Map<String,String> md5Values = new ConcurrentHashMap<>();
-			getMd5Values(file, md5Values);
-//			LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
-//			getFiles(file, queue);
-//			getMd5Values(queue, md5Values);
+//			getMd5Values(file, md5Values);
+			LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
+			getFiles(file, queue);
+			getMd5Values(queue, md5Values);
 			System.out.println("处理文件个数：" + md5Values.size());
 			md5Values.clear();
 			md5Values = null;
@@ -57,23 +57,23 @@ public class MainTest {
 		}
 	}
 	
-	private static void getMd5Values(File file,Map<String,String> md5Values) {
-		if(file.isDirectory()) {
-			File[] files = file.listFiles();
-			for(File f : files) {
-				if(f.isFile()) {
-					String md5 = getMD5(f);
-					if(!md5Values.containsKey(md5)) {
-						md5Values.put(md5, f.getAbsolutePath());
-					} else {
-						checkExists(f, new File(md5Values.get(md5)));
-					}
-				} else {
-					getMd5Values(f, md5Values);
-				}
-			}
-		}
-	}
+//	private static void getMd5Values(File file,Map<String,String> md5Values) {
+//		if(file.isDirectory()) {
+//			File[] files = file.listFiles();
+//			for(File f : files) {
+//				if(f.isFile()) {
+//					String md5 = getMD5(f);
+//					if(!md5Values.containsKey(md5)) {
+//						md5Values.put(md5, f.getAbsolutePath());
+//					} else {
+//						checkExists(f, new File(md5Values.get(md5)));
+//					}
+//				} else {
+//					getMd5Values(f, md5Values);
+//				}
+//			}
+//		}
+//	}
 	
 	private static void getMd5Values(LinkedBlockingQueue<String> queue,Map<String,String> md5Values) {
 		int size = Runtime.getRuntime().availableProcessors();
