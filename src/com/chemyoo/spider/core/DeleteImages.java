@@ -113,7 +113,7 @@ public class DeleteImages {
 	private static void reName(File file, String dir) {
 		int index = 0;
 		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
-		File newFile = new File(path + file.getName());
+		File newFile = new File(path + apendString() + file.getName());
 		while(newFile.exists()) {
 			String fileName = file.getName();
 			String fileExt = getFileExt(fileName);
@@ -134,6 +134,11 @@ public class DeleteImages {
 	
 	private static String convertDateToString() {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		return format.format(Calendar.getInstance().getTime());
+	}
+	
+	private static String apendString() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		return format.format(Calendar.getInstance().getTime());
 	}
 	
