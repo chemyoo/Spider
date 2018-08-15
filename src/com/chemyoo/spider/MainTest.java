@@ -88,11 +88,11 @@ public class MainTest {
 		}
 	}
 	
-	private static void run(LinkedBlockingQueue<String> queue, Map<String,String> md5Values) {
+	private static void run(final LinkedBlockingQueue<String> queue, final Map<String,String> md5Values) {
 		new Thread() {
 			@Override
 			public void run() {
-				do {
+				while (!queue.isEmpty()) {
 					File f = new File(queue.poll());
 					if (f.exists()) {
 						String md5 = getMD5(f);
@@ -102,7 +102,7 @@ public class MainTest {
 							checkExists(f, new File(md5Values.get(md5)));
 						}
 					}
-				} while (!queue.isEmpty());
+				} 
 				countDownLatch.countDown();
 			}
 		}.start();
