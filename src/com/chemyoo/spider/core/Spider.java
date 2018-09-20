@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 //import java.util.ListIterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.*;
@@ -17,6 +18,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import com.chemyoo.spider.util.PropertiesUtil;
 //import com.gargoylesoftware.htmlunit.BrowserVersion;
 //import com.gargoylesoftware.htmlunit.WebClient;
 //import com.gargoylesoftware.htmlunit.html.DomNode;
@@ -46,6 +49,8 @@ public class Spider {
 	
 	private String referer;
 	
+	Properties properties = PropertiesUtil.getInstance();
+	
 	private static final String PICTURE_EXT = "gif,png,jpg,jpeg,bmp"; 
 	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
@@ -57,8 +62,10 @@ public class Spider {
 		this.message = message;
 		this.setReferer(referer);
 		deletetimer();
+		// 重新读取配置文件
+		PropertiesUtil.init();
 	}
-//	http://www.win4000.com/wallpaper_2285_0_10_1.html
+	
 	private void setReferer(String referer) {
 		if(this.referer == null && StringUtils.isNotBlank(referer)) {
 			int index = referer.replaceFirst("//", "--").indexOf('/') + 1;
@@ -80,9 +87,8 @@ public class Spider {
 		if(LinkQueue.unVisitedEmpty()) {
 			LinkQueue.push(this.url);
 		}
-		String link;
 		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
-			link = LinkQueue.unVisitedPop();
+			String link = LinkQueue.unVisitedPop();
 			this.message.setText("正在访问网址链接:" + link);
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
@@ -195,20 +201,33 @@ public class Spider {
 	}
 	
 	private void getUrls(Elements body) {
-		Elements main = body.select(".main");
-		Elements href = main.select(".Left_bar a[href]");
-		href.addAll(main.select(".pic_main a[href]"));
+		String classSelector = properties.getProperty("dom.class.first");
+		String classSelector2 = properties.getProperty("dom.class.second");
+		String keyWord = properties.getProperty("key.word");
+		String notEndWith = properties.getProperty("not.end.with");
+		String filterUrl = properties.getProperty("filter.url");
+		String notContain = properties.getProperty("not.contain");
+		Elements main = new Elements();
+		if(StringUtils.isNotBlank(classSelector)) {
+			String[] cssSelector = classSelector.split(",");
+			for(String css : cssSelector) {
+				main.addAll(body.select(css.trim()));
+			}
+		}
+		Elements href = new Elements();
+		if(StringUtils.isNotBlank(classSelector2)) {
+			String[] cssSelector = classSelector2.split(",");
+			for(String css : cssSelector) {
+				href.addAll(main.select(css.trim()));
+			}
+		}
 		Iterator<Element> it = href.iterator();
-		Element ele;
-		String herfurl;
-//		String tempuri;
-		String text;
 		String baseUrl = this.referer;
 
 		while(it.hasNext()) {
-			ele = it.next();
-			herfurl = ele.absUrl("href");
-			text = ele.text();
+			Element ele = it.next();
+			String herfurl = ele.absUrl("href");
+			String text = ele.text();
 
 //			if(this.url.contains(".")){
 //				tempuri = herfurl.substring(herfurl.indexOf('.') + 1);
@@ -224,8 +243,46 @@ public class Spider {
 //			}
 			
 //			如果是源网址，则忽略
-			if(text.contains("更多") || herfurl.endsWith("/feedback.html") || "".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
+			if("".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
+			}
+			
+			if(StringUtils.isNotBlank(filterUrl)) {
+				String[] words = filterUrl.split(",");
+				label:
+				for(String word : words) {
+					if(herfurl.contains(word.trim())) {
+						continue label;
+					}
+				}
+			}
+			
+			if(StringUtils.isNotBlank(notContain)) {
+				String[] words = notContain.split("[|]");
+				label:
+				for(String word : words) {
+					boolean isNotAdd = true;
+					String[] andWord = word.split("[+]");
+					for(String and : andWord) {
+						isNotAdd = isNotAdd && text.contains(and.trim());
+					}
+					if(isNotAdd)
+						continue label;
+				}
+			}
+			
+			if(StringUtils.isNotBlank(notEndWith)) {
+				String[] words = notEndWith.split("[|]");
+				label:
+				for(String word : words) {
+					boolean isNotAdd = true;
+					String[] andWord = word.split("[+]");
+					for(String and : andWord) {
+						isNotAdd = isNotAdd && herfurl.endsWith(and.trim());
+					}
+					if(isNotAdd)
+						continue label;
+				}
 			}
 			
 //			String replaceUrl = herfurl.replace(baseUrl, "");
@@ -234,14 +291,30 @@ public class Spider {
 
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
-			} else if(herfurl.startsWith(baseUrl) /*|| (herfurl.contains(".htm") || herfurl.contains(".html")
-					|| herfurl.contains(".shtml"))*/) {
+			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html")
+					|| herfurl.contains(".shtml"))) {
 				LinkQueue.push(herfurl);
-			} else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
-				LinkQueue.push(herfurl);
-			} else if(text.contains("查看") && text.contains("大图")){
-				LinkQueue.push(herfurl);
+			} else if(StringUtils.isNotBlank(keyWord)) {
+				String[] words = keyWord.split("[|]");
+				for(String word : words) {
+					boolean addUrl = true;
+					String[] andWord = word.split("[+]");
+					for(String and : andWord) {
+						if(!text.contains(and.trim())) {
+							addUrl = false;
+						}
+					}
+					if(addUrl) {
+						LinkQueue.push(herfurl);
+					}
+				}
 			}
+			
+//			else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
+//				LinkQueue.push(herfurl);
+//			} else if(text.contains("查看") && text.contains("大图")){
+//				LinkQueue.push(herfurl);
+//			}
 		}
 	}
 
@@ -270,7 +343,13 @@ public class Spider {
 	}
 	
 	private void getImagesUrls(Elements body) {
-		Elements href = body.select("img[src]");
+		String main = properties.getProperty("dom.class.first");
+		if(StringUtils.isBlank(main)) {
+			main = StringUtils.EMPTY;
+		} else {
+			main += " ";
+		}
+		Elements href = body.select(main + "img[src]");
 		Iterator<Element> it = href.iterator();
 		String src;
 		while(it.hasNext()) {

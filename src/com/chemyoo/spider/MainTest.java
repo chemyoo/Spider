@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
@@ -17,7 +19,7 @@ import com.chemyoo.spider.core.SelectFiles;
 
 public class MainTest {
 	
-	private static int count = 0;
+	private static AtomicInteger count = new AtomicInteger(0);
 	
 	private static CountDownLatch countDownLatch = null;
 
@@ -35,7 +37,7 @@ public class MainTest {
 			System.out.println("处理文件个数：" + md5Values.size());
 			md5Values.clear();
 			md5Values = null;
-			System.out.println("删除文件个数：" + count);
+			System.out.println("删除文件个数：" + count.intValue());
 			System.out.println("处理结束...");
 			long take = System.currentTimeMillis() - start;
 			Calendar calendar = Calendar.getInstance();
@@ -125,7 +127,7 @@ public class MainTest {
 			FileUtils.deleteQuietly(curfile);
 			System.err.println("删除文件：" + curfile.getAbsolutePath());
 //			FileUtils.moveFileToDirectory(curfile, directory, true);
-			count ++;
+			count.incrementAndGet();
 		} else {
 			System.err.println("保留文件：" + curfile.getAbsolutePath());
 		}
