@@ -71,18 +71,20 @@ public class DeleteImages {
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
+			int seed = 15;
 			if(isNotAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
-				try {
-					long milliseconds = 100L * (random.nextInt(15) + 1);
-					// 设置休眠，防止IP被禁用。
-					TimeUnit.MILLISECONDS.sleep(milliseconds);
-				} catch (InterruptedException e) {
-					LOG.error("下载图片发生异常",e);
-					Thread.currentThread().interrupt();
-				}
 			} else {
 				moveFile(file, dir);
+				seed = 5;
+			}
+			try {
+				long milliseconds = 100L * (random.nextInt(seed) + 1);
+				// 设置休眠，防止IP被禁用。
+				TimeUnit.MILLISECONDS.sleep(milliseconds);
+			} catch (InterruptedException e) {
+				LOG.error("下载图片发生异常",e);
+				Thread.currentThread().interrupt();
 			}
 		}
 	}

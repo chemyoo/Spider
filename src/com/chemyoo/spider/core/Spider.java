@@ -101,9 +101,11 @@ public class Spider {
 			if(linkSize % 500 == 0) {
 				try {
 					// 设置休眠，防止IP被禁用。
-					TimeUnit.SECONDS.sleep(5L + random.nextInt(15));
+					long sleepTime = 5L + random.nextInt(15);
+					LOG.info("程序进入休眠时间段，休眠时间：" + sleepTime + "s");
+					TimeUnit.SECONDS.sleep(sleepTime);
 				} catch (InterruptedException e) {
-					LOG.info(e.getMessage(), e);
+					LOG.error(e.getMessage(), e);
 					Thread.currentThread().interrupt();
 				}
 			}
