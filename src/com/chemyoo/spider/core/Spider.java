@@ -4,16 +4,13 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-//import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-
 import javax.swing.*;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -21,7 +18,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import com.chemyoo.spider.util.PropertiesUtil;
 //import com.gargoylesoftware.htmlunit.BrowserVersion;
 //import com.gargoylesoftware.htmlunit.WebClient;
@@ -69,6 +65,9 @@ public class Spider {
 		deletetimer();
 		// 重新读取配置文件
 		PropertiesUtil.init();
+		if(LinkQueue.unVisitedEmpty()) {
+			LinkQueue.push(this.url);
+		}
 	}
 	
 	private void setReferer(String referer) {
@@ -89,9 +88,6 @@ public class Spider {
 	
 	public void start() {
 		LOG.info("程序已启动...");
-		if(LinkQueue.unVisitedEmpty()) {
-			LinkQueue.push(this.url);
-		}
 		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
 			String link = LinkQueue.unVisitedPop();
 			this.message.setText("正在访问网址链接:" + link);
@@ -132,7 +128,7 @@ public class Spider {
 				try {
 					LOG.info("定时任务已启动...");
 					DeleteImages.delete(dir);
-					System.out.println("待访问的网址数量：" + LinkQueue.getUnVisitedSize());
+					LOG.info("待访问的网址数量：" + LinkQueue.getUnVisitedSize());
 					LOG.info("定时任务执行完成...");
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
