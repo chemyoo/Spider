@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import javax.imageio.ImageIO;
 
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
@@ -25,6 +28,8 @@ public class DeleteImages {
 	
 	private static final String IMAGES_DIR = "/images/";
 	
+	private static Random random = new Random();
+	
 	public static synchronized void delete(String dir) {
 		File file = new File(dir);
 		final long time = Calendar.getInstance().getTimeInMillis();
@@ -32,25 +37,20 @@ public class DeleteImages {
 		if(files != null){
 			for(File f : files) {
 				if(f.isFile() && (f.lastModified() +  1000 * 60 * 5L) < time && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))) {
-					if(isAllowedSave(f)) {
+					if(isNotAllowedSave(f)) {
 						FileUtils.deleteQuietly(f); 
 					} else {
 						moveFile(f, dir);
 					}
 				} 
-//				else if(f.isFile() && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))){
-//					FileUtils.deleteQuietly(f);
-//				}
-				
 			}
 		}
 	}
 	/**
-	 * 定时任务和下载任务调用时会发生冲突，使用线程同步解决该问题
 	 * @param file
 	 * @return
 	 */
-	private static boolean isAllowedSave(File file){
+	private static boolean isNotAllowedSave(File file){
 			double width = 0d;
 			double height = 0d;
 			try (FileInputStream fis = new FileInputStream(file);){
@@ -65,16 +65,22 @@ public class DeleteImages {
 			boolean flag = width < 1300 || height < 700;
 			if(!flag)
 				LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
-//			else
-//				LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
+			// not use 'else LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);'
 			return flag;
 	}
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-//			LOG.info("校检文件：【" + file.getPath()+ "】");
-			if(isAllowedSave(file)) {
+			if(isNotAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
+				try {
+					long milliseconds = 100L * (random.nextInt(15) + 1);
+					// 设置休眠，防止IP被禁用。
+					TimeUnit.MILLISECONDS.sleep(milliseconds);
+				} catch (InterruptedException e) {
+					LOG.error("下载图片发生异常",e);
+					Thread.currentThread().interrupt();
+				}
 			} else {
 				moveFile(file, dir);
 			}
@@ -84,9 +90,9 @@ public class DeleteImages {
 	private static void moveFile(File file,final String dir) {
 		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
 		try {
-			// double size = file.length() / 1024.0;
+			// not use 'double size = file.length() / 1024.0;'
 			FileUtils.moveToDirectory(file, new File(path), true);
-			// LOG.info("保存文件：【" + file.getPath() + " 】，文件大小：" + String.format("%.2f kb", size));
+			// not use 'LOG.info("保存文件：【" + file.getPath() + " 】，文件大小：" + String.format("%.2f kb", size));'
 		} catch (IOException e) {
 			LOG.error("保存失败：【"+ file.getPath() + "】，文件已存在，正在进行图像相似度分析...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
