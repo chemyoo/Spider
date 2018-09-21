@@ -9,6 +9,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,6 +141,7 @@ public class ImagesUtils {
 		HttpURLConnection httpConnection = null;
 		String url;
 		String imageName = null;
+		Random random = new Random();
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				url = LinkQueue.imageUrlPop();
@@ -201,6 +204,14 @@ public class ImagesUtils {
 				DeleteImages.checkImageSize(new File(dir + imageName), dir);
 				if(httpConnection != null)
 					httpConnection.disconnect();
+			}
+			try {
+				long milliseconds = 100L * (random.nextInt(15) + 1);
+				// 设置休眠，防止IP被禁用。
+				TimeUnit.MILLISECONDS.sleep(milliseconds);
+			} catch (InterruptedException e) {
+				LOG.error("下载图片发生异常",e);
+				Thread.currentThread().interrupt();
 			}
 		}
 	}

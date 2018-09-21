@@ -41,6 +41,10 @@ public class LinkQueue {
 		return unVisited.size();
 	}
 	
+	public static int getVisitedSize() {
+		return visited.size();
+	}
+	
 	// 未访问的imageUrl出队列
 	public static String imageUrlPop() {
 		if (!imageUrl.isEmpty()) {

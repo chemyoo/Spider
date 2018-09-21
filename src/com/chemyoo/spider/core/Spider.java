@@ -7,8 +7,11 @@ import java.util.Iterator;
 //import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.*;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -49,12 +52,14 @@ public class Spider {
 	
 	private String referer;
 	
+	private Random random = new Random();
+	
 	Properties properties = PropertiesUtil.getInstance();
 	
 	private static final String PICTURE_EXT = "gif,png,jpg,jpeg,bmp"; 
 	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
-	
+
 	public Spider(String url, String dir, JButton button, JLabel message,String referer) {
 		this.url = url;
 		this.dir = dir;
@@ -92,6 +97,16 @@ public class Spider {
 			this.message.setText("正在访问网址链接:" + link);
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
+			int linkSize = LinkQueue.getVisitedSize();
+			if(linkSize % 500 == 0) {
+				try {
+					// 设置休眠，防止IP被禁用。
+					TimeUnit.SECONDS.sleep(5L + random.nextInt(15));
+				} catch (InterruptedException e) {
+					LOG.info(e.getMessage(), e);
+					Thread.currentThread().interrupt();
+				}
+			}
 		}
 		time.cancel();
 		if(button.isSelected())
@@ -195,6 +210,8 @@ public class Spider {
 				continue;
 			}
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
+				LinkQueue.imageUrlpush(herfurl);
+			} else {
 				LinkQueue.push(herfurl);
 			}
 		}
@@ -218,41 +235,30 @@ public class Spider {
 		if(StringUtils.isNotBlank(classSelector2)) {
 			String[] cssSelector = classSelector2.split(",");
 			for(String css : cssSelector) {
-				href.addAll(main.select(css.trim()));
+				href.addAll(main.select(css.trim() + " a[href]"));
 			}
 		}
 		Iterator<Element> it = href.iterator();
 		String baseUrl = this.referer;
-
+		
 		while(it.hasNext()) {
 			Element ele = it.next();
 			String herfurl = ele.absUrl("href");
 			String text = ele.text();
 
-//			if(this.url.contains(".")){
-//				tempuri = herfurl.substring(herfurl.indexOf('.') + 1);
-//			} else {
-//				tempuri = herfurl;
-//			}
-			
 			this.recognizeUrl(herfurl);
 			
-//			保证为本站链接
-//			if(tempuri.equals(baseUrl) || (tempuri.endsWith("/") && tempuri.equals(baseUrl+"/"))) {
-//				continue;
-//			}
-			
-//			如果是源网址，则忽略
+			// 如果是源网址，则忽略
 			if("".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
 			}
 			
 			if(StringUtils.isNotBlank(filterUrl)) {
 				String[] words = filterUrl.split(",");
-				label:
+				lable:
 				for(String word : words) {
 					if(herfurl.contains(word.trim())) {
-						continue label;
+						continue lable;
 					}
 				}
 			}
@@ -285,20 +291,16 @@ public class Spider {
 				}
 			}
 			
-//			String replaceUrl = herfurl.replace(baseUrl, "");
-//			if(!(replaceUrl.startsWith("meinv") || replaceUrl.startsWith("desk")))
-//				continue;
-
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
 			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html")
 					|| herfurl.contains(".shtml"))) {
 				LinkQueue.push(herfurl);
 			} else if(StringUtils.isNotBlank(keyWord)) {
-				String[] words = keyWord.split("[|]");
+				String[] words = keyWord.split("[|]");// | 表示或关系
 				for(String word : words) {
 					boolean addUrl = true;
-					String[] andWord = word.split("[+]");
+					String[] andWord = word.split("[+]"); // + 表示与关系
 					for(String and : andWord) {
 						if(!text.contains(and.trim())) {
 							addUrl = false;
@@ -309,12 +311,6 @@ public class Spider {
 					}
 				}
 			}
-			
-//			else if(text.contains("原图") || (text.contains("下载") && text.contains("图"))){
-//				LinkQueue.push(herfurl);
-//			} else if(text.contains("查看") && text.contains("大图")){
-//				LinkQueue.push(herfurl);
-//			}
 		}
 	}
 
