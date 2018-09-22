@@ -94,7 +94,7 @@ public class Spider {
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
 			int linkSize = LinkQueue.getVisitedSize();
-			if(linkSize % 500 == 0) {
+			if(linkSize != 0 && linkSize % 500 == 0) {
 				try {
 					// 设置休眠，防止IP被禁用。
 					long sleepTime = 5L + random.nextInt(15);

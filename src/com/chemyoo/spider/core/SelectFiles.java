@@ -32,4 +32,20 @@ public class SelectFiles {
 		return null;
 	}
 	
+	public static File getFile(String path) {
+		JFileChooser fileChooser = new JFileChooser(path);
+		fileChooser.setDialogTitle("请选择文件...");
+		fileChooser.setApproveButtonText("确定");
+		//只选择文件夹
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		//设置文件是否可多选
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setAcceptAllFileFilterUsed(false);// 去掉显示所有文件的按钮
+		fileChooser.setFileFilter(new SelectOnlyFileFilter());
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			return fileChooser.getSelectedFile();
+		}
+		return null;
+	}
+	
 }

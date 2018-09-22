@@ -76,7 +76,7 @@ public class DeleteImages {
 				FileUtils.deleteQuietly(file);
 			} else {
 				moveFile(file, dir);
-				seed = 5;
+				seed = 3;
 			}
 			try {
 				long milliseconds = 100L * (random.nextInt(seed) + 1);

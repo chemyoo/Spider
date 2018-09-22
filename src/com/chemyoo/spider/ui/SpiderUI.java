@@ -5,6 +5,9 @@ import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
 import com.chemyoo.spider.core.Spider;
+import com.chemyoo.spider.util.PropertiesUtil;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -12,7 +15,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 /** 
@@ -31,7 +37,9 @@ public class SpiderUI extends JFrame{
 	private static final Logger LOG = Logger.getLogger(SpiderUI.class);
 
 	private static final SystemTray tray = SystemTray.getSystemTray();
-
+	
+	private static final String DEFAULT_PATH = System.getProperty("user.dir");
+	
 	private static TrayIcon trayIcon = null;
 	
 	public SpiderUI() {
@@ -117,6 +125,10 @@ public class SpiderUI extends JFrame{
         final JButton stop = new JButton("停止爬取");
         stop.setPreferredSize(preferredSize);
         pane3.add(stop);
+        
+        JButton loadTast = new JButton("载入任务");
+        stop.setPreferredSize(preferredSize);
+        pane3.add(loadTast);
         
         final JLabel tip = new JLabel("网站爬取完成...");
         tip.setVisible(false);
@@ -226,6 +238,28 @@ public class SpiderUI extends JFrame{
 			}
 		});
         
+        loadTast.addMouseListener(new MouseEventAdapter() {
+        	@Override
+			public void mouseClicked(MouseEvent e) {
+        		try {
+        			File file = SelectFiles.getFile(DEFAULT_PATH);
+					java.util.List<String> lines = FileUtils.readLines(file, "utf-8");
+					if(!lines.isEmpty()) {
+						url.setText(lines.remove(0));
+						referer.setText(lines.remove(0));
+						path.setText(lines.remove(0));
+						Iterator<String> it = lines.iterator();
+						while(it.hasNext()) {
+							LinkQueue.push(it.next());
+						}
+					}
+					FileUtils.deleteQuietly(file);
+				} catch (IOException e1) {
+					LOG.error(e1.getMessage(), e1);
+				}
+        	}
+        });
+        
         contentPane.add(pane1);  
         contentPane.add(pane5); 
         contentPane.add(pane2); 
@@ -241,7 +275,7 @@ public class SpiderUI extends JFrame{
 				// 只当点击最小化按钮时才最小化到托盘，失去活性时不触发
 				if(e.getWindow().isFocused()) {
 					setVisible(false);
-					miniTray(workdir,path.getText());
+					miniTray(workdir,path.getText(), url.getText(), referer.getText());
 				}
 			}
 			
@@ -249,10 +283,14 @@ public class SpiderUI extends JFrame{
 			// 关闭窗口
 			public void windowClosing(WindowEvent e) {
 				String dir = path.getText().trim();
+				String netUrl = url.getText();
+				String refererUrl = referer.getText();
 				if(new File(dir).isDirectory()) {
 					DeleteImages.delete(dir);
 				}
 				tray.remove(trayIcon);
+				message.setText("正在保存状态...");
+				saveStatus(netUrl, refererUrl, dir);
 				super.windowClosing(e);
 			}
 			
@@ -270,7 +308,7 @@ public class SpiderUI extends JFrame{
 		return true;
 	}
 
-	private void miniTray(final URL workdir,final String path) { //窗口最小化到任务栏托盘
+	private void miniTray(final URL workdir,final String path, final String netUrl, final String referer) { //窗口最小化到任务栏托盘
 
 		ImageIcon trayImg = new ImageIcon(workdir);//托盘图标
 		PopupMenu pop = new PopupMenu(); //增加托盘右击菜单
@@ -292,10 +330,11 @@ public class SpiderUI extends JFrame{
 		exit.addActionListener(new ActionListener() { // 按下退出键
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				tray.remove(trayIcon);
 				if(new File(path).isDirectory()) {
 					DeleteImages.delete(path);
+					saveStatus(netUrl, referer, path);
 				}
+				tray.remove(trayIcon);
 				dispose();
 			}
 
@@ -331,6 +370,30 @@ public class SpiderUI extends JFrame{
 			LOG.error(e1.getMessage(), e1);
 		}
 
+	}
+	
+	private void saveStatus(String netUrl, String origin, String savePath) {
+		StringBuilder buider = new StringBuilder();
+		buider.append(netUrl).append(PropertiesUtil.getLineSeparator())
+			  .append(origin).append(PropertiesUtil.getLineSeparator())
+			  .append(savePath).append(PropertiesUtil.getLineSeparator());
+		int index = 0;
+		if(LinkQueue.unVisitedEmpty())
+			return;
+		while(!LinkQueue.unVisitedEmpty()) {
+			buider.append(LinkQueue.unVisitedPop()).append(PropertiesUtil.getLineSeparator());
+			index ++;
+			if(index > 500)
+				break;
+		}
+		String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
+							+ origin.split("//")[1].split("/")[0] + ".task";
+		try (FileWriter fw = new FileWriter(fileName)){
+			fw.write(buider.toString());
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		LinkQueue.clear();
 	}
 
 }

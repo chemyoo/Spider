@@ -23,7 +23,7 @@ public class PropertiesUtil {
 	
 	public static synchronized void init() {
 		//初始化读取配置文件中的分表信息
-		try(FileInputStream fileInput = new FileInputStream(getClassFolder());
+		try(FileInputStream fileInput = new FileInputStream(getPropertiesFolder());
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInput, "UTF-8"));){
 			properties.load(bufferedReader);
 		} catch (Exception e) {
@@ -31,8 +31,16 @@ public class PropertiesUtil {
 		}
 	}
 	
-	private static String getClassFolder() {
+	public static String getPropertiesFolder() {
 		return PropertiesUtil.class.getClassLoader().getResource("config.properties").getPath();
+	}
+	
+	public static String getLineSeparator() {
+		return System.getProperty("line.separator");
+	}
+
+	public static String getFileSeparator() {
+		return System.getProperty("file.separator");
 	}
 	
 }
