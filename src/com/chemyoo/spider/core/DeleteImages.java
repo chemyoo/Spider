@@ -71,12 +71,12 @@ public class DeleteImages {
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-			int seed = 15;
+			int seed = 10;
 			if(isNotAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
 			} else {
 				moveFile(file, dir);
-				seed = 3;
+				seed = 2;
 			}
 			try {
 				long milliseconds = 100L * (random.nextInt(seed) + 1);

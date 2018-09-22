@@ -243,6 +243,7 @@ public class SpiderUI extends JFrame{
 			public void mouseClicked(MouseEvent e) {
         		try {
         			File file = SelectFiles.getFile(DEFAULT_PATH);
+        			if(file == null) return;
 					java.util.List<String> lines = FileUtils.readLines(file, "utf-8");
 					if(!lines.isEmpty()) {
 						url.setText(lines.remove(0));
