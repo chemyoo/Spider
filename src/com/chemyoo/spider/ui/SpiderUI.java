@@ -292,7 +292,7 @@ public class SpiderUI extends JFrame{
 				tray.remove(trayIcon);
 				message.setText("正在保存状态...");
 				saveStatus(netUrl, refererUrl, dir);
-				super.windowClosing(e);
+				dispose();
 			}
 			
 		});
@@ -333,9 +333,9 @@ public class SpiderUI extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				if(new File(path).isDirectory()) {
 					DeleteImages.delete(path);
-					saveStatus(netUrl, referer, path);
 				}
 				tray.remove(trayIcon);
+				saveStatus(netUrl, referer, path);
 				dispose();
 			}
 
@@ -374,6 +374,7 @@ public class SpiderUI extends JFrame{
 	}
 	
 	private void saveStatus(String netUrl, String origin, String savePath) {
+		LOG.error("关闭程序...");
 		StringBuilder buider = new StringBuilder();
 		buider.append(netUrl).append(PropertiesUtil.getLineSeparator())
 			  .append(origin).append(PropertiesUtil.getLineSeparator())
@@ -384,7 +385,7 @@ public class SpiderUI extends JFrame{
 		while(!LinkQueue.unVisitedEmpty()) {
 			buider.append(LinkQueue.unVisitedPop()).append(PropertiesUtil.getLineSeparator());
 			index ++;
-			if(index > 500)
+			if(index > 5000)
 				break;
 		}
 		String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 

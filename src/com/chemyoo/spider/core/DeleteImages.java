@@ -71,7 +71,7 @@ public class DeleteImages {
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-			int seed = 10;
+			int seed = 15;
 			if(isNotAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
 			} else {
