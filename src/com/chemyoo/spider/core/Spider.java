@@ -93,18 +93,6 @@ public class Spider {
 			this.message.setText("正在访问网址链接:" + link);
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
-			int linkSize = LinkQueue.getVisitedSize();
-			if(linkSize != 0 && linkSize % 500 == 0) {
-				try {
-					// 设置休眠，防止IP被禁用。
-					long sleepTime = 5L + random.nextInt(15);
-					LOG.info("程序进入休眠时间段，休眠时间：" + sleepTime + "s");
-					TimeUnit.SECONDS.sleep(sleepTime);
-				} catch (InterruptedException e) {
-					LOG.error(e.getMessage(), e);
-					Thread.currentThread().interrupt();
-				}
-			}
 		}
 		time.cancel();
 		if(button.isSelected())
@@ -191,6 +179,19 @@ public class Spider {
 		} catch (IOException e) {
 			LOG.error("打开网页发生异常",e);
 		}
+		int linkSize = LinkQueue.getVisitedSize();
+		if(linkSize != 0 && linkSize % 50 == 0) {
+			try {
+				// 设置休眠，防止IP被禁用。
+				long sleepTime = 10L + random.nextInt(20);
+				LOG.info("程序进入休眠时间段，休眠时间：" + sleepTime + "s");
+				LOG.info("待访问的网址数量：" + LinkQueue.getUnVisitedSize());
+				TimeUnit.SECONDS.sleep(sleepTime);
+			} catch (InterruptedException e) {
+				LOG.error(e.getMessage(), e);
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
 	private void getIframe(Elements body){
@@ -218,6 +219,7 @@ public class Spider {
 	private void getUrls(Elements body) {
 		String classSelector = properties.getProperty("dom.class.first");
 		String classSelector2 = properties.getProperty("dom.class.second");
+		String removeItem = properties.getProperty("dom.not");
 		String keyWord = properties.getProperty("key.word");
 		String notEndWith = properties.getProperty("not.end.with");
 		String filterUrl = properties.getProperty("filter.url");
@@ -236,9 +238,20 @@ public class Spider {
 				href.addAll(main.select(css.trim() + " a[href]"));
 			}
 		}
+		Elements removeHref = new Elements();
+		if(StringUtils.isNotBlank(removeItem)) {
+			String[] cssSelector = removeItem.split(",");
+			for(String css : cssSelector) {
+				if(css.startsWith("a"))
+					removeHref.addAll(main.select(css.trim()));
+				else
+					removeHref.addAll(main.select(css.trim() + " a[href]"));
+			}
+		}
+		href.removeAll(removeHref);
 		Iterator<Element> it = href.iterator();
 		String baseUrl = this.referer;
-		
+		label:
 		while(it.hasNext()) {
 			Element ele = it.next();
 			String herfurl = ele.absUrl("href");
@@ -253,17 +266,15 @@ public class Spider {
 			
 			if(StringUtils.isNotBlank(filterUrl)) {
 				String[] words = filterUrl.split(",");
-				lable:
 				for(String word : words) {
 					if(herfurl.contains(word.trim())) {
-						continue lable;
+						continue label;
 					}
 				}
 			}
 			
 			if(StringUtils.isNotBlank(notContain)) {
 				String[] words = notContain.split("[|]");
-				label:
 				for(String word : words) {
 					boolean isNotAdd = true;
 					String[] andWord = word.split("[+]");
@@ -277,7 +288,6 @@ public class Spider {
 			
 			if(StringUtils.isNotBlank(notEndWith)) {
 				String[] words = notEndWith.split("[|]");
-				label:
 				for(String word : words) {
 					boolean isNotAdd = true;
 					String[] andWord = word.split("[+]");
@@ -337,17 +347,46 @@ public class Spider {
 	}
 	
 	private void getImagesUrls(Elements body) {
-		String main = properties.getProperty("dom.class.first");
-		if(StringUtils.isBlank(main)) {
-			main = StringUtils.EMPTY;
-		} else {
-			main += " ";
+		String main = properties.getProperty("dom.class.first","img[src]");
+		String classSelector2 = properties.getProperty("dom.class.second");
+		String removeItem = properties.getProperty("dom.not");
+		String notDownImg = properties.getProperty("dom.img.not");
+		Elements mainDiv = body.select(main);
+		Elements href = new Elements();
+		if(StringUtils.isNotBlank(classSelector2)) {
+			String[] cssSelector = classSelector2.split(",");
+			for(String css : cssSelector) {
+				href.addAll(mainDiv.select(css.trim() + " img[src]"));
+			}
 		}
-		Elements href = body.select(main + "img[src]");
+		Elements removeHref = new Elements();
+		if(StringUtils.isNotBlank(removeItem)) {
+			String[] cssSelector = removeItem.split(",");
+			for(String css : cssSelector) {
+				removeHref.addAll(mainDiv.select(css.trim() + " img[src]"));
+			}
+		}
+		if(StringUtils.isNotBlank(notDownImg)) {
+			String[] cssSelector = notDownImg.split(",");
+			for(String css : cssSelector) {
+				removeHref.addAll(mainDiv.select(css.trim() + " img[src]"));
+			}
+		}
+		href.removeAll(removeHref);
 		Iterator<Element> it = href.iterator();
+		String filterUrl = properties.getProperty("filter.url");
 		String src;
+		lable:
 		while(it.hasNext()) {
 			src = it.next().absUrl("src");
+			if(StringUtils.isNotBlank(filterUrl)) {
+				String[] words = filterUrl.split(",");
+				for(String word : words) {
+					if(src.contains(word.trim())) {
+						continue lable;
+					}
+				}
+			}
 			LinkQueue.imageUrlpush(src);
 			this.recognizeUrl(src);
 		}

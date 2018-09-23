@@ -9,9 +9,12 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.digest.DigestUtils;
 //import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +28,8 @@ import org.jsoup.select.Elements;
  * java抓取网络图片
  */
 public class ImagesUtils {
+	
+	protected static Random random = new Random();
 	
 	private ImagesUtils() {}
 	
@@ -40,6 +45,7 @@ public class ImagesUtils {
 	public static void downloadPic(String dir, String referer) {
 		// 获得html文本内容
 		download(dir, referer);
+					
 	}
 
 	/***
@@ -142,7 +148,7 @@ public class ImagesUtils {
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				url = LinkQueue.imageUrlPop();
-				imageName = url.substring(url.lastIndexOf('/') + 1,
+				imageName = DigestUtils.md5Hex(url) + url.substring(url.lastIndexOf('/') + 1,
 						url.length());
 				
 				if(imageName.contains("?")) {

@@ -76,7 +76,7 @@ public class DeleteImages {
 				FileUtils.deleteQuietly(file);
 			} else {
 				moveFile(file, dir);
-				seed = 2;
+				seed = 3;
 			}
 			try {
 				long milliseconds = 100L * (random.nextInt(seed) + 1);
@@ -134,7 +134,8 @@ public class DeleteImages {
 			double size = file.length() / 1024.0;
 			FileUtils.copyFile(file, newFile);
 			FileUtils.deleteQuietly(file);
-			LOG.info("保存文件：【" + file.getPath() + " 】，已重新命名，文件大小：" + String.format("%.2f kb", size));
+			LOG.info("保存文件：【" + file.getPath() + " 】，已重新命名【" + newFile.getName() 
+				+ "】，文件大小：" + String.format("%.2f kb", size));
 		} catch (IOException e) {
 			LOG.error("重命名文件失败");
 		}

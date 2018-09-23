@@ -27,7 +27,7 @@ public class LinkQueue {
 		
 		if (!unVisited.isEmpty()) {
 			String link = unVisited.remove(0);
-			if(visited.size() > 60000 && menuUrl.size() < 50000) {
+			if(visited.size() > 60000 && menuUrl.size() < 10000) {
 				visited.clear();
 				visited.addAll(menuUrl);
 			}
@@ -43,6 +43,10 @@ public class LinkQueue {
 	
 	public static int getVisitedSize() {
 		return visited.size();
+	}
+	
+	public static int getImageUrlSize() {
+		return imageUrl.size();
 	}
 	
 	// 未访问的imageUrl出队列
@@ -66,7 +70,8 @@ public class LinkQueue {
 	}
 	
 	public static void push(String url) {
-		if (isNotBlank(url) && !visited.contains(DigestUtils.md5Hex(url)) && url.startsWith("http") && !unVisited.contains(url))
+		if (isNotBlank(url) && getUnVisitedSize() < 10000 && !visited.contains(DigestUtils.md5Hex(url)) 
+				&& url.startsWith("http") && !unVisited.contains(url))
 			unVisited.add(url);
 	}
 	
@@ -92,6 +97,7 @@ public class LinkQueue {
 		unVisited.clear();
 		visited.clear();
 		menuUrl.clear();
+		imageUrl.clear();
 	}
 	
 }
