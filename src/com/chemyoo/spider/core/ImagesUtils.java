@@ -148,8 +148,9 @@ public class ImagesUtils {
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				url = LinkQueue.imageUrlPop();
-				imageName = DigestUtils.md5Hex(url) + url.substring(url.lastIndexOf('/') + 1,
+				imageName = url.substring(url.lastIndexOf('/') + 1,
 						url.length());
+//				DigestUtils.md5Hex(url) + 
 				
 				if(imageName.contains("?")) {
 					imageName = imageName.substring(0,imageName.lastIndexOf('?'));
