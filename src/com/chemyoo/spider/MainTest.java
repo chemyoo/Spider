@@ -20,6 +20,7 @@ import com.chemyoo.spider.core.SelectFiles;
 public class MainTest {
 	
 	private static AtomicInteger count = new AtomicInteger(0);
+	private static int countz = 0;
 	
 	private static CountDownLatch countDownLatch = null;
 
@@ -38,6 +39,7 @@ public class MainTest {
 			md5Values.clear();
 			md5Values = null;
 			System.out.println("删除文件个数：" + count.intValue());
+			System.out.println("countz：" + countz);
 			System.out.println("处理结束...");
 			long take = System.currentTimeMillis() - start;
 			Calendar calendar = Calendar.getInstance();
@@ -127,7 +129,8 @@ public class MainTest {
 			FileUtils.deleteQuietly(curfile);
 			System.err.println("删除文件：" + curfile.getAbsolutePath());
 //			FileUtils.moveFileToDirectory(curfile, directory, true);
-			count.incrementAndGet();
+//			count.incrementAndGet();
+			countz ++;
 		} else {
 			System.err.println("保留文件：" + curfile.getAbsolutePath());
 		}
