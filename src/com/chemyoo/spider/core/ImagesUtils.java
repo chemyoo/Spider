@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -143,11 +142,10 @@ public class ImagesUtils {
 		InputStream in = null;
 		FileOutputStream fileOutStream = null;
 		HttpURLConnection httpConnection = null;
-		String url;
-		String imageName = null;
 		while(!LinkQueue.imageUrlEmpty()) {
+			String imageName = null;
 			try {
-				url = LinkQueue.imageUrlPop();
+				String url = LinkQueue.imageUrlPop();
 				imageName = DigestUtils.md5Hex(url) + url.substring(url.lastIndexOf('/') + 1,
 						url.length());
 				
@@ -173,7 +171,7 @@ public class ImagesUtils {
 				// 设置连接主机超时（单位：毫秒）  
 				httpConnection.setConnectTimeout(60 * 1000);
 				// 设置从主机读取数据超时（单位：毫秒） 
-				httpConnection.setReadTimeout(60 * 1000);
+				httpConnection.setReadTimeout(120 * 1000);
 				
 				// 连接网站
 				httpConnection.connect();
@@ -207,6 +205,7 @@ public class ImagesUtils {
 				DeleteImages.checkImageSize(new File(dir + imageName), dir);
 				if(httpConnection != null)
 					httpConnection.disconnect();
+				imageName = null;
 			}
 		}
 	}
