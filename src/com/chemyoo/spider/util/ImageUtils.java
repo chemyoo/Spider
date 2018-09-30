@@ -92,7 +92,7 @@ public class ImageUtils {
 		double r = 0D;
 		if (width > 0 && height > 0) {
 			// 白色像素点数量
-			int count = 0;
+			int count = width * height;
 			// 其他颜色数量
 			int maxCount = 0;
 			int rgbValue = 0;
@@ -106,7 +106,6 @@ public class ImageUtils {
 					} else {
 						rgbMap.put(dip, 1);
 					}
-					count++;
 				}
 			}
 			for(Map.Entry<Integer, Integer> entry : rgbMap.entrySet()) {
@@ -117,18 +116,49 @@ public class ImageUtils {
 				}
 			}
 			r = maxCount * 1D / count;
-			System.err.println(RGB(rgbValue));
+			Color color = getRGB(rgbValue);
+			System.err.println("16进制颜色：" + getHexColor(color) + "[r=" + 
+					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]");
 		}
 		return r;
 	}
 	
-	private static Color RGB(int color) {
-		int r = 0xFF & color;
-		int g = 0xFF00 & color;
-		g >>= 8;
-		int b = 0xFF0000 & color;
-		b >>= 16;
+	private static Color getRGB(int color) {
+		int r = (0xff0000 & color) >> 16;
+		int g = (0xFF00 & color) >> 8;
+		int b = (0xFF & color);
 		return Color.getHSBColor(r, g, b);
+	}
+	
+	private static String getHexColor(Color color) {
+		int r = color.getRed();
+		int g = color.getGreen();
+		int b = color.getBlue();
+		String hexR = "0" + Integer.toHexString(r);
+		String hexG = "0" + Integer.toHexString(g);
+		String hexB = "0" + Integer.toHexString(b);
+		StringBuilder hexColor = new StringBuilder("#");
+		hexColor.append(slice(hexR, -2))
+				.append(slice(hexG, -2))
+				.append(slice(hexB, -2));
+		return hexColor.toString();
+	}
+	
+	private static String slice(String str,int offset) {
+		String r = null;
+		if(offset >= 0) {
+			r = str.substring(offset);
+		} else {
+			char[] c = str.toCharArray();
+			int length = c.length;
+			int end = length + offset;
+			StringBuilder builder = new StringBuilder();
+			for(int i = length - 1; i > -1 && i >= end; i --) {
+				builder.append(c[i]);
+			}
+			r = builder.reverse().toString();
+		}
+		return r;
 	}
 	
 }
