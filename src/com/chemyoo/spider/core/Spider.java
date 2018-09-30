@@ -242,7 +242,7 @@ public class Spider {
 		if(StringUtils.isNotBlank(removeItem)) {
 			String[] cssSelector = removeItem.split(",");
 			for(String css : cssSelector) {
-				if(css.startsWith("a"))
+				if(css.startsWith("a."))
 					removeHref.addAll(main.select(css.trim()));
 				else
 					removeHref.addAll(main.select(css.trim() + " a[href]"));
@@ -255,6 +255,9 @@ public class Spider {
 		while(it.hasNext()) {
 			Element ele = it.next();
 			String herfurl = ele.absUrl("href");
+			if(herfurl.endsWith("#")) {
+				herfurl = ele.attr("attr-download-url");
+			}
 			String text = ele.text();
 
 			this.recognizeUrl(herfurl);
