@@ -96,6 +96,8 @@ public class ImageUtils {
 			// 其他颜色数量
 			int maxCount = 0;
 			int rgbValue = 0;
+			int secondRgbValue = 0;
+			int secondmaxCount = 0;
 			Map<Integer, Integer> rgbMap = new HashMap<>();
 			// 扫描图片
 			for (int i = 0; i < height; i++) {
@@ -113,21 +115,29 @@ public class ImageUtils {
 				if(value > maxCount) {
 					maxCount = value;
 					rgbValue = entry.getKey();
+				} 
+				if(value > secondmaxCount && value < maxCount) {
+					secondmaxCount = value;
+					secondRgbValue = entry.getKey();
 				}
 			}
 			r = maxCount * 1D / count;
 			Color color = getRGB(rgbValue);
 			System.err.println("16进制颜色：" + getHexColor(color) + "[r=" + 
 					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]");
+			color = getRGB(secondRgbValue);
+			System.err.println("第二色彩颜色：" + getHexColor(color) + "[r=" + 
+					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]，占比" 
+					+ NumberUtils.setScale(secondmaxCount * 100D / count, 2));
 		}
 		return r;
 	}
 	
 	private static Color getRGB(int colorRGB) {
-		int r = (0xff0000 & colorRGB) >> 16;
-		int g = (0xFF00 & colorRGB) >> 8;
-		int b = (0xFF & colorRGB);
-		return Color.getHSBColor(r, g, b);
+		int r = (colorRGB & 0xff0000) >> 16;
+		int g = (colorRGB & 0xFF00) >> 8;
+		int b = (colorRGB & 0xFF);
+		return new Color(r, g, b);
 	}
 	
 	private static String getHexColor(Color color) {
@@ -159,6 +169,15 @@ public class ImageUtils {
 			r = builder.reverse().toString();
 		}
 		return r;
+	}
+	
+	private static int converRgbToArgb(Color color){
+		return (0xFF << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+	}
+	
+	public static void main(String[] args) {
+		System.err.println(getRGB(-1));
+		System.err.println(converRgbToArgb(getRGB(-1)));
 	}
 	
 }
