@@ -123,10 +123,10 @@ public class ImageUtils {
 		return r;
 	}
 	
-	private static Color getRGB(int color) {
-		int r = (0xff0000 & color) >> 16;
-		int g = (0xFF00 & color) >> 8;
-		int b = (0xFF & color);
+	private static Color getRGB(int colorRGB) {
+		int r = (0xff0000 & colorRGB) >> 16;
+		int g = (0xFF00 & colorRGB) >> 8;
+		int b = (0xFF & colorRGB);
 		return Color.getHSBColor(r, g, b);
 	}
 	
@@ -144,7 +144,7 @@ public class ImageUtils {
 		return hexColor.toString();
 	}
 	
-	private static String slice(String str,int offset) {
+	private static String slice(String str, int offset) {
 		String r = null;
 		if(offset >= 0) {
 			r = str.substring(offset);
