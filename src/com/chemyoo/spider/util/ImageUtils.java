@@ -117,7 +117,8 @@ public class ImageUtils {
 				}
 			}
 			r = maxCount * 1D / count;
-			System.err.println(RGB(rgbValue));
+			if(r > 26D)
+				System.err.println(RGB(rgbValue));
 		}
 		return r;
 	}
