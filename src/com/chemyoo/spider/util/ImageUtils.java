@@ -121,8 +121,8 @@ public class ImageUtils {
 					secondRgbValue = entry.getKey();
 				}
 			}
-			r = maxCount * 1D / count;
-			if(r > 26D)
+			r = (maxCount + secondmaxCount) * 1D / count;
+			if(r > 30D)
 				System.err.println(getRGB(rgbValue));
 			Color color = getRGB(rgbValue);
 			System.err.println("16进制颜色：" + getHexColor(color) + "[r=" + 
