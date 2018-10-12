@@ -91,48 +91,61 @@ public class ImageUtils {
 	private static double calculate(BufferedImage bi, int width, int height) {
 		double r = 0D;
 		if (width > 0 && height > 0) {
-			// 白色像素点数量
+			// 像素点数量
 			int count = width * height;
-			// 其他颜色数量
-			int maxCount = 0;
-			int rgbValue = 0;
-			int secondRgbValue = 0;
-			int secondmaxCount = 0;
+			// 主要颜色数量初始化
+			int[] maxCount = new int[] {0, 0, 0, 0};
 			Map<Integer, Integer> rgbMap = new HashMap<>();
 			// 扫描图片
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {// 行扫描
-					int dip = bi.getRGB(j, i);
-					if(rgbMap.containsKey(dip)) {
-						rgbMap.replace(dip, rgbMap.get(dip) + 1);
+					int dip = Math.abs(bi.getRGB(j, i));
+					int key = (int) (dip / (Math.pow(2, 16))); // 将颜色换成256色。
+					if(rgbMap.containsKey(key)) {
+						rgbMap.replace(key, rgbMap.get(key) + 1);
 					} else {
-						rgbMap.put(dip, 1);
+						rgbMap.put(key, 1);
 					}
 				}
 			}
+			// 获得数量最多的前四色。
 			for(Map.Entry<Integer, Integer> entry : rgbMap.entrySet()) {
 				int value = entry.getValue();
-				if(value > maxCount) {
-					maxCount = value;
-					rgbValue = entry.getKey();
-				} 
-				if(value > secondmaxCount && value < maxCount) {
-					secondmaxCount = value;
-					secondRgbValue = entry.getKey();
+				if(value > maxCount[0]) {
+					maxCount[1] = maxCount[0];
+					maxCount[0] = value;
+				} else if(value > maxCount[1]) {
+					maxCount[2] = maxCount[1];
+					maxCount[1] = value;
+				} else if(value > maxCount[2]) {
+					maxCount[3] = maxCount[2];
+					maxCount[2] = value;
+				} else if(value > maxCount[3]) {
+					maxCount[3] = value;
 				}
 			}
-			r = (maxCount + secondmaxCount) * 1D / count;
-			if(r > 30D)
-				System.err.println(getRGB(rgbValue));
-			Color color = getRGB(rgbValue);
-			System.err.println("16进制颜色：" + getHexColor(color) + "[r=" + 
-					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]");
-			color = getRGB(secondRgbValue);
-			System.err.println("第二色彩颜色：" + getHexColor(color) + "[r=" + 
-					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]，占比" 
-					+ NumberUtils.setScale(secondmaxCount * 100D / count, 2));
+			r = sum(maxCount) * 1D / count;
+//			if(r > 30D)
+//				System.err.println(getRGB(rgbValue));
+//			Color color = getRGB(rgbValue);
+//			System.err.println("16进制颜色：" + getHexColor(color) + "[r=" + 
+//					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]");
+//			color = getRGB(secondRgbValue);
+//			System.err.println("第二色彩颜色：" + getHexColor(color) + "[r=" + 
+//					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]，占比" 
+//					+ NumberUtils.setScale(secondmaxCount * 100D / count, 2));
 		}
 		return r;
+	}
+	
+	private static int sum(int[] array) {
+		int sum = 0;
+		if(array != null && array.length > 0) {
+			for(int v : array) {
+				sum += v;
+			}
+		}
+		return sum;
 	}
 	
 	private static Color getRGB(int colorRGB) {

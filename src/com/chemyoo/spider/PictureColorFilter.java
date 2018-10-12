@@ -52,7 +52,7 @@ public class PictureColorFilter {
 						double value = NumberUtils.setScale(ImageUtils.getWhiteColorPer(f) * 100, 2);
 						System.err.println("正在识别第" + count + "张图片，文件名：" 
 								+ f.getAbsolutePath() + "，主要色彩占比：" + value);
-						if(value > 30D) {
+						if(value > 25D) {
 							try {
 								FileUtils.moveFileToDirectory(f, f.getParentFile().getParentFile(), true);
 							} catch (IOException e) {
