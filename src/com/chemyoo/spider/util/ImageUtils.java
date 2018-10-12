@@ -73,7 +73,6 @@ public class ImageUtils {
 
 	public static PictureColor getWhiteColorPer(File file) {
 		PictureColor colorInfo = new PictureColor();
-		double r = 0D;
 		try {
 			BufferedImage bi = (BufferedImage) ImageUtils.getThumbnailImage(file);
 
