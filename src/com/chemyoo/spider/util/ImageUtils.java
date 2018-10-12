@@ -71,7 +71,8 @@ public class ImageUtils {
 		}
 	}
 
-	public static double getWhiteColorPer(File file) {
+	public static PictureColor getWhiteColorPer(File file) {
+		PictureColor colorInfo = new PictureColor();
 		double r = 0D;
 		try {
 			BufferedImage bi = (BufferedImage) ImageUtils.getThumbnailImage(file);
@@ -80,16 +81,16 @@ public class ImageUtils {
 				// 获取图像的宽度和高度
 				int width = bi.getWidth();
 				int height = bi.getHeight();
-				r = calculate(bi, width, height);
+				colorInfo = calculate(bi, width, height);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return r;
+		return colorInfo;
 	}
 
-	private static double calculate(BufferedImage bi, int width, int height) {
-		double r = 0D;
+	private static PictureColor calculate(BufferedImage bi, int width, int height) {
+		PictureColor colorInfo = new PictureColor();
 		if (width > 0 && height > 0) {
 			// 像素点数量
 			int count = width * height;
@@ -124,7 +125,9 @@ public class ImageUtils {
 					maxCount[3] = value;
 				}
 			}
-			r = sum(maxCount) * 1D / count;
+			colorInfo.percent = sum(maxCount) * 1D / count;
+			colorInfo.average = 0;
+			colorInfo.colorCount = rgbMap.size();
 //			if(r > 30D)
 //				System.err.println(getRGB(rgbValue));
 //			Color color = getRGB(rgbValue);
@@ -135,7 +138,7 @@ public class ImageUtils {
 //					color.getRed() + ",g=" + color.getGreen() + ",b=" + color.getBlue() + "]，占比" 
 //					+ NumberUtils.setScale(secondmaxCount * 100D / count, 2));
 		}
-		return r;
+		return colorInfo;
 	}
 	
 	private static int sum(int[] array) {
