@@ -1,6 +1,6 @@
 package com.chemyoo.spider.core;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.codec.digest.DigestUtils;
 //import org.apache.commons.codec.digest.DigestUtils;
@@ -141,7 +142,6 @@ public class ImagesUtils {
 		}
 		
 		InputStream in = null;
-		FileOutputStream fileOutStream = null;
 		HttpURLConnection httpConnection = null;
 		String url;
 		String imageName = null;
@@ -171,9 +171,13 @@ public class ImagesUtils {
 				
 				// 默认GET方法，httpConnection.setRequestMethod("get".toUpperCase());
 				// 设置连接主机超时（单位：毫秒）  
-				httpConnection.setConnectTimeout(60 * 1000);
+				httpConnection.setConnectTimeout(30 * 1000);
 				// 设置从主机读取数据超时（单位：毫秒） 
-				httpConnection.setReadTimeout(60 * 1000);
+				httpConnection.setReadTimeout(90 * 1000);
+				
+				String userAgent = new String []{"Mozilla/4.0","Mozilla/5.0","Opera/9.80"}[random.nextInt(3)];
+				
+				httpConnection.setRequestProperty("User-agent", userAgent);
 				
 				// 连接网站
 				httpConnection.connect();
@@ -191,20 +195,19 @@ public class ImagesUtils {
 					continue;
 				}
 				in = httpConnection.getInputStream();
-				fileOutStream = new FileOutputStream(new File(dir + imageName));
-				byte[] buf = new byte[1024];
-				int length = 0;
-				while ((length = in.read(buf, 0, buf.length)) != -1) {
-					fileOutStream.write(buf, 0, length);
-				}
+				BufferedImage image = ImageIO.read(in);
+				DeleteImages.checkImageSize(new File(dir + imageName), image);
+//				fileOutStream = new FileOutputStream(new File(dir + imageName))
+//				byte[] buf = new byte[1024]
+//				int length = 0
+//				while ((length = in.read(buf, 0, buf.length)) != -1) 
+//					fileOutStream.write(buf, 0, length)
 			} catch (Exception e) {
-				LOG.error("下载图片发生异常",e);
+				LOG.error("下载图片发生异常：" + e.getMessage());
 			} finally {
 				Spider.closeQuietly(in);
-				Spider.closeQuietly(fileOutStream);
 //				待文件流被释放后，下载成功，进行文件分辨率辨识		
-				in = null;fileOutStream = null;
-				DeleteImages.checkImageSize(new File(dir + imageName), dir);
+				in = null;
 				if(httpConnection != null)
 					httpConnection.disconnect();
 			}

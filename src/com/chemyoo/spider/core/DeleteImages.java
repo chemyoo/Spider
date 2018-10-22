@@ -68,6 +68,23 @@ public class DeleteImages {
 			// not use 'else LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);'
 			return flag;
 	}
+	
+	private static boolean isNotAllowedSave(File file, BufferedImage image){
+		double width = 0d;
+		double height = 0d;
+		try {
+			width = image.getWidth();
+			height = image.getHeight();
+			image.flush();
+		} catch (Exception e) {
+			LOG.error("获取图片分辨率失败：", e);
+		} 
+		boolean flag = width < 1000 || height < 700;
+		if(!flag)
+			LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
+		// not use 'else LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);'
+		return flag;
+}
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
@@ -87,6 +104,26 @@ public class DeleteImages {
 				Thread.currentThread().interrupt();
 			}
 		}
+	}
+	
+	public static synchronized void checkImageSize(File file, BufferedImage image) {
+			if(!isNotAllowedSave(file, image)) {
+				try {
+					ImageIO.write(image, getFileExt(file.getName()), file);
+					moveFile(file, file.getParentFile().getPath());
+				} catch (IOException e) {
+					LOG.error("保存图片发生异常",e);
+				}
+			}
+			try {
+				image.flush();
+				long milliseconds = 10L * (random.nextInt(30) + 1);
+				// 设置休眠，防止IP被禁用。
+				TimeUnit.MILLISECONDS.sleep(milliseconds);
+			} catch (InterruptedException e) {
+				LOG.error("下载图片发生异常",e);
+				Thread.currentThread().interrupt();
+			}
 	}
 	
 	private static void moveFile(File file,final String dir) {
