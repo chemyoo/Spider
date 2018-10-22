@@ -50,6 +50,8 @@ public class Spider {
 	
 	private Random random = new Random();
 	
+	private int count;
+	
 	Properties properties = PropertiesUtil.getInstance();
 	
 	private static final String PICTURE_EXT = "gif,png,jpg,jpeg,bmp"; 
@@ -68,6 +70,7 @@ public class Spider {
 		if(LinkQueue.unVisitedEmpty()) {
 			LinkQueue.push(this.url);
 		}
+		this.count = 0;
 	}
 	
 	private void setReferer(String referer) {
@@ -93,6 +96,7 @@ public class Spider {
 			this.message.setText("正在访问网址链接:" + link);
 			this.connectUrl(link);
 			ImagesUtils.downloadPic(this.dir, this.getReferer());
+			this.count ++;
 		}
 		time.cancel();
 		if(button.isSelected())
@@ -118,6 +122,7 @@ public class Spider {
 					DeleteImages.delete(dir);
 					LOG.info("待访问的网址数量：" + LinkQueue.getUnVisitedSize());
 					LOG.info("定时任务执行完成...");
+					LOG.info("网址连接速度：" + (count / 5D) + "个/分钟");
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
 				}

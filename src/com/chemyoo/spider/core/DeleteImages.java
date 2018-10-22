@@ -117,7 +117,7 @@ public class DeleteImages {
 			}
 			try {
 				image.flush();
-				long milliseconds = 10L * (random.nextInt(30) + 1);
+				long milliseconds = 100L * (random.nextInt(30) + 5);
 				// 设置休眠，防止IP被禁用。
 				TimeUnit.MILLISECONDS.sleep(milliseconds);
 			} catch (InterruptedException e) {
