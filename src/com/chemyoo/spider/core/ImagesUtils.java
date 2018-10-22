@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -145,6 +146,7 @@ public class ImagesUtils {
 		HttpURLConnection httpConnection = null;
 		String url;
 		String imageName = null;
+		long milliseconds = 0;
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				url = LinkQueue.imageUrlPop();
@@ -181,6 +183,7 @@ public class ImagesUtils {
 				
 				// 连接网站
 				httpConnection.connect();
+				milliseconds = 0;
 				// LOG.info("下载文件：【" + url + "】");
 				
 				// 网址连接失败就继续向下一个网址执行。
@@ -191,12 +194,12 @@ public class ImagesUtils {
 					
 					LOG.error("网址：" + url + "访问失败：" 
 							+ IOUtils.toString(in, "gb2312"));
-					httpConnection.disconnect();
-					continue;
+				} else {
+					in = httpConnection.getInputStream();
+					BufferedImage image = ImageIO.read(in);
+					DeleteImages.checkImageSize(new File(dir + imageName), image);
 				}
-				in = httpConnection.getInputStream();
-				BufferedImage image = ImageIO.read(in);
-				DeleteImages.checkImageSize(new File(dir + imageName), image);
+				milliseconds = 100L * (random.nextInt(28) + 3);
 //				fileOutStream = new FileOutputStream(new File(dir + imageName))
 //				byte[] buf = new byte[1024]
 //				int length = 0
@@ -210,6 +213,13 @@ public class ImagesUtils {
 				in = null;
 				if(httpConnection != null)
 					httpConnection.disconnect();
+				try {
+					// 设置休眠，防止IP被禁用。
+					TimeUnit.MILLISECONDS.sleep(milliseconds);
+				} catch (InterruptedException e) {
+					LOG.error("下载图片发生异常",e);
+					Thread.currentThread().interrupt();
+				}
 			}
 		}
 	}

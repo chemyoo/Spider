@@ -6,8 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
@@ -27,8 +25,6 @@ public class DeleteImages {
 	private static final Logger LOG = Logger.getLogger(Spider.class);
 	
 	private static final String IMAGES_DIR = "/images/";
-	
-	private static Random random = new Random();
 	
 	public static synchronized void delete(String dir) {
 		File file = new File(dir);
@@ -88,20 +84,10 @@ public class DeleteImages {
 
 	public static synchronized void checkImageSize(File file, String dir) {
 		if(file.exists() && file.isFile()) {
-			int seed = 15;
 			if(isNotAllowedSave(file)) {
 				FileUtils.deleteQuietly(file);
 			} else {
 				moveFile(file, dir);
-				seed = 3;
-			}
-			try {
-				long milliseconds = 100L * (random.nextInt(seed) + 1);
-				// 设置休眠，防止IP被禁用。
-				TimeUnit.MILLISECONDS.sleep(milliseconds);
-			} catch (InterruptedException e) {
-				LOG.error("下载图片发生异常",e);
-				Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -111,18 +97,10 @@ public class DeleteImages {
 				try {
 					ImageIO.write(image, getFileExt(file.getName()), file);
 					moveFile(file, file.getParentFile().getPath());
+					image.flush();
 				} catch (IOException e) {
 					LOG.error("保存图片发生异常",e);
 				}
-			}
-			try {
-				image.flush();
-				long milliseconds = 100L * (random.nextInt(30) + 5);
-				// 设置休眠，防止IP被禁用。
-				TimeUnit.MILLISECONDS.sleep(milliseconds);
-			} catch (InterruptedException e) {
-				LOG.error("下载图片发生异常",e);
-				Thread.currentThread().interrupt();
 			}
 	}
 	
