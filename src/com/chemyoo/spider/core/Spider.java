@@ -165,11 +165,12 @@ public class Spider {
 			if(this.referer != null && !url.startsWith(this.referer)) {
 				return;
 			} 
+			String userAgent = new String []{"Mozilla/4.0","Mozilla/5.0","Opera/9.80"}[random.nextInt(3)];
 			//.ignoreContentType(true)忽略请求头
 			//Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko 这是IE11的userAgent
 			//Mozilla 为大多数浏览器
 			Document doc = Jsoup.connect(url)
-					.userAgent("Mozilla")
+					.userAgent(userAgent)
 					.timeout(30 * 1000).get();
 			
 			Elements body = doc.getElementsByTag("body");
