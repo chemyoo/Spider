@@ -9,7 +9,6 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 import javax.swing.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -186,19 +185,6 @@ public class Spider {
 			this.getIframe(body);
 		} catch (IOException e) {
 			LOG.error("打开网页发生异常",e);
-		}
-		int linkSize = LinkQueue.getVisitedSize();
-		if(linkSize != 0 && linkSize % 50 == 0) {
-			try {
-				// 设置休眠，防止IP被禁用。
-				long sleepTime = 10L + random.nextInt(20);
-				LOG.info("程序进入休眠时间段，休眠时间：" + sleepTime + "s");
-				LOG.info("待访问的网址数量：" + LinkQueue.getUnVisitedSize());
-				TimeUnit.SECONDS.sleep(sleepTime);
-			} catch (InterruptedException e) {
-				LOG.error(e.getMessage(), e);
-				Thread.currentThread().interrupt();
-			}
 		}
 	}
 
