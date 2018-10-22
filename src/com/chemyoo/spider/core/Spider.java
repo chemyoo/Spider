@@ -125,6 +125,8 @@ public class Spider {
 					LOG.info("网址连接速度：" + (count / 5D) + "个/分钟");
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
+				} finally {
+					count = 0;
 				}
 		}}, 0, 5 * 60 * 1000L);
 	}
