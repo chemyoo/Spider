@@ -71,7 +71,6 @@ public class DeleteImages {
 		try {
 			width = image.getWidth();
 			height = image.getHeight();
-			image.flush();
 		} catch (Exception e) {
 			LOG.error("获取图片分辨率失败：", e);
 		} 
@@ -97,11 +96,11 @@ public class DeleteImages {
 				try {
 					ImageIO.write(image, getFileExt(file.getName()), file);
 					moveFile(file, file.getParentFile().getPath());
-					image.flush();
 				} catch (IOException e) {
 					LOG.error("保存图片发生异常",e);
 				}
 			}
+			image.flush();
 	}
 	
 	private static void moveFile(File file,final String dir) {
