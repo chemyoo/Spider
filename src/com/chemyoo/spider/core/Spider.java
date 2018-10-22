@@ -119,9 +119,12 @@ public class Spider {
 				try {
 					LOG.info("定时任务已启动...");
 					DeleteImages.delete(dir);
-					LOG.info("待访问的网址数量：" + LinkQueue.getUnVisitedSize());
+					int size = LinkQueue.getUnVisitedSize();
+					LOG.info("待访问的网址数量：" + size);
 					LOG.info("定时任务执行完成...");
-					LOG.info("网址连接速度：" + (count / 5D) + "个/分钟");
+					double rate = count / 5D;
+					LOG.info("网址连接速度：" + rate+ "个/分钟");
+					LOG.info("预计完成需要：" + (size / rate)+ "分钟");
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
 				} finally {
