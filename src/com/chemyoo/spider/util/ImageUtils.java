@@ -23,6 +23,11 @@ import org.apache.commons.lang3.StringUtils;
 public class ImageUtils {
 	private ImageUtils() {
 	}
+	
+	/**
+	 * 将黑色作为基准色
+	 */
+	private static final Color BLACK = new Color(0, 0, 0);
 
 	private static final String[] types = ImageIO.getReaderFormatNames();
 
@@ -99,8 +104,8 @@ public class ImageUtils {
 			// 扫描图片
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {// 行扫描
-					int dip = Math.abs(bi.getRGB(j, i));
-					int key = (int) (dip / (Math.pow(2, 16))); // 将颜色换成256色。
+					int dip = bi.getRGB(j, i);
+					int key = (int) labColorDistance(getRGB(dip)); // 将颜色换成4096色。
 					if(rgbMap.containsKey(key)) {
 						rgbMap.replace(key, rgbMap.get(key) + 1);
 					} else {
@@ -109,6 +114,8 @@ public class ImageUtils {
 				}
 			}
 			// 获得数量最多的前四色。
+			double sum = 0D;
+			colorInfo.colorCount = rgbMap.size();
 			for(Map.Entry<Integer, Integer> entry : rgbMap.entrySet()) {
 				int value = entry.getValue();
 				if(value > maxCount[0]) {
@@ -117,16 +124,18 @@ public class ImageUtils {
 				} else if(value > maxCount[1]) {
 					maxCount[2] = maxCount[1];
 					maxCount[1] = value;
-				} else if(value > maxCount[2]) {
+				}
+				else if(value > maxCount[2]) {
 					maxCount[3] = maxCount[2];
 					maxCount[2] = value;
 				} else if(value > maxCount[3]) {
 					maxCount[3] = value;
 				}
+				sum += distance(value, count / colorInfo.colorCount);
 			}
 			colorInfo.percent = sum(maxCount) * 1D / count;
-			colorInfo.average = 0;
-			colorInfo.colorCount = rgbMap.size();
+			// 求标准差，计算颜色分布离散程度。值越大，颜色分布越离散。
+			colorInfo.average = (int) Math.sqrt(sum / colorInfo.colorCount);
 //			if(r > 30D)
 //				System.err.println(getRGB(rgbValue));
 //			Color color = getRGB(rgbValue);
@@ -193,8 +202,25 @@ public class ImageUtils {
 	}
 	
 	public static void main(String[] args) {
-		System.err.println(getRGB(-1));
-		System.err.println(converRgbToArgb(getRGB(-1)));
+		System.err.println(getRGB(-1600000));
+		System.err.println(converRgbToArgb(new Color(11,11,11)));
+		System.err.println(labColorDistance(new Color(255,255,255)));
+	}
+	
+	public static double distance(int x, int y) {
+		return Math.pow(x - y, 2);
+	}
+	/**
+	 * LAB 是最接近肉眼感官的算法。
+	 * LAB 颜色空间求色差。值越大，色差越大。
+	 */
+	public static double labColorDistance(Color color) {
+		double r_avg = (BLACK.getRed() + color.getRed()) / 2;
+		double r = BLACK.getRed() - color.getRed();
+		double g = BLACK.getRed() - color.getRed();
+		double b = BLACK.getBlue() - color.getBlue();
+		return Math.sqrt((2 + r_avg / 256) * Math.pow(r, 2) + 4 * Math.pow(g, 2) 
+				+ (2 + (255 - r_avg) / 256) * Math.pow(b, 2));
 	}
 	
 }

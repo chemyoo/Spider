@@ -54,9 +54,12 @@ public class PictureColorFilter {
 						double value = NumberUtils.setScale(colorInfo.percent * 100, 2);
 						System.err.println("正在识别第" + count + "张图片，文件名：" 
 								+ f.getAbsolutePath() + "，主要色彩占比：" + value 
-								+ "，色彩数量" + colorInfo.colorCount);
-						if(value > 25D && colorInfo.colorCount < 200) {
+								+ "，颜色分布离散度：" + colorInfo.average);
+						if(value > 33D) {
 							try {
+//								String fileName = f.getParentFile().getParentFile()+"/" + 
+//										value + "_" + colorInfo.average + "_" + f.getName(); 
+//								FileUtils.moveFile(f, new File(fileName));
 								FileUtils.moveFileToDirectory(f, f.getParentFile().getParentFile(), true);
 							} catch (IOException e) {
 								e.printStackTrace();
