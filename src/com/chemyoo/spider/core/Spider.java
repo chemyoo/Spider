@@ -130,7 +130,7 @@ public class Spider {
 				} finally {
 					count = 0;
 				}
-		}}, 0, 5 * 60 * 1000L);
+		}}, 10 * 1000L, 5 * 60 * 1000L);
 	}
 	
 	/*private void openUrl(String url) {

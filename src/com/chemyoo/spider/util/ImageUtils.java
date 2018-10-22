@@ -215,7 +215,7 @@ public class ImageUtils {
 	 * LAB 颜色空间求色差。值越大，色差越大。
 	 */
 	public static double labColorDistance(Color color) {
-		double r_avg = (BLACK.getRed() + color.getRed()) / 2;
+		double r_avg = (BLACK.getRed() + color.getRed()) / 2D;
 		double r = BLACK.getRed() - color.getRed();
 		double g = BLACK.getRed() - color.getRed();
 		double b = BLACK.getBlue() - color.getBlue();

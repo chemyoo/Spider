@@ -55,7 +55,7 @@ public class PictureColorFilter {
 						System.err.println("正在识别第" + count + "张图片，文件名：" 
 								+ f.getAbsolutePath() + "，主要色彩占比：" + value 
 								+ "，颜色分布离散度：" + colorInfo.average);
-						if(value > 33D) {
+						if(value > 33D || colorInfo.average > 230) {
 							try {
 //								String fileName = f.getParentFile().getParentFile()+"/" + 
 //										value + "_" + colorInfo.average + "_" + f.getName(); 
