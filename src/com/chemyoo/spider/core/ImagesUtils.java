@@ -171,7 +171,7 @@ public class ImagesUtils {
 				
 				// 默认GET方法，httpConnection.setRequestMethod("get".toUpperCase());
 				// 设置连接主机超时（单位：毫秒）  
-				httpConnection.setConnectTimeout(30 * 1000);
+				httpConnection.setConnectTimeout(60 * 1000);
 				// 设置从主机读取数据超时（单位：毫秒） 
 				httpConnection.setReadTimeout(90 * 1000);
 				
