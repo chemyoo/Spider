@@ -1,6 +1,7 @@
 package com.chemyoo.spider.core;
 
 import java.io.Closeable;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +18,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import com.chemyoo.spider.ui.SpiderUI;
+import com.chemyoo.spider.util.NumberUtils;
 import com.chemyoo.spider.util.PropertiesUtil;
 //import com.gargoylesoftware.htmlunit.BrowserVersion;
 //import com.gargoylesoftware.htmlunit.WebClient;
@@ -56,8 +60,12 @@ public class Spider {
 	private static final String PICTURE_EXT = "gif,png,jpg,jpeg,bmp"; 
 	
 	private Map<String,Integer> urlVisitedCount = new HashMap<>();
+	
+	private String errorUrlFilePath;
+	
+	private FileWriter writer;
 
-	public Spider(String url, String dir, JButton button, JLabel message,String referer) {
+	public Spider(String url, String dir, JButton button, JLabel message,String referer) throws IOException {
 		this.url = url;
 		this.dir = dir;
 		this.button = button;
@@ -70,6 +78,9 @@ public class Spider {
 			LinkQueue.push(this.url);
 		}
 		this.count = 0;
+		this.errorUrlFilePath = SpiderUI.DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
+		+ referer.split("//")[1].split("/")[0] + ".Error.task";
+		this.writer = new FileWriter(errorUrlFilePath, true);
 	}
 	
 	private void setReferer(String referer) {
@@ -88,7 +99,7 @@ public class Spider {
 		return this.referer;
 	}
 	
-	public void start() {
+	public void start() throws IOException {
 		LOG.info("程序已启动...");
 		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
 			String link = LinkQueue.unVisitedPop();
@@ -98,6 +109,7 @@ public class Spider {
 			this.count ++;
 		}
 		time.cancel();
+		closeQuietly(writer);
 		if(button.isSelected())
 			LOG.info("程序暂停...");
 		else
@@ -124,13 +136,14 @@ public class Spider {
 					LOG.info("定时任务执行完成...");
 					double rate = count / 5D;
 					LOG.info("网址连接速度：" + rate+ "个/分钟");
-					LOG.info("预计完成需要：" + (size / rate)+ "分钟");
+					if(rate > 0)
+						LOG.info("预计完成需要：" + NumberUtils.setScale(size / rate, 3)+ "分钟");
 				} catch (Exception e) {
 					LOG.error("定时任务执行异常", e);
 				} finally {
 					count = 0;
 				}
-		}}, 10 * 1000L, 5 * 60 * 1000L);
+		}}, 30 * 1000L, 5 * 60 * 1000L);
 	}
 	
 	/*private void openUrl(String url) {
@@ -164,7 +177,7 @@ public class Spider {
 			
 	}*/
 	
-	private void connectUrl(String url) {
+	private void connectUrl(String url) throws IOException {
 		LOG.info("连接网址：【" + url + "】");
 		try {
 			if(PICTURE_EXT.contains(getFileExt(url))) {
@@ -188,6 +201,7 @@ public class Spider {
 			this.getIframe(body);
 		} catch (IOException e) {
 			LOG.error("打开网页发生异常",e);
+			writer.write(url + PropertiesUtil.getLineSeparator());
 		}
 	}
 

@@ -38,7 +38,7 @@ public class SpiderUI extends JFrame{
 
 	private static final SystemTray tray = SystemTray.getSystemTray();
 	
-	private static final String DEFAULT_PATH = System.getProperty("user.dir");
+	public static final String DEFAULT_PATH = System.getProperty("user.dir");
 	
 	private static TrayIcon trayIcon = null;
 	
@@ -166,10 +166,21 @@ public class SpiderUI extends JFrame{
 						@Override
 						public void run() {
 							start.setText("正在爬取");
-							try {
-							Spider spider = new Spider(netUrl.trim(), fileDir.trim(), 
-									start, message, refererUrl.trim());
-							spider.start();
+							String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
+							+ refererUrl.split("//")[1].split("/")[0] + ".Error.task";
+							try (FileWriter fw = new FileWriter(fileName, false);){
+								StringBuilder buider = new StringBuilder();
+								buider.append(netUrl).append(PropertiesUtil.getLineSeparator())
+									  .append(refererUrl).append(PropertiesUtil.getLineSeparator())
+									  .append(fileDir).append(PropertiesUtil.getLineSeparator());
+								
+								fw.write(buider.toString());
+								fw.flush();
+								fw.close();
+								
+								Spider spider = new Spider(netUrl.trim(), fileDir.trim(), 
+										start, message, refererUrl.trim());
+								spider.start();
 							} catch (Exception e) {
 								LOG.error("程序运行发生异常");
 								start.setText("开始爬取");

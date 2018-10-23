@@ -199,7 +199,7 @@ public class ImagesUtils {
 					BufferedImage image = ImageIO.read(in);
 					DeleteImages.checkImageSize(new File(dir + imageName), image);
 				}
-				milliseconds = 100L * (random.nextInt(28) + 3);
+				milliseconds = 100L * (random.nextInt(18) + 3);
 //				fileOutStream = new FileOutputStream(new File(dir + imageName))
 //				byte[] buf = new byte[1024]
 //				int length = 0
