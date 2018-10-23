@@ -178,7 +178,7 @@ public class SpiderUI extends JFrame{
 		final JLabel runTime = new JLabel();
 		runTime.setForeground(Color.RED);
 		runTime.setVisible(true);
-		runTime.setText("0s");
+		runTime.setText("00s");
 		runTime.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(runTime);
 
@@ -446,13 +446,13 @@ public class SpiderUI extends JFrame{
 		long second = spendSecond - hour * 300 - minute * 60;
 		StringBuilder timeBuilder = new StringBuilder();
 		if (hour > 0) {
-			timeBuilder.append(transformNum(hour, " h "));
+			timeBuilder.append(transformNum(hour, "h "));
 		}
 		if (minute > 0) {
-			timeBuilder.append(transformNum(minute, " min "));
+			timeBuilder.append(transformNum(minute, "min "));
 		}
 		if (second >= 0 || timeBuilder.length() == 0) {
-			timeBuilder.append(transformNum(second, " s "));
+			timeBuilder.append(transformNum(second, "s"));
 		}
 		return timeBuilder.toString();
 	}
