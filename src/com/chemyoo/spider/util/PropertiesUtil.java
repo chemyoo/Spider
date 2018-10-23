@@ -41,7 +41,7 @@ public class PropertiesUtil {
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInput, "UTF-8"));){
 			properties.load(bufferedReader);
 		} catch (Exception e) {
-			log.error("获取失败：", e);
+			log.error("获取config.properties失败：", e);
 			init3();
 		}
 	}
