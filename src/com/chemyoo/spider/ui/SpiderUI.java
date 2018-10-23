@@ -5,6 +5,7 @@ import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
 import com.chemyoo.spider.core.Spider;
+import com.chemyoo.spider.util.NumberUtils;
 import com.chemyoo.spider.util.PropertiesUtil;
 
 import org.apache.commons.io.FileUtils;
@@ -18,7 +19,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Timer;
@@ -44,8 +44,6 @@ public class SpiderUI extends JFrame{
 	
 	public static final String DEFAULT_PATH = System.getProperty("user.dir");
 	
-	private DateFormat dataFormat =  DateFormat.getDateTimeInstance();
-	
 	private Long startTime = 0L;
 	
 	private static TrayIcon trayIcon = null;
@@ -67,12 +65,12 @@ public class SpiderUI extends JFrame{
         this.setContentPane(contentPane);  
         contentPane.setLayout(new GridLayout(6,1,5,5));  
         contentPane.setAlignmentY(LEFT_ALIGNMENT);
-        JPanel pane1=new JPanel();  
-        JPanel pane5=new JPanel();  
-        JPanel pane2=new JPanel();  
-        JPanel pane3=new JPanel();  
-        JPanel pane4=new JPanel(); 
-        JPanel pane6=new JPanel(); 
+		JPanel pane1 = new JPanel();
+		JPanel pane2 = new JPanel();
+		JPanel pane3 = new JPanel();
+		JPanel pane4 = new JPanel();
+		JPanel pane5 = new JPanel();
+		JPanel pane6 = new JPanel(); 
 
         JLabel label1=new JLabel("网址*:");  
         Dimension preferredSize = new Dimension(98,20);//设置尺寸
@@ -155,32 +153,43 @@ public class SpiderUI extends JFrame{
 		message.setVisible(false);
 		pane4.add(message);
 		
-		final JLabel timerLabel = new JLabel();
-		timerLabel.setVisible(true);
-		timerLabel.setForeground(Color.MAGENTA);
-		timerLabel.setText("时间：");
-		timerLabel.setHorizontalAlignment(JTextField.LEFT);
-		pane6.add(timerLabel);
+		final JLabel urlNumLable = new JLabel();
+		urlNumLable.setVisible(true);
+		urlNumLable.setText("链接数量:");
+		urlNumLable.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(urlNumLable);
 		
-		final JLabel time = new JLabel();
-		time.setVisible(true);
-		time.setForeground(Color.BLUE);
-		time.setHorizontalAlignment(JTextField.LEFT);
-		pane6.add(time);
+		final JLabel urlNum = new JLabel();
+		urlNum.setVisible(true);
+		urlNum.setText("0个/0张图片");
+		urlNum.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(urlNum);
+		
+		final JLabel speedLabel = new JLabel();
+		speedLabel.setVisible(true);
+		speedLabel.setText("平均连接速度:");
+		speedLabel.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(speedLabel);
+		
+		final JLabel speed = new JLabel();
+		speed.setVisible(true);
+		speed.setText("0个/分钟");
+		speed.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(speed);
 		
 		final JLabel runTimeTitle = new JLabel();
-		runTimeTitle.setForeground(Color.GREEN);
 		runTimeTitle.setVisible(true);
-		runTimeTitle.setText("      运行时间：");
+		runTimeTitle.setText("运行时间:");
 		runTimeTitle.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(runTimeTitle);
 		
 		final JLabel runTime = new JLabel();
-		runTime.setForeground(Color.RED);
 		runTime.setVisible(true);
 		runTime.setText("00s");
 		runTime.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(runTime);
+		
+//		pane6.setBackground(new Color(255,255,224))
 
 		final URL workdir = SpiderUI.class.getClassLoader().getResource("settings.png");
 		
@@ -355,11 +364,19 @@ public class SpiderUI extends JFrame{
 
 			@Override
 			public void run() {
-				String timeStr = dataFormat.format(Calendar.getInstance().getTime());
-				time.setText(timeStr);
 				if(!start.isEnabled()) {
 					Long spend = System.currentTimeMillis() - startTime;
 					runTime.setText(long2TimeStr(spend));
+					StringBuilder urlText = new StringBuilder();
+					urlText.append(LinkQueue.getUnVisitedSize());
+					urlText.append("个/").append(LinkQueue.getImageUrlSize()).append("张图片");
+					urlNum.setText(urlText.toString());
+					if(spend > 0 && spend > 10000) {
+						double velocity = LinkQueue.getVisitedSize() / (spend / 60000D);
+						speed.setText(NumberUtils.setScale(velocity, 2) + "个/分钟");
+					} else {
+						speed.setText("1.0个/分钟");
+					}
 				}
 			}
         	
