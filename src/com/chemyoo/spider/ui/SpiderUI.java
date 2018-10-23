@@ -18,7 +18,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /** 
@@ -40,6 +44,10 @@ public class SpiderUI extends JFrame{
 	
 	public static final String DEFAULT_PATH = System.getProperty("user.dir");
 	
+	private DateFormat dataFormat =  DateFormat.getDateTimeInstance();
+	
+	private Long startTime = 0L;
+	
 	private static TrayIcon trayIcon = null;
 	
 	public SpiderUI() {
@@ -52,18 +60,19 @@ public class SpiderUI extends JFrame{
 	public void initSpiderUI() {
 		this.setTitle("SpiderUI");  
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
-        this.setSize(550, 250);
+        this.setSize(550, 280);
         this.setLocationRelativeTo(null);//窗体居中显示  
         final JPanel contentPane= new JPanel();  
         contentPane.setBorder(new EmptyBorder(20,5,5,5));  
         this.setContentPane(contentPane);  
-        contentPane.setLayout(new GridLayout(5,1,5,5));  
+        contentPane.setLayout(new GridLayout(6,1,5,5));  
         contentPane.setAlignmentY(LEFT_ALIGNMENT);
         JPanel pane1=new JPanel();  
         JPanel pane5=new JPanel();  
         JPanel pane2=new JPanel();  
         JPanel pane3=new JPanel();  
         JPanel pane4=new JPanel(); 
+        JPanel pane6=new JPanel(); 
 
         JLabel label1=new JLabel("网址*:");  
         Dimension preferredSize = new Dimension(98,20);//设置尺寸
@@ -84,6 +93,7 @@ public class SpiderUI extends JFrame{
         
         pane1.setAlignmentX(LEFT_ALIGNMENT);
         pane5.setAlignmentX(LEFT_ALIGNMENT);
+        pane6.setAlignmentX(LEFT_ALIGNMENT);
         
         
         JLabel label2=new JLabel("本地保存路径*:");  
@@ -144,6 +154,33 @@ public class SpiderUI extends JFrame{
 		message.setForeground(Color.BLUE);
 		message.setVisible(false);
 		pane4.add(message);
+		
+		final JLabel timerLabel = new JLabel();
+		timerLabel.setVisible(true);
+		timerLabel.setForeground(Color.MAGENTA);
+		timerLabel.setText("时间：");
+		timerLabel.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(timerLabel);
+		
+		final JLabel time = new JLabel();
+		time.setVisible(true);
+		time.setForeground(Color.BLUE);
+		time.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(time);
+		
+		final JLabel runTimeTitle = new JLabel();
+		runTimeTitle.setForeground(Color.GREEN);
+		runTimeTitle.setVisible(true);
+		runTimeTitle.setText("      运行时间：");
+		runTimeTitle.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(runTimeTitle);
+		
+		final JLabel runTime = new JLabel();
+		runTime.setForeground(Color.RED);
+		runTime.setVisible(true);
+		runTime.setText("0s");
+		runTime.setHorizontalAlignment(JTextField.LEFT);
+		pane6.add(runTime);
 
 		final URL workdir = SpiderUI.class.getClassLoader().getResource("settings.png");
 		
@@ -180,6 +217,7 @@ public class SpiderUI extends JFrame{
 								
 								Spider spider = new Spider(netUrl.trim(), fileDir.trim(), 
 										start, message, refererUrl.trim());
+								startTime = Calendar.getInstance().getTimeInMillis();
 								spider.start();
 							} catch (Exception e) {
 								LOG.error("程序运行发生异常");
@@ -278,6 +316,7 @@ public class SpiderUI extends JFrame{
         contentPane.add(pane2); 
         contentPane.add(pane3); 
         contentPane.add(pane4);
+        contentPane.add(pane6);
 
         this.addWindowListener(new WindowAdapter() {
 			
@@ -310,6 +349,21 @@ public class SpiderUI extends JFrame{
 		});
 
         this.setVisible(true);  
+        
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				String timeStr = dataFormat.format(Calendar.getInstance().getTime());
+				time.setText(timeStr);
+				if(!start.isEnabled()) {
+					Long spend = System.currentTimeMillis() - startTime;
+					runTime.setText(long2TimeStr(spend));
+				}
+			}
+        	
+        }, 0, 1000);
 	}
 	
 	private static boolean isNotBlank(String...args) {
@@ -383,6 +437,32 @@ public class SpiderUI extends JFrame{
 			LOG.error(e1.getMessage(), e1);
 		}
 
+	}
+	
+	private String long2TimeStr(Long time) {
+		long spendSecond = time / 1000;
+		long hour = spendSecond / 3600;
+		long minute = (spendSecond - hour * 3600) / 60;
+		long second = spendSecond - hour * 300 - minute * 60;
+		StringBuilder timeBuilder = new StringBuilder();
+		if (hour > 0) {
+			timeBuilder.append(transformNum(hour, " h "));
+		}
+		if (minute > 0) {
+			timeBuilder.append(transformNum(minute, " min "));
+		}
+		if (second >= 0 || timeBuilder.length() == 0) {
+			timeBuilder.append(transformNum(second, " s "));
+		}
+		return timeBuilder.toString();
+	}
+	
+	private String transformNum(long num, String unit) {
+		StringBuilder numBuilder = new StringBuilder();
+		if(num < 10) {
+			numBuilder.append("0");
+		}
+		return numBuilder.append(num).append(unit).toString();
 	}
 	
 	private void saveStatus(String netUrl, String origin, String savePath) {
