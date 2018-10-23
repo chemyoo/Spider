@@ -255,6 +255,7 @@ public class SpiderUI extends JFrame{
         		try {
         			File file = SelectFiles.getFile(DEFAULT_PATH);
         			if(file == null) return;
+        			LinkQueue.clear(); // 载入前清空队列内存
 					java.util.List<String> lines = FileUtils.readLines(file, "utf-8");
 					if(!lines.isEmpty()) {
 						url.setText(lines.remove(0));
