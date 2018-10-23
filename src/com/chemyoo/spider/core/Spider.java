@@ -363,7 +363,7 @@ public class Spider {
 	
 	private void getImagesUrls(Elements body) {
 		String main = properties.getProperty("dom.class.first","img[src]");
-		String classSelector2 = properties.getProperty("dom.class.second");
+		String classSelector2 = properties.getProperty("dom.img.select");
 		String removeItem = properties.getProperty("dom.not");
 		String notDownImg = properties.getProperty("dom.img.not");
 		Elements mainDiv = new Elements();
