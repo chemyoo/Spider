@@ -365,7 +365,13 @@ public class Spider {
 		String classSelector2 = properties.getProperty("dom.class.second");
 		String removeItem = properties.getProperty("dom.not");
 		String notDownImg = properties.getProperty("dom.img.not");
-		Elements mainDiv = body.select(main);
+		Elements mainDiv = new Elements();
+		if(StringUtils.isNotBlank(main)) {
+			String[] cssSelector = main.split(",");
+			for(String css : cssSelector) {
+				mainDiv.addAll(body.select(css.trim()));
+			}
+		}
 		Elements href = new Elements();
 		if(StringUtils.isNotBlank(classSelector2)) {
 			String[] cssSelector = classSelector2.split(",");
