@@ -67,7 +67,6 @@ public class PropertiesUtil {
 	}
 	
 	private static String getPropertiesPath() {
-		log.info("DEFAULT_PATH:" + SpiderUI.DEFAULT_PATH + "/config.properties");
 		return SpiderUI.DEFAULT_PATH + "/config.properties";
 	}
 	
