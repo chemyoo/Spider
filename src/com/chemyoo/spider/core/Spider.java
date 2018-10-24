@@ -272,8 +272,6 @@ public class Spider {
 			}
 			String text = ele.text();
 
-			this.recognizeUrl(herfurl);
-			
 			// 如果是源网址，则忽略
 			if("".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
@@ -313,6 +311,8 @@ public class Spider {
 						continue label;
 				}
 			}
+			
+			this.recognizeUrl(herfurl);
 			
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
