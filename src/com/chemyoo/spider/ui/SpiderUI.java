@@ -460,7 +460,7 @@ public class SpiderUI extends JFrame{
 		long spendSecond = time / 1000;
 		long hour = spendSecond / 3600;
 		long minute = (spendSecond - hour * 3600) / 60;
-		long second = spendSecond - hour * 300 - minute * 60;
+		long second = spendSecond - hour * 3600 - minute * 60;
 		StringBuilder timeBuilder = new StringBuilder();
 		if (hour > 0) {
 			timeBuilder.append(transformNum(hour, "h "));
