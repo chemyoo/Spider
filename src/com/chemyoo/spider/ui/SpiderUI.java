@@ -465,7 +465,7 @@ public class SpiderUI extends JFrame{
 		if (hour > 0) {
 			timeBuilder.append(transformNum(hour, "h "));
 		}
-		if (minute > 0) {
+		if (minute > 0 || hour > 0) {
 			timeBuilder.append(transformNum(minute, "min "));
 		}
 		if (second >= 0 || timeBuilder.length() == 0) {
