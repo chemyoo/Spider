@@ -220,7 +220,7 @@ public class SpiderUI extends JFrame{
 									  .append(refererUrl).append(PropertiesUtil.getLineSeparator())
 									  .append(fileDir).append(PropertiesUtil.getLineSeparator());
 								
-								fw.write(buider.toString());
+								fw.write(new String(buider.toString().getBytes("utf-8")));
 								fw.flush();
 								fw.close();
 								
@@ -500,7 +500,7 @@ public class SpiderUI extends JFrame{
 		String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
 							+ origin.split("//")[1].split("/")[0] + ".task";
 		try (FileWriter fw = new FileWriter(fileName)){
-			fw.write(buider.toString());
+			fw.write(new String(buider.toString().getBytes(),"utf-8"));
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}

@@ -19,7 +19,7 @@ public class SelectOnlyFileFilter extends FileFilter implements Filter{
 	
 	@Override
 	public boolean accept(File f) {
-		return f.isFile() && f.getName().endsWith(".task");
+		return (f.isFile() && f.getName().endsWith(".task")) || f.isDirectory();
 	}
 
 	@Override
