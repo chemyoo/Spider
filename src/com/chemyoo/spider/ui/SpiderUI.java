@@ -229,7 +229,7 @@ public class SpiderUI extends JFrame{
 								startTime = Calendar.getInstance().getTimeInMillis();
 								spider.start();
 							} catch (Exception e) {
-								LOG.error("程序运行发生异常");
+								LOG.error("程序运行发生异常",e);
 								start.setText("开始爬取");
 								start.setEnabled(true);
 							}

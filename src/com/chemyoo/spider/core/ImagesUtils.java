@@ -26,6 +26,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.chemyoo.spider.util.PropertiesUtil;
+
 /***
  * java抓取网络图片
  */
@@ -147,11 +149,17 @@ public class ImagesUtils {
 		String url;
 		String imageName = null;
 		long milliseconds = 0;
+//		enable.md5
+		Boolean enableMd5 = Boolean.valueOf(PropertiesUtil.getInstance().getProperty("enable.md5", "false"));
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				url = LinkQueue.imageUrlPop();
-				imageName = DigestUtils.md5Hex(url) + url.substring(url.lastIndexOf('/') + 1,
-						url.length());
+				if(enableMd5) {
+					imageName = DigestUtils.md5Hex(url) 
+							+ url.substring(url.lastIndexOf('/') + 1, url.length());
+				} else {
+					imageName = url.substring(url.lastIndexOf('/') + 1, url.length());
+				}
 				
 				if(imageName.contains("?")) {
 					imageName = imageName.substring(0,imageName.lastIndexOf('?'));

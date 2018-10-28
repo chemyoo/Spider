@@ -25,6 +25,14 @@ public class Test {
     	// 第一次加载时，存入文件最后修改时间。
     	// 以后每次读取时，读取文件最后修改时间，比对时间是否改变。
     	// 如果最后修改时间发现变化，则重新读取文件。并更新内存中的最后修改时间。
+    	
+    	
+    	
+    }
+    
+    
+    private static void calculate() {
+    	
     }
     
     public static void filterNode() throws IOException {
