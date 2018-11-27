@@ -220,7 +220,7 @@ public class SpiderUI extends JFrame{
 									  .append(refererUrl).append(PropertiesUtil.getLineSeparator())
 									  .append(fileDir).append(PropertiesUtil.getLineSeparator());
 								
-								fw.write(buider.toString());
+								fw.write(new String(buider.toString().getBytes("utf-8")));
 								fw.flush();
 								fw.close();
 								
@@ -229,7 +229,7 @@ public class SpiderUI extends JFrame{
 								startTime = Calendar.getInstance().getTimeInMillis();
 								spider.start();
 							} catch (Exception e) {
-								LOG.error("程序运行发生异常");
+								LOG.error("程序运行发生异常",e);
 								start.setText("开始爬取");
 								start.setEnabled(true);
 							}
@@ -460,12 +460,12 @@ public class SpiderUI extends JFrame{
 		long spendSecond = time / 1000;
 		long hour = spendSecond / 3600;
 		long minute = (spendSecond - hour * 3600) / 60;
-		long second = spendSecond - hour * 300 - minute * 60;
+		long second = spendSecond - hour * 3600 - minute * 60;
 		StringBuilder timeBuilder = new StringBuilder();
 		if (hour > 0) {
 			timeBuilder.append(transformNum(hour, "h "));
 		}
-		if (minute > 0) {
+		if (minute > 0 || hour > 0) {
 			timeBuilder.append(transformNum(minute, "min "));
 		}
 		if (second >= 0 || timeBuilder.length() == 0) {
@@ -500,7 +500,7 @@ public class SpiderUI extends JFrame{
 		String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
 							+ origin.split("//")[1].split("/")[0] + ".task";
 		try (FileWriter fw = new FileWriter(fileName)){
-			fw.write(buider.toString());
+			fw.write(new String(buider.toString().getBytes(),"utf-8"));
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}

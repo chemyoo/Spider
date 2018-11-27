@@ -26,6 +26,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.chemyoo.spider.util.PropertiesUtil;
+
 /***
  * java抓取网络图片
  */
@@ -147,11 +149,17 @@ public class ImagesUtils {
 		String url;
 		String imageName = null;
 		long milliseconds = 0;
+//		enable.md5
+		Boolean enableMd5 = Boolean.valueOf(PropertiesUtil.getInstance().getProperty("enable.md5", "false"));
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				url = LinkQueue.imageUrlPop();
-				imageName = DigestUtils.md5Hex(url) + url.substring(url.lastIndexOf('/') + 1,
-						url.length());
+				if(enableMd5) {
+					imageName = DigestUtils.md5Hex(url) 
+							+ url.substring(url.lastIndexOf('/') + 1, url.length());
+				} else {
+					imageName = url.substring(url.lastIndexOf('/') + 1, url.length());
+				}
 				
 				if(imageName.contains("?")) {
 					imageName = imageName.substring(0,imageName.lastIndexOf('?'));
@@ -183,7 +191,6 @@ public class ImagesUtils {
 				
 				// 连接网站
 				httpConnection.connect();
-				milliseconds = 0;
 				// LOG.info("下载文件：【" + url + "】");
 				
 				// 网址连接失败就继续向下一个网址执行。
@@ -199,7 +206,7 @@ public class ImagesUtils {
 					BufferedImage image = ImageIO.read(in);
 					DeleteImages.checkImageSize(new File(dir + imageName), image);
 				}
-				milliseconds = 100L * (random.nextInt(18) + 3);
+				milliseconds = 100L * (random.nextInt(8) + 3);
 //				fileOutStream = new FileOutputStream(new File(dir + imageName))
 //				byte[] buf = new byte[1024]
 //				int length = 0
@@ -207,6 +214,7 @@ public class ImagesUtils {
 //					fileOutStream.write(buf, 0, length)
 			} catch (Exception e) {
 				LOG.error("下载图片发生异常：" + e.getMessage());
+				milliseconds = 0;
 			} finally {
 				Spider.closeQuietly(in);
 //				待文件流被释放后，下载成功，进行文件分辨率辨识		

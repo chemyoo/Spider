@@ -229,7 +229,7 @@ public class Spider {
 	}
 	
 	private void getUrls(Elements body) {
-		String classSelector = properties.getProperty("dom.class.first");
+		String classSelector = getProperties("dom.class.first", "a[href]");
 		String classSelector2 = properties.getProperty("dom.class.second");
 		String removeItem = properties.getProperty("dom.not");
 		String keyWord = properties.getProperty("key.word");
@@ -266,14 +266,9 @@ public class Spider {
 		label:
 		while(it.hasNext()) {
 			Element ele = it.next();
-			String herfurl = ele.absUrl("href");
-			if(herfurl.endsWith("#")) {
-				herfurl = ele.attr("attr-download-url");
-			}
+			String herfurl = ele.absUrl(getProperties("real.href.attr", "href"));
 			String text = ele.text();
 
-			this.recognizeUrl(herfurl);
-			
 			// 如果是源网址，则忽略
 			if("".equals(herfurl) || herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
@@ -313,6 +308,8 @@ public class Spider {
 						continue label;
 				}
 			}
+			
+			this.recognizeUrl(herfurl);
 			
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
@@ -362,8 +359,8 @@ public class Spider {
 	}
 	
 	private void getImagesUrls(Elements body) {
-		String main = properties.getProperty("dom.class.first","img[src]");
-		String classSelector2 = properties.getProperty("dom.class.second");
+		String main = getProperties("dom.class.first","img[src]");
+		String classSelector2 = properties.getProperty("dom.img.select");
 		String removeItem = properties.getProperty("dom.not");
 		String notDownImg = properties.getProperty("dom.img.not");
 		Elements mainDiv = new Elements();
@@ -399,7 +396,7 @@ public class Spider {
 		String src;
 		lable:
 		while(it.hasNext()) {
-			src = it.next().absUrl("src");
+			src = it.next().absUrl(getProperties("real.img.src", "src"));
 			if(StringUtils.isNotBlank(filterUrl)) {
 				String[] words = filterUrl.split(",");
 				for(String word : words) {
@@ -464,5 +461,13 @@ public class Spider {
 		} catch (IOException ioe) {
 			// ignore
 		}
+	}
+	
+	private String getProperties(String key, String defaultValue) {
+		String value = properties.getProperty(key);
+		if(StringUtils.isBlank(value)) {
+			return defaultValue;
+		}
+		return value;
 	}
 }

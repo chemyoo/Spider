@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
@@ -22,11 +24,22 @@ public class Test {
     	Date modified = getFileModifiedTime(new File("C:/Users/n_soul/Desktop","语录摘抄.txt"));
     	DateFormat formt = SimpleDateFormat.getDateTimeInstance();
     	System.err.println(formt.format(modified));
+    	System.err.println(DigestUtils.md5Hex("http://img15.yixiu8.com:8080/picture/180402/pic5/13.jpg"));
     	// 第一次加载时，存入文件最后修改时间。
     	// 以后每次读取时，读取文件最后修改时间，比对时间是否改变。
     	// 如果最后修改时间发现变化，则重新读取文件。并更新内存中的最后修改时间。
     	// 除以100，将颜色分成 【赤橙黄绿青蓝紫黑白】 九种颜色。
     	System.err.println(Math.round(ImageUtils.labColorDistance(new Color(200,200,200), new Color(0,0,0)) / 100));
+
+    	
+    	
+    	
+    }
+    
+    
+    private static void calculate() {
+    	
+
     }
     
     public static void filterNode() throws IOException {
