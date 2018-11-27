@@ -1,5 +1,6 @@
 package com.chemyoo.spider;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -10,6 +11,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.jsoup.select.NodeFilter;
+
+import com.chemyoo.spider.util.ImageUtils;
 
 
 public class Test {
@@ -22,6 +25,8 @@ public class Test {
     	// 第一次加载时，存入文件最后修改时间。
     	// 以后每次读取时，读取文件最后修改时间，比对时间是否改变。
     	// 如果最后修改时间发现变化，则重新读取文件。并更新内存中的最后修改时间。
+    	// 除以100，将颜色分成 【赤橙黄绿青蓝紫黑白】 九种颜色。
+    	System.err.println(Math.round(ImageUtils.labColorDistance(new Color(200,200,200), new Color(0,0,0)) / 100));
     }
     
     public static void filterNode() throws IOException {

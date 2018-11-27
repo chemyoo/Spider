@@ -105,7 +105,7 @@ public class ImageUtils {
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {// 行扫描
 					int dip = bi.getRGB(j, i);
-					int key = (int) labColorDistance(getRGB(dip)); // 将颜色换成4096色。
+					int key = (int) labColorDistance(getRGB(dip)); 
 					if(rgbMap.containsKey(key)) {
 						rgbMap.replace(key, rgbMap.get(key) + 1);
 					} else {
@@ -116,6 +116,8 @@ public class ImageUtils {
 			// 获得数量最多的前四色。
 			double sum = 0D;
 			colorInfo.colorCount = rgbMap.size();
+			// 颜色分布的数学期望（平均值）
+			double average = count / (colorInfo.colorCount * 1D);
 			for(Map.Entry<Integer, Integer> entry : rgbMap.entrySet()) {
 				int value = entry.getValue();
 				if(value > maxCount[0]) {
@@ -131,7 +133,8 @@ public class ImageUtils {
 				} else if(value > maxCount[3]) {
 					maxCount[3] = value;
 				}
-				sum += distance(value, count / colorInfo.colorCount);
+				// 值和平均值的平方和
+				sum += distance(value, average);
 			}
 			colorInfo.percent = sum(maxCount) * 1D / count;
 			// 求标准差，计算颜色分布离散程度。值越大，颜色分布越离散。
@@ -207,7 +210,7 @@ public class ImageUtils {
 		System.err.println(labColorDistance(new Color(255,255,255)));
 	}
 	
-	public static double distance(int x, int y) {
+	public static double distance(int x, double y) {
 		return Math.pow(x - y, 2);
 	}
 	/**
@@ -215,12 +218,20 @@ public class ImageUtils {
 	 * LAB 颜色空间求色差。值越大，色差越大。
 	 */
 	public static double labColorDistance(Color color) {
-		double r_avg = (BLACK.getRed() + color.getRed()) / 2D;
-		double r = BLACK.getRed() - color.getRed();
-		double g = BLACK.getRed() - color.getRed();
-		double b = BLACK.getBlue() - color.getBlue();
-		return Math.sqrt((2 + r_avg / 256) * Math.pow(r, 2) + 4 * Math.pow(g, 2) 
-				+ (2 + (255 - r_avg) / 256) * Math.pow(b, 2));
+		return labColorDistance(BLACK, color);
+	}
+	
+	/**
+	 * LAB 是最接近肉眼感官的算法。
+	 * LAB 颜色空间求色差。值越大，色差越大。
+	 */
+	public static double labColorDistance(Color color1, Color color2) {
+		double redAvg = (color2.getRed() + color1.getRed()) / 2D;
+		double r = color2.getRed() - color1.getRed() * 1D;
+		double g = color2.getRed() - color1.getRed() * 1D;
+		double b = color2.getBlue() - color1.getBlue() * 1D;
+		return Math.sqrt((2 + redAvg / 256) * Math.pow(r, 2) + 4 * Math.pow(g, 2) 
+				+ (2 + (255 - redAvg) / 256) * Math.pow(b, 2));
 	}
 	
 }

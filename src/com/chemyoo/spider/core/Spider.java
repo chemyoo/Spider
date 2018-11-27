@@ -136,7 +136,7 @@ public class Spider {
 					LOG.info("待访问的网址数量：" + size);
 					LOG.info("定时任务执行完成...");
 					double rate = count / 5D;
-					LOG.info("网址连接速度：" + rate+ "个/分钟");
+					LOG.info("网址连接速度：" + rate + "个/分钟");
 					if(rate > 0)
 						LOG.info("预计完成需要：" + NumberUtils.setScale(size / rate, 3)+ "分钟");
 				} catch (Exception e) {
