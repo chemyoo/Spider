@@ -155,7 +155,7 @@ public class SpiderUI extends JFrame{
 		
 		final JLabel urlNumLable = new JLabel();
 		urlNumLable.setVisible(true);
-		urlNumLable.setText("链接数量:");
+		urlNumLable.setText("当前链接数量:");
 		urlNumLable.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(urlNumLable);
 		
@@ -167,7 +167,7 @@ public class SpiderUI extends JFrame{
 		
 		final JLabel speedLabel = new JLabel();
 		speedLabel.setVisible(true);
-		speedLabel.setText("平均连接速度:");
+		speedLabel.setText("已访问链接:");
 		speedLabel.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(speedLabel);
 		
@@ -372,10 +372,10 @@ public class SpiderUI extends JFrame{
 					urlText.append("个/").append(LinkQueue.getImageUrlSize()).append("张图片");
 					urlNum.setText(urlText.toString());
 					if(spend > 0 && spend > 10000) {
-						double velocity = LinkQueue.getVisitedSize() / (spend / 60000D);
-						speed.setText(NumberUtils.setScale(velocity, 2) + "个/分钟");
+						int velocity = LinkQueue.getVisitedSize();
+						speed.setText(velocity + "个");
 					} else {
-						speed.setText("1.0个/分钟");
+						speed.setText("0个");
 					}
 				}
 			}
