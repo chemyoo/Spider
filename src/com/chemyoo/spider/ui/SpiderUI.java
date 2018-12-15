@@ -5,7 +5,6 @@ import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
 import com.chemyoo.spider.core.Spider;
-import com.chemyoo.spider.util.NumberUtils;
 import com.chemyoo.spider.util.PropertiesUtil;
 
 import org.apache.commons.io.FileUtils;
@@ -359,7 +358,7 @@ public class SpiderUI extends JFrame{
 
         this.setVisible(true);  
         
-        Timer timer = new Timer();
+        final Timer timer = new Timer();
         timer.schedule(new TimerTask() {
 
 			@Override
@@ -377,6 +376,8 @@ public class SpiderUI extends JFrame{
 					} else {
 						speed.setText("0个");
 					}
+				} else {
+					timer.cancel();
 				}
 			}
         	
