@@ -377,6 +377,12 @@ public class SpiderUI extends JFrame{
 					} else {
 						speed.setText("1.0个/分钟");
 					}
+				} else {
+					StringBuilder urlText = new StringBuilder();
+					urlText.append(LinkQueue.getUnVisitedSize());
+					urlText.append("个/").append(LinkQueue.getImageUrlSize()).append("张图片");
+					urlNum.setText(urlText.toString());
+					timer.cancel();
 				}
 			}
         	
