@@ -172,7 +172,7 @@ public class SpiderUI extends JFrame{
 		
 		final JLabel speed = new JLabel();
 		speed.setVisible(true);
-		speed.setText("0个/分钟");
+		speed.setText("0个");
 		speed.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(speed);
 		
