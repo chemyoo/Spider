@@ -343,12 +343,13 @@ public class SpiderUI extends JFrame{
 					public void getText(String text, boolean coloseable) {
 						if(isNotBlank(text)) {
 							int index = LinkQueue.find(text);
-							boolean flag = index > 0;
 							String message = null;
-							if(flag) {
+							if(index > 0) {
 								message = "任务正在队列中，在第：" + index + "个位置...";
-							} else {
+							} else if(index == -1) {
 								message = "队列中没有此任务...";
+							} else {
+								message = "任务已执行完成...";
 							}
 							JOptionPane.showMessageDialog(null, message, "任务查找结果提示", JOptionPane.PLAIN_MESSAGE);
 						}

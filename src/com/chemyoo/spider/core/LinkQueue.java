@@ -109,7 +109,13 @@ public class LinkQueue {
 			}
 			index ++;
 		}
-		return 0;
+		url = DigestUtils.md5Hex(url);
+		for(String a : visited) {
+			if(a.equalsIgnoreCase(url)) {
+				return 0;
+			}
+		}
+		return -1;
 	}
 	
 }
