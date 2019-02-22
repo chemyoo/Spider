@@ -1,5 +1,6 @@
 package com.chemyoo.spider.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
@@ -15,6 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import com.chemyoo.spider.core.ICallback;
+import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 
 /** 
@@ -38,12 +40,29 @@ public class FindUI extends JFrame {
 		this.callback = callback;
 	}
 	
-	public void getText(String text, boolean coloseable) {
-		callback.getText(text, coloseable);
+	public void getText(String text, boolean coloseable, JLabel tip) {
+		tip.setText(null);
+		callback.getText(coloseable);
 		if(coloseable) {
 			setEnabled(false);
 			dispose();
+			return;
 		}
+		if(SpiderUI.isNotBlank(text)) {
+			int index = LinkQueue.find(text);
+			String message = null;
+			if(index > 0) {
+				message = "任务正在队列中，在第：" + index + "个位置...";
+				tip.setForeground(Color.GREEN);
+			} else if(index == -1) {
+				message = "队列中没有此任务...";
+				tip.setForeground(Color.RED);
+			} else {
+				message = "任务已执行完成...";
+				tip.setForeground(Color.GREEN);
+			}
+			tip.setText(message);
+		} 
 	}
 	
 	
@@ -52,7 +71,7 @@ public class FindUI extends JFrame {
 	 */
 	public void initFindUI() {
 		this.setTitle("查找任务");  
-        this.setSize(350, 150);
+        this.setSize(350, 160);
         this.setUndecorated(true); // 去掉窗口的装饰 
         this.getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);//采用指定的窗口装饰风格
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -60,10 +79,11 @@ public class FindUI extends JFrame {
         final JPanel contentPane= new JPanel();  
         contentPane.setBorder(new EmptyBorder(20,5,5,5));  
         this.setContentPane(contentPane);  
-        contentPane.setLayout(new GridLayout(2,1,5,5));  
+        contentPane.setLayout(new GridLayout(3,1,5,5));  
         contentPane.setAlignmentY(LEFT_ALIGNMENT);
 		JPanel pane1 = new JPanel();
 		JPanel buttonPane = new JPanel();
+		JPanel tipPane = new JPanel();
 		
 		JLabel label1 = new JLabel("任务网址:");  
         Dimension preferredSize = new Dimension(60,20);//设置尺寸
@@ -80,28 +100,33 @@ public class FindUI extends JFrame {
         serach.setPreferredSize(preferredSize);
         cancle.setPreferredSize(preferredSize);
         buttonPane.add(serach);  
-        buttonPane.add(cancle);  
+        buttonPane.add(cancle); 
+        
+        final JLabel tiplabel = new JLabel(); 
+        tipPane.add(tiplabel);
+        
         contentPane.add(pane1);
         contentPane.add(buttonPane);
+        contentPane.add(tipPane);
         
         serach.addMouseListener(new MouseEventAdapter() {
         	@Override
         	public void mouseClicked(MouseEvent e) {
-        		getText(url.getText(), false);
+        		getText(url.getText(), false, tiplabel);
         	}
 		});
         
         cancle.addMouseListener(new MouseEventAdapter() {
         	@Override
         	public void mouseClicked(MouseEvent e) {
-        		getText(null, true);
+        		getText(null, true, tiplabel);
         	}
 		});
         
         this.addWindowListener(new WindowAdapter() {
         	@Override
 	    	public void windowClosing(WindowEvent e) {
-        		getText(null, true);
+        		getText(null, true, tiplabel);
 	    	}
     	});
         

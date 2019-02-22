@@ -10,6 +10,6 @@ import java.io.Serializable;
  */
 public interface ICallback extends Serializable {
 	
-	public void getText(String text, boolean coloseable);
+	public void getText(boolean coloseable);
 	
 }

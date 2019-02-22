@@ -206,8 +206,9 @@ public class SpiderUI extends JFrame{
 				final String fileDir = path.getText();
 				final String refererUrl = referer.getText();
 				if(isNotBlank(netUrl, fileDir)) {
-					//如果取消按钮不可用说明，真正执行暂停过程，则返回，不新建线程进行爬取
-					if(!cancle.isEnabled()) {
+					// 如果取消按钮不可用说明，真正执行暂停过程，则返回，不新建线程进行爬取
+					// 只允许创建一个爬虫
+					if(!start.isEnabled() || !cancle.isEnabled()) {
 						return;
 					}
 					start.setEnabled(false);
@@ -332,6 +333,8 @@ public class SpiderUI extends JFrame{
         findTask.addMouseListener(new MouseEventAdapter() {
         	@Override
 			public void mouseClicked(MouseEvent e) {
+        		if(!findTask.isEnabled()) return;
+        		
         		findTask.setEnabled(false);
         		new FindUI(new ICallback() {
 					/**
@@ -340,19 +343,7 @@ public class SpiderUI extends JFrame{
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void getText(String text, boolean coloseable) {
-						if(isNotBlank(text)) {
-							int index = LinkQueue.find(text);
-							String message = null;
-							if(index > 0) {
-								message = "任务正在队列中，在第：" + index + "个位置...";
-							} else if(index == -1) {
-								message = "队列中没有此任务...";
-							} else {
-								message = "任务已执行完成...";
-							}
-							JOptionPane.showMessageDialog(null, message, "任务查找结果提示", JOptionPane.PLAIN_MESSAGE);
-						}
+					public void getText(boolean coloseable) {
 						findTask.setEnabled(coloseable);
 					}
         		});
@@ -422,7 +413,7 @@ public class SpiderUI extends JFrame{
         }, 0, 1000);
 	}
 	
-	private static boolean isNotBlank(String...args) {
+	public static boolean isNotBlank(String...args) {
 		for(String arg : args) {
 			if(arg == null || "".equals(arg.trim())) {
 				return false;
