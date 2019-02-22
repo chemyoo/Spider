@@ -463,6 +463,18 @@ public class Spider {
 		}
 	}
 	
+	public static void closeQuietly(Closeable... closeables) {
+		for(Closeable closeable : closeables) {
+			try {
+				if (closeable != null) {
+					closeable.close();
+				}
+			} catch (IOException ioe) {
+				// ignore
+			}
+		}
+	}
+	
 	private String getProperties(String key, String defaultValue) {
 		String value = properties.getProperty(key);
 		if(StringUtils.isBlank(value)) {

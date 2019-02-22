@@ -1,5 +1,4 @@
 package com.chemyoo.spider.core;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,10 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
-
 import org.apache.commons.codec.digest.DigestUtils;
-//import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -203,21 +199,15 @@ public class ImagesUtils {
 							+ IOUtils.toString(in, "gb2312"));
 				} else {
 					in = httpConnection.getInputStream();
-					BufferedImage image = ImageIO.read(in);
-					DeleteImages.checkImageSize(new File(dir + imageName), image);
+					double fileSize = httpConnection.getContentLengthLong() / 1024D; // kb
+					DeleteImages.checkImageSize(new File(dir + imageName), in, fileSize);
 				}
 				milliseconds = 100L * (random.nextInt(11) + 5);
-//				fileOutStream = new FileOutputStream(new File(dir + imageName))
-//				byte[] buf = new byte[1024]
-//				int length = 0
-//				while ((length = in.read(buf, 0, buf.length)) != -1) 
-//					fileOutStream.write(buf, 0, length)
 			} catch (Exception e) {
 				LOG.error("下载图片发生异常：" + e.getMessage());
 				milliseconds = 0;
 			} finally {
 				Spider.closeQuietly(in);
-//				待文件流被释放后，下载成功，进行文件分辨率辨识		
 				in = null;
 				if(httpConnection != null)
 					httpConnection.disconnect();

@@ -1,16 +1,23 @@
 package com.chemyoo.spider.core;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import javax.imageio.ImageIO;
 
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 /** 
  * @author 作者 : jianqing.liu
@@ -26,13 +33,18 @@ public class DeleteImages {
 	
 	private static final String IMAGES_DIR = "/images/";
 	
+	private static final double MIN_H = 700;
+	
+	private static final double MIN_W = 1000;
+	
 	public static synchronized void delete(String dir) {
 		File file = new File(dir);
 		final long time = Calendar.getInstance().getTimeInMillis();
 		File[] files = file.listFiles();
 		if(files != null){
 			for(File f : files) {
-				if(f.isFile() && (f.lastModified() +  1000 * 60 * 5L) < time && "gif,png,jpg,jpeg,bmp".contains(getFileExt(f.getName()))) {
+				if(f.isFile() && (f.lastModified() +  1000 * 60 * 5L) < time 
+						&& Arrays.toString(ImageIO.getWriterFormatNames()).contains(getFileExt(f.getName()))) {
 					if(isNotAllowedSave(f)) {
 						FileUtils.deleteQuietly(f); 
 					} else {
@@ -58,14 +70,15 @@ public class DeleteImages {
 			} catch (Exception e) {
 				LOG.error("获取图片分辨率失败：", e);
 			} 
-			boolean flag = width < 1000 || height < 700;
-			if(!flag)
-				LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
-			// not use 'else LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);'
+			boolean flag = width < MIN_W || height < MIN_H;
+			if(!flag) {
+				String log = "保存文件：【%s】，分辨率(宽 * 高):%.1f * %.1f";
+				LOG.info(String.format(log, file.getPath(), width, height));
+			}
 			return flag;
 	}
 	
-	private static boolean isNotAllowedSave(File file, BufferedImage image){
+	private static boolean isNotAllowedSave(File file, BufferedImage image, double fileSize){
 		double width = 0d;
 		double height = 0d;
 		try {
@@ -74,9 +87,11 @@ public class DeleteImages {
 		} catch (Exception e) {
 			LOG.error("获取图片分辨率失败：", e);
 		} 
-		boolean flag = width < 1000 || height < 700;
-		if(!flag)
-			LOG.info("保存文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);
+		boolean flag = fileSize > 100 && (width < MIN_W || height < MIN_H);
+		if(!flag) {
+			String log = "保存文件：【%s】，分辨率(宽 * 高):%.1f * %.1f，文件大小：%.2fkb";
+			LOG.info(String.format(log, file.getPath(), width, height, fileSize));
+		}
 		// not use 'else LOG.info("丢弃文件：【" + file.getPath() + "】，分辨率(宽 * 高):"+width+" * "+height);'
 		return flag;
 }
@@ -91,24 +106,29 @@ public class DeleteImages {
 		}
 	}
 	
-	public static synchronized void checkImageSize(File file, BufferedImage image) {
-			if(!isNotAllowedSave(file, image)) {
-				try {
-					ImageIO.write(image, getFileExt(file.getName()), file);
-					moveFile(file, file.getParentFile().getPath());
+	public static synchronized void checkImageSize(File file, InputStream inputStream, double fileSize) throws IOException {
+		try(ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024)) {
+			IOUtils.copy(inputStream, byteStream);	
+			inputStream = new ByteArrayInputStream(byteStream.toByteArray());//转换后的输入流
+			BufferedImage image = ImageIO.read(inputStream);
+			if(!isNotAllowedSave(file, image, fileSize)) {
+				try (OutputStream out = new FileOutputStream(file)){
+					byteStream.writeTo(out);
 				} catch (IOException e) {
 					LOG.error("保存图片发生异常",e);
 				}
-			}
+				moveFile(file, file.getParentFile().getPath());
+			} 
 			image.flush();
+		} finally {
+			Spider.closeQuietly(inputStream);
+		}
 	}
 	
 	private static void moveFile(File file,final String dir) {
 		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
 		try {
-			// not use 'double size = file.length() / 1024.0;'
 			FileUtils.moveToDirectory(file, new File(path), true);
-			// not use 'LOG.info("保存文件：【" + file.getPath() + " 】，文件大小：" + String.format("%.2f kb", size));'
 		} catch (IOException e) {
 			LOG.error("保存失败：【"+ file.getPath() + "】，文件已存在，正在进行图像相似度分析...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
@@ -129,6 +149,10 @@ public class DeleteImages {
 	}
 	
 	private static String getFileExt(String fileName) {
+		String ext = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+		if("jpg".equalsIgnoreCase(ext)) {
+			return "gif";
+		}
 		return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
 	}
 	
