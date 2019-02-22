@@ -58,7 +58,6 @@ public class SpiderUI extends JFrame{
 	public void initSpiderUI() {
 		this.setTitle("SpiderUI");  
         this.setUndecorated(true); // 去掉窗口的装饰 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
         this.getRootPane().setWindowDecorationStyle(JRootPane.QUESTION_DIALOG);//采用指定的窗口装饰风格
         this.setSize(550, 280);
         this.setLocationRelativeTo(null);//窗体居中显示  
@@ -366,24 +365,13 @@ public class SpiderUI extends JFrame{
 				// 只当点击最小化按钮时才最小化到托盘，失去活性时不触发
 				if(e.getWindow().isFocused()) {
 					setVisible(false);
-					miniTray(workdir,path.getText(), url.getText(), referer.getText());
 				}
 			}
 			
 			@Override
 			// 关闭窗口
 			public void windowClosing(WindowEvent e) {
-				String dir = path.getText().trim();
-				String netUrl = url.getText();
-				String refererUrl = referer.getText();
-				if(new File(dir).isDirectory()) {
-					DeleteImages.delete(dir);
-				}
-				tray.remove(trayIcon);
-				message.setText("正在保存状态...");
-				saveStatus(netUrl, refererUrl, dir);
-				dispose(); // 关闭窗体
-				System.exit(0); // 关闭JVM
+				windowIconified(e);
 			}
 			
 		});
@@ -412,6 +400,8 @@ public class SpiderUI extends JFrame{
 			}
         	
         }, 0, 1000);
+        
+        miniTray(workdir,path.getText(), url.getText(), referer.getText());
 	}
 	
 	public static boolean isNotBlank(String...args) {
@@ -433,8 +423,7 @@ public class SpiderUI extends JFrame{
 		show.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) { // 按下还原键
-
-				tray.remove(trayIcon);
+				// tray.remove(trayIcon) // 移除图标
 				setVisible(true);
 				setExtendedState(JFrame.NORMAL);
 				toFront();
@@ -450,7 +439,14 @@ public class SpiderUI extends JFrame{
 				}
 				tray.remove(trayIcon);
 				saveStatus(netUrl, referer, path);
-				dispose();
+				try {
+					dispose(); // 关闭窗体
+					TimeUnit.SECONDS.sleep(3);
+				} catch (InterruptedException ex) {
+					Thread.currentThread().interrupt();
+					// ignore.
+				}
+				System.exit(0); // 延时3s关闭JVM
 			}
 
 		});
