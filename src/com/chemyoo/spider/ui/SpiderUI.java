@@ -46,7 +46,7 @@ public class SpiderUI extends JFrame{
 	
 	private Long startTime = 0L;
 	
-	private static TrayIcon trayIcon = null;
+	private TrayIcon trayIcon = null;
 	
 	public SpiderUI() {
 		super();
@@ -401,6 +401,7 @@ public class SpiderUI extends JFrame{
         	
         }, 0, 1000);
         
+        // 初始化到托盘区
         miniTray(workdir,path.getText(), url.getText(), referer.getText());
 	}
 	
