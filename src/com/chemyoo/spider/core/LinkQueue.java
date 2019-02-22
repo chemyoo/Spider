@@ -101,4 +101,15 @@ public class LinkQueue {
 		imageUrl.clear();
 	}
 	
+	public static synchronized int find(String url) {
+		int index = 0;
+		for(String a : unVisited) {
+			if(a.contains(url)) {
+				return index + 1;
+			}
+			index ++;
+		}
+		return 0;
+	}
+	
 }

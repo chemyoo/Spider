@@ -1,6 +1,7 @@
 package com.chemyoo.spider.ui;
 
 import com.chemyoo.spider.core.DeleteImages;
+import com.chemyoo.spider.core.ICallback;
 import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
@@ -56,7 +57,9 @@ public class SpiderUI extends JFrame{
 	 */
 	public void initSpiderUI() {
 		this.setTitle("SpiderUI");  
+        this.setUndecorated(true); // 去掉窗口的装饰 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
+        this.getRootPane().setWindowDecorationStyle(JRootPane.QUESTION_DIALOG);//采用指定的窗口装饰风格
         this.setSize(550, 280);
         this.setLocationRelativeTo(null);//窗体居中显示  
         final JPanel contentPane= new JPanel();  
@@ -133,9 +136,13 @@ public class SpiderUI extends JFrame{
         stop.setPreferredSize(preferredSize);
         pane3.add(stop);
         
-        JButton loadTast = new JButton("载入任务");
+        final JButton loadTast = new JButton("载入任务");
         stop.setPreferredSize(preferredSize);
         pane3.add(loadTast);
+        
+        final JButton findTask = new JButton("查找任务");
+        stop.setPreferredSize(preferredSize);
+        pane3.add(findTask);
         
         final JLabel tip = new JLabel("网站爬取完成...");
         tip.setVisible(false);
@@ -299,6 +306,7 @@ public class SpiderUI extends JFrame{
         	@Override
 			public void mouseClicked(MouseEvent e) {
         		try {
+        			loadTast.setEnabled(false);
         			File file = SelectFiles.getFile(DEFAULT_PATH);
         			if(file == null) return;
         			LinkQueue.clear(); // 载入前清空队列内存
@@ -315,7 +323,38 @@ public class SpiderUI extends JFrame{
 					FileUtils.deleteQuietly(file);
 				} catch (IOException e1) {
 					LOG.error(e1.getMessage(), e1);
+				} finally {
+					loadTast.setEnabled(true);
 				}
+        	}
+        });
+        
+        findTask.addMouseListener(new MouseEventAdapter() {
+        	@Override
+			public void mouseClicked(MouseEvent e) {
+        		findTask.setEnabled(false);
+        		new FindUI(new ICallback() {
+					/**
+					 * serialVersionUID
+					 */
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void getText(String text, boolean coloseable) {
+						if(isNotBlank(text)) {
+							int index = LinkQueue.find(text);
+							boolean flag = index > 0;
+							String message = null;
+							if(flag) {
+								message = "任务正在队列中，在第：" + index + "个位置...";
+							} else {
+								message = "队列中没有此任务...";
+							}
+							JOptionPane.showMessageDialog(null, message, "任务查找结果提示", JOptionPane.PLAIN_MESSAGE);
+						}
+						findTask.setEnabled(coloseable);
+					}
+        		});
         	}
         });
         
