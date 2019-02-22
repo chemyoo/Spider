@@ -48,6 +48,8 @@ public class SpiderUI extends JFrame{
 	
 	private TrayIcon trayIcon = null;
 	
+	private static final String CHAR_SET = "utf-8";
+	
 	public SpiderUI() {
 		super();
 	}
@@ -226,7 +228,7 @@ public class SpiderUI extends JFrame{
 									  .append(refererUrl).append(PropertiesUtil.getLineSeparator())
 									  .append(fileDir).append(PropertiesUtil.getLineSeparator());
 								
-								fw.write(new String(buider.toString().getBytes("utf-8")));
+								fw.write(new String(buider.toString().getBytes(CHAR_SET)));
 								fw.flush();
 								fw.close();
 								
@@ -310,7 +312,7 @@ public class SpiderUI extends JFrame{
         			File file = SelectFiles.getFile(DEFAULT_PATH);
         			if(file == null) return;
         			LinkQueue.clear(); // 载入前清空队列内存
-					java.util.List<String> lines = FileUtils.readLines(file, "utf-8");
+					java.util.List<String> lines = FileUtils.readLines(file, CHAR_SET);
 					if(!lines.isEmpty()) {
 						url.setText(lines.remove(0));
 						referer.setText(lines.remove(0));
@@ -402,7 +404,7 @@ public class SpiderUI extends JFrame{
         }, 0, 1000);
         
         // 初始化到托盘区
-        miniTray(workdir,path.getText(), url.getText(), referer.getText());
+        miniTray(workdir, path.getText(), url.getText(), referer.getText());
 	}
 	
 	public static boolean isNotBlank(String...args) {
@@ -523,7 +525,7 @@ public class SpiderUI extends JFrame{
 		String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
 							+ origin.split("//")[1].split("/")[0] + ".task";
 		try (FileWriter fw = new FileWriter(fileName)){
-			fw.write(new String(buider.toString().getBytes(),"utf-8"));
+			fw.write(new String(buider.toString().getBytes(),CHAR_SET));
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
