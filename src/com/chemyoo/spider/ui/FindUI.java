@@ -54,7 +54,7 @@ public class FindUI extends JFrame {
 		this.setTitle("查找任务");  
         this.setSize(350, 150);
         this.setUndecorated(true); // 去掉窗口的装饰 
-        this.getRootPane().setWindowDecorationStyle(JRootPane.WARNING_DIALOG);//采用指定的窗口装饰风格
+        this.getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);//采用指定的窗口装饰风格
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.setLocationRelativeTo(null);//窗体居中显示  
         final JPanel contentPane= new JPanel();  
@@ -76,6 +76,9 @@ public class FindUI extends JFrame {
         
         final JButton serach = new JButton("查找");  
         final JButton cancle = new JButton("取消"); 
+        preferredSize = new Dimension(80,25);//设置尺寸
+        serach.setPreferredSize(preferredSize);
+        cancle.setPreferredSize(preferredSize);
         buttonPane.add(serach);  
         buttonPane.add(cancle);  
         contentPane.add(pane1);

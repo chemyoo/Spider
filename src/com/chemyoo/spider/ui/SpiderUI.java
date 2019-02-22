@@ -137,11 +137,11 @@ public class SpiderUI extends JFrame{
         pane3.add(stop);
         
         final JButton loadTast = new JButton("载入任务");
-        stop.setPreferredSize(preferredSize);
+        loadTast.setPreferredSize(preferredSize);
         pane3.add(loadTast);
         
         final JButton findTask = new JButton("查找任务");
-        stop.setPreferredSize(preferredSize);
+        findTask.setPreferredSize(preferredSize);
         pane3.add(findTask);
         
         final JLabel tip = new JLabel("网站爬取完成...");
