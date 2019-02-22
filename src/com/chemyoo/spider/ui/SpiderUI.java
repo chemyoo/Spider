@@ -382,7 +382,8 @@ public class SpiderUI extends JFrame{
 				tray.remove(trayIcon);
 				message.setText("正在保存状态...");
 				saveStatus(netUrl, refererUrl, dir);
-				dispose();
+				dispose(); // 关闭窗体
+				System.exit(0); // 关闭JVM
 			}
 			
 		});
