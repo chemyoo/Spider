@@ -462,21 +462,16 @@ public class SpiderUI extends JFrame{
 			public void mouseClicked(MouseEvent e) { // 鼠标器双击事件
 
 				if (e.getClickCount() == 2) {
-
-					tray.remove(trayIcon); // 移去托盘图标
 					setVisible(true);
 					setExtendedState(JFrame.NORMAL); // 还原窗口
 					toFront();
 				}
-
 			}
 
 		});
 
 		try {
-
 			tray.add(trayIcon);
-
 		} catch (AWTException e1) {
 			LOG.error(e1.getMessage(), e1);
 		}
