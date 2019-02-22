@@ -94,14 +94,14 @@ public class FindUI extends JFrame {
         cancle.addMouseListener(new MouseEventAdapter() {
         	@Override
         	public void mouseClicked(MouseEvent e) {
-        		getText(url.getText(), true);
+        		getText(null, true);
         	}
 		});
         
         this.addWindowListener(new WindowAdapter() {
         	@Override
 	    	public void windowClosing(WindowEvent e) {
-        		getText(url.getText(), true);
+        		getText(null, true);
 	    	}
     	});
         
