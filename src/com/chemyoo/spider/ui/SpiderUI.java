@@ -440,16 +440,17 @@ public class SpiderUI extends JFrame{
 				if(new File(path).isDirectory()) {
 					DeleteImages.delete(path);
 				}
-				tray.remove(trayIcon);
-				saveStatus(netUrl, referer, path);
 				try {
+					tray.remove(trayIcon);
+					saveStatus(netUrl, referer, path);
 					dispose(); // 关闭窗体
 					TimeUnit.SECONDS.sleep(3);
 				} catch (InterruptedException ex) {
 					Thread.currentThread().interrupt();
 					// ignore.
+				} finally {
+					System.exit(0); // 延时3s关闭JVM
 				}
-				System.exit(0); // 延时3s关闭JVM
 			}
 
 		});
