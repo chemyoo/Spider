@@ -73,7 +73,6 @@ public class Spider {
 		this.setReferer(referer);
 		deletetimer();
 		// 重新读取配置文件
-		PropertiesUtil.init2();
 		properties = PropertiesUtil.getInstance();
 		if(LinkQueue.unVisitedEmpty()) {
 			LinkQueue.push(this.url);

@@ -1,6 +1,7 @@
 package com.chemyoo.spider.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,8 +18,10 @@ public class PropertiesUtil {
 	
 	private static Properties properties = new Properties();
 	
+	private static OldVersion version = new OldVersion();
+	
 	public static Properties getInstance() {
-		if(properties.isEmpty()) {
+		if(isUpdateOfFile() || properties.isEmpty()) {
 			init2();
 		}
 		return properties;
@@ -76,6 +79,41 @@ public class PropertiesUtil {
 
 	public static String getFileSeparator() {
 		return System.getProperty("file.separator");
+	}
+	
+	private static boolean isUpdateOfFile() {
+		File file = new File(getPropertiesFolder());
+		if(file.exists() && version.lastUpdateF1 < file.lastModified()) {
+			version.lastUpdateF1 = file.lastModified();
+			return true;
+		}
+		file = new File(getPropertiesPath());
+		if(file.exists() && version.lastUpdateF2 < file.lastModified()) {
+			version.lastUpdateF2 = file.lastModified();
+			return true;
+		}
+		return false;
+	}
+	
+	private static class OldVersion {
+		private long lastUpdateF1 = 0;
+		private long lastUpdateF2 = 0;
+	}
+	
+	public static double getProp(String key, String defValue) {
+		return Double.parseDouble(properties.getProperty(key, defValue));
+	}
+	
+	public static double getH() {
+		return getProp("min.height", "700");
+	}
+	
+	public static double getW() {
+		return getProp("min.width", "1000");
+	}
+	
+	public static double getS() {
+		return getProp("min.size", "100");
 	}
 	
 }

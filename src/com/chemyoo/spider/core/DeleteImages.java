@@ -12,8 +12,6 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Properties;
-
 import javax.imageio.ImageIO;
 
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
@@ -35,14 +33,6 @@ public class DeleteImages {
 	private static final Logger LOG = Logger.getLogger(Spider.class);
 	
 	private static final String IMAGES_DIR = "/images/";
-	
-	private static final Properties props = PropertiesUtil.getInstance();
-	
-	private static final double MIN_H = Double.parseDouble(props.getProperty("min.height", "700"));
-	
-	private static final double MIN_W = Double.parseDouble(props.getProperty("min.width", "1000"));
-	
-	private static final double MIN_S = Double.parseDouble(props.getProperty("min.size", "100"));
 	
 	public static synchronized void delete(String dir) {
 		File file = new File(dir);
@@ -66,23 +56,23 @@ public class DeleteImages {
 	 * @return
 	 */
 	private static boolean isNotAllowedSave(File file){
-			double width = 0d;
-			double height = 0d;
-			try (FileInputStream fis = new FileInputStream(file);){
-				BufferedImage sourceImg = ImageIO.read(fis);
-				width = sourceImg.getWidth();
-				height = sourceImg.getHeight();
-				sourceImg.flush();
-				Spider.closeQuietly(fis);
-			} catch (Exception e) {
-				LOG.error("获取图片分辨率失败：", e);
-			} 
-			boolean flag = width < MIN_W || height < MIN_H;
-			if(!flag) {
-				String log = "保存文件：【%s】，分辨率(宽 * 高):%.1f * %.1f";
-				LOG.info(String.format(log, file.getPath(), width, height));
-			}
-			return flag;
+		double width = 0d;
+		double height = 0d;
+		try (FileInputStream fis = new FileInputStream(file);){
+			BufferedImage sourceImg = ImageIO.read(fis);
+			width = sourceImg.getWidth();
+			height = sourceImg.getHeight();
+			sourceImg.flush();
+			Spider.closeQuietly(fis);
+		} catch (Exception e) {
+			LOG.error("获取图片分辨率失败：", e);
+		} 
+		boolean flag = width < PropertiesUtil.getW() || height < PropertiesUtil.getH();
+		if(!flag) {
+			String log = "保存文件：【%s】，分辨率(宽 * 高):%.1f * %.1f";
+			LOG.info(String.format(log, file.getPath(), width, height));
+		}
+		return flag;
 	}
 	
 	private static boolean isNotAllowedSave(File file, BufferedImage image, double fileSize){
@@ -94,7 +84,7 @@ public class DeleteImages {
 		} catch (Exception e) {
 			LOG.error("获取图片分辨率失败：", e);
 		} 
-		boolean flag = fileSize <= MIN_S || width < MIN_W || height < MIN_H;
+		boolean flag = fileSize <= PropertiesUtil.getS() || width < PropertiesUtil.getW() || height < PropertiesUtil.getH();
 		if(!flag) {
 			String log = "保存文件：【%s】，分辨率(宽 * 高):%.1f * %.1f，文件大小：%.2fkb";
 			LOG.info(String.format(log, file.getPath(), width, height, fileSize));
@@ -204,4 +194,5 @@ public class DeleteImages {
 	private static String getFileSeparator() {
 		return System.getProperty("file.separator");
 	}
+	
 }
