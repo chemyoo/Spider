@@ -20,6 +20,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.chemyoo.spider.ui.SpiderUI;
+import com.chemyoo.spider.util.Message;
 import com.chemyoo.spider.util.NumberUtils;
 import com.chemyoo.spider.util.PropertiesUtil;
 //import com.gargoylesoftware.htmlunit.BrowserVersion;
@@ -97,21 +98,30 @@ public class Spider {
 		return this.referer;
 	}
 	
-	public void start() throws IOException {
+	public String start() throws IOException {
 		LOG.info("程序已启动...");
-		while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
-			String link = LinkQueue.unVisitedPop();
-			this.message.setText("正在访问网址链接:" + link);
-			this.connectUrl(link);
-			ImagesUtils.downloadPic(this.dir, this.getReferer());
-			this.count ++;
+		this.message.setText("");
+		String res = Auth.login();
+		
+		if(Message.SUCCESS.equals(res)) {
+			while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
+				String link = LinkQueue.unVisitedPop();
+				this.message.setText("正在访问网址链接:" + link);
+				this.connectUrl(link);
+				ImagesUtils.downloadPic(this.dir, this.getReferer());
+				this.count ++;
+			}
+			if(button.isSelected())
+				LOG.info("程序暂停...");
+			else
+				LOG.info("程序终止...");
+		} else {
+			this.message.setText("登入失败:" + res);
+			return Message.FAILURE;
 		}
 		time.cancel();
 		closeQuietly(writer);
-		if(button.isSelected())
-			LOG.info("程序暂停...");
-		else
-			LOG.info("程序终止...");
+		return Message.SUCCESS;
 	}
 	
 	private void deletetimer() {

@@ -6,6 +6,7 @@ import com.chemyoo.spider.core.LinkQueue;
 import com.chemyoo.spider.core.MouseEventAdapter;
 import com.chemyoo.spider.core.SelectFiles;
 import com.chemyoo.spider.core.Spider;
+import com.chemyoo.spider.util.Message;
 import com.chemyoo.spider.util.PropertiesUtil;
 
 import org.apache.commons.io.FileUtils;
@@ -231,6 +232,7 @@ public class SpiderUI extends JFrame{
 					Thread thread = new Thread("Spider") {
 						@Override
 						public void run() {
+							String res = Message.SUCCESS;
 							start.setText("正在爬取");
 							String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
 							+ refererUrl.split("//")[1].split("/")[0] + ".Error.task";
@@ -247,13 +249,17 @@ public class SpiderUI extends JFrame{
 								Spider spider = new Spider(netUrl.trim(), fileDir.trim(), 
 										start, message, refererUrl.trim());
 								startTime = Calendar.getInstance().getTimeInMillis();
-								spider.start();
+								res = spider.start();
 							} catch (Exception e) {
 								LOG.error("程序运行发生异常",e);
 								start.setText("开始爬取");
 								start.setEnabled(true);
 							}
-							tip.setText("网站爬取完成...");
+							if(!Message.SUCCESS.equals(res)) {
+								tip.setText(message.getText());
+							} else {
+								tip.setText("网站爬取完成...");
+							}
 							if(!pause.isVisible()) {
 								tip.setVisible(true);
 							}
