@@ -521,7 +521,7 @@ public class SpiderUI extends JFrame{
 	}
 	
 	private void saveStatus(String netUrl, String origin, String savePath) {
-		LOG.error("关闭程序...");
+		LOG.warn("关闭程序...");
 		StringBuilder buider = new StringBuilder();
 		buider.append(netUrl).append(PropertiesUtil.getLineSeparator())
 			  .append(origin).append(PropertiesUtil.getLineSeparator())
