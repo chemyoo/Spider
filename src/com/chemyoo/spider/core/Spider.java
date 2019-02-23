@@ -3,6 +3,7 @@ package com.chemyoo.spider.core;
 import java.io.Closeable;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -105,7 +106,7 @@ public class Spider {
 		
 		if(Message.SUCCESS.equals(res)) {
 			while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
-				String link = LinkQueue.unVisitedPop();
+				String link = URLDecoder.decode(LinkQueue.unVisitedPop(), "utf-8");
 				this.message.setText("正在访问网址链接:" + link);
 				this.connectUrl(link);
 				ImagesUtils.downloadPic(this.dir, this.getReferer());
@@ -254,7 +255,11 @@ public class Spider {
 		if(StringUtils.isNotBlank(classSelector2)) {
 			String[] cssSelector = classSelector2.split(",");
 			for(String css : cssSelector) {
-				href.addAll(main.select(css.trim() + " a[href]"));
+				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[")) {
+					href.addAll(main.select(css.trim()));
+				} else {
+					href.addAll(main.select(css.trim() + " a[href]"));
+				}
 			}
 		}
 		Elements removeHref = new Elements();
