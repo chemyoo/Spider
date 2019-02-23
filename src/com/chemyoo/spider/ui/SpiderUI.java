@@ -50,6 +50,8 @@ public class SpiderUI extends JFrame{
 	
 	private static final String CHAR_SET = "utf-8";
 	
+	private Color darkGreen = new Color(51, 102, 51);
+	
 	public SpiderUI() {
 		super();
 	}
@@ -147,7 +149,7 @@ public class SpiderUI extends JFrame{
         
         final JLabel tip = new JLabel("网站爬取完成...");
         tip.setVisible(false);
-        tip.setForeground(Color.GREEN);
+        tip.setForeground(darkGreen);
         pane4.add(tip);
         
         final JLabel pause = new JLabel("程序暂停中...");
@@ -165,6 +167,7 @@ public class SpiderUI extends JFrame{
 		urlNumLable.setText("当前链接数量:");
 		urlNumLable.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(urlNumLable);
+		urlNumLable.setForeground(darkGreen);
 		
 		final JLabel urlNum = new JLabel();
 		urlNum.setVisible(true);
@@ -172,17 +175,23 @@ public class SpiderUI extends JFrame{
 		urlNum.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(urlNum);
 		
+		urlNum.setForeground(darkGreen);
+		
 		final JLabel speedLabel = new JLabel();
 		speedLabel.setVisible(true);
 		speedLabel.setText("已访问链接:");
 		speedLabel.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(speedLabel);
 		
+		speedLabel.setForeground(darkGreen);
+		
 		final JLabel speed = new JLabel();
 		speed.setVisible(true);
 		speed.setText("0个");
 		speed.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(speed);
+		
+		speed.setForeground(darkGreen);
 		
 		final JLabel runTimeTitle = new JLabel();
 		runTimeTitle.setVisible(true);
@@ -195,6 +204,9 @@ public class SpiderUI extends JFrame{
 		runTime.setText("00s");
 		runTime.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(runTime);
+		
+		runTime.setForeground(darkGreen);
+		runTimeTitle.setForeground(darkGreen);
 		
 //		pane6.setBackground(new Color(255,255,224))
 
