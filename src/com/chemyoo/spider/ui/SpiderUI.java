@@ -404,7 +404,7 @@ public class SpiderUI extends JFrame{
         }, 0, 1000);
         
         // 初始化到托盘区
-        miniTray(workdir, path.getText(), url.getText(), referer.getText());
+        miniTray(workdir, path, url, referer);
 	}
 	
 	public static boolean isNotBlank(String...args) {
@@ -416,7 +416,7 @@ public class SpiderUI extends JFrame{
 		return true;
 	}
 
-	private void miniTray(final URL workdir,final String path, final String netUrl, final String referer) { //窗口最小化到任务栏托盘
+	private void miniTray(final URL workdir,final JTextField path, final JTextField netUrl, final JTextField referer) { //窗口最小化到任务栏托盘
 
 		ImageIcon trayImg = new ImageIcon(workdir);//托盘图标
 		PopupMenu pop = new PopupMenu(); //增加托盘右击菜单
@@ -437,17 +437,17 @@ public class SpiderUI extends JFrame{
 		exit.addActionListener(new ActionListener() { // 按下退出键
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(new File(path).isDirectory()) {
-					DeleteImages.delete(path);
+				if(new File(path.getText()).isDirectory()) {
+					DeleteImages.delete(path.getText());
 				}
 				try {
 					tray.remove(trayIcon);
-					saveStatus(netUrl, referer, path);
+					saveStatus(netUrl.getText(), referer.getText(), path.getText());
 					dispose(); // 关闭窗体
 					TimeUnit.SECONDS.sleep(3);
 				} catch (InterruptedException ex) {
 					Thread.currentThread().interrupt();
-					// ignore.
+					LOG.error(ex.getMessage(), ex);
 				} finally {
 					System.exit(0); // 延时3s关闭JVM
 				}
