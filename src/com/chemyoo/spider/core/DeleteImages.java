@@ -12,10 +12,13 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Properties;
 
 import javax.imageio.ImageIO;
 
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
+import com.chemyoo.spider.util.PropertiesUtil;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -33,9 +36,13 @@ public class DeleteImages {
 	
 	private static final String IMAGES_DIR = "/images/";
 	
-	private static final double MIN_H = 700;
+	private static final Properties props = PropertiesUtil.getInstance();
 	
-	private static final double MIN_W = 1000;
+	private static final double MIN_H = Double.parseDouble(props.getProperty("min.height", "700"));
+	
+	private static final double MIN_W = Double.parseDouble(props.getProperty("min.width", "1000"));
+	
+	private static final double MIN_S = Double.parseDouble(props.getProperty("min.size", "100"));
 	
 	public static synchronized void delete(String dir) {
 		File file = new File(dir);
@@ -87,7 +94,7 @@ public class DeleteImages {
 		} catch (Exception e) {
 			LOG.error("获取图片分辨率失败：", e);
 		} 
-		boolean flag = fileSize > 100 && (width < MIN_W || height < MIN_H);
+		boolean flag = fileSize <= MIN_S || width < MIN_W || height < MIN_H;
 		if(!flag) {
 			String log = "保存文件：【%s】，分辨率(宽 * 高):%.1f * %.1f，文件大小：%.2fkb";
 			LOG.info(String.format(log, file.getPath(), width, height, fileSize));
