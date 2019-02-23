@@ -168,7 +168,7 @@ public class SpiderUI extends JFrame{
 		
 		final JLabel urlNum = new JLabel();
 		urlNum.setVisible(true);
-		urlNum.setText("0个/0张图片");
+		urlNum.setText("0个 已下载0张图片");
 		urlNum.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(urlNum);
 		
@@ -390,7 +390,7 @@ public class SpiderUI extends JFrame{
 					runTime.setText(long2TimeStr(spend));
 					StringBuilder urlText = new StringBuilder();
 					urlText.append(LinkQueue.getUnVisitedSize());
-					urlText.append("个/").append(LinkQueue.getImageUrlSize()).append("张图片");
+					urlText.append("个 已下载").append(LinkQueue.getImageSize()).append("张图片");
 					urlNum.setText(urlText.toString());
 					if(spend > 0 && spend > 10000) {
 						int velocity = LinkQueue.getVisitedSize();

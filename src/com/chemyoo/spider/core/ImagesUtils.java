@@ -142,14 +142,13 @@ public class ImagesUtils {
 		
 		InputStream in = null;
 		HttpURLConnection httpConnection = null;
-		String url;
 		String imageName = null;
 		long milliseconds = 0;
 //		enable.md5
 		Boolean enableMd5 = Boolean.valueOf(PropertiesUtil.getInstance().getProperty("enable.md5", "false"));
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
-				url = LinkQueue.imageUrlPop();
+				String url = LinkQueue.imageUrlPop();
 				if(enableMd5) {
 					imageName = DigestUtils.md5Hex(url) 
 							+ url.substring(url.lastIndexOf('/') + 1, url.length());

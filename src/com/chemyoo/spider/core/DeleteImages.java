@@ -138,7 +138,8 @@ public class DeleteImages {
 				LOG.info("文件相似度不大于0.90，进行文件重命名...");
 				reName(file, dir);
 			}
-		}
+		} 
+		LinkQueue.sizeAddOne();
 	}
 
 	private static double pictrueSimilarity(File f1, File f2){

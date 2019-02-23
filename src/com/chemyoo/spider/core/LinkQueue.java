@@ -12,6 +12,8 @@ public class LinkQueue {
 
 	private LinkQueue() {}
 	
+	private static int count = 0;
+	
 	// 未访问的url
 	private static List<String> unVisited = new LinkedList<>();
 	
@@ -38,6 +40,10 @@ public class LinkQueue {
 		return null;
 	}
 	
+	public static void sizeAddOne() {
+			count ++;
+	}
+	
 	public static int getUnVisitedSize() {
 		return unVisited.size();
 	}
@@ -46,8 +52,8 @@ public class LinkQueue {
 		return visited.size();
 	}
 	
-	public static int getImageUrlSize() {
-		return imageUrl.size();
+	public static synchronized int getImageSize() {
+		return count;
 	}
 	
 	// 未访问的imageUrl出队列
@@ -94,7 +100,7 @@ public class LinkQueue {
 		return true;
 	}
 	
-	public static void clear() {
+	public static synchronized void clear() {
 		unVisited.clear();
 		visited.clear();
 		menuUrl.clear();
