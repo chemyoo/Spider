@@ -105,6 +105,7 @@ public class LinkQueue {
 		visited.clear();
 		menuUrl.clear();
 		imageUrl.clear();
+		count = 0;
 	}
 	
 	public static synchronized int find(String url) {
