@@ -55,7 +55,7 @@ public class Spider {
 	
 	private int count;
 	
-	Properties properties;
+	Properties properties = PropertiesUtil.getInstance();
 	
 	private static final String PICTURE_EXT = "gif,png,jpg,jpeg,bmp"; 
 	
@@ -72,8 +72,6 @@ public class Spider {
 		this.message = message;
 		this.setReferer(referer);
 		deletetimer();
-		// 重新读取配置文件
-		properties = PropertiesUtil.getInstance();
 		if(LinkQueue.unVisitedEmpty()) {
 			LinkQueue.push(this.url);
 		}
