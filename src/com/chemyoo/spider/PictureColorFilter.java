@@ -1,7 +1,6 @@
 package com.chemyoo.spider;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -52,18 +51,19 @@ public class PictureColorFilter {
 					if (f.exists()) {
 						PictureColor colorInfo = ImageUtils.getWhiteColorPer(f);
 						double value = NumberUtils.setScale(colorInfo.percent * 100, 2);
-						System.err.println("正在识别第" + count + "张图片，文件名：" 
-								+ f.getAbsolutePath() + "，主要色彩占比：" + value 
-								+ "，颜色分布离散度：" + colorInfo.average);
-						if(value > 33D || colorInfo.average > 230) {
-							try {
-//								String fileName = f.getParentFile().getParentFile()+"/" + 
-//										value + "_" + colorInfo.average + "_" + f.getName(); 
-//								FileUtils.moveFile(f, new File(fileName));
-								FileUtils.moveFileToDirectory(f, f.getParentFile().getParentFile(), true);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
+						if(value == 0D || value > 33D || colorInfo.average > 230) {
+							System.err.println("第" + count + "张图片，文件名：" 
+									+ f.getAbsolutePath() + "，主要色彩占比：" + value 
+									+ "，颜色分布离散度：" + colorInfo.average + "，色彩单调或颜色分布不均，执行删除文件。");
+//							String fileName = f.getParentFile().getParentFile()+"/" + 
+//									value + "_" + colorInfo.average + "_" + f.getName(); 
+//							FileUtils.moveFile(f, new File(fileName));
+							FileUtils.deleteQuietly(f);
+//							try {
+//								FileUtils.moveFileToDirectory(f, f.getParentFile().getParentFile(), true);
+//							} catch (IOException e) {
+//								e.printStackTrace();
+//							}
 						}
 						count ++;
 					}
