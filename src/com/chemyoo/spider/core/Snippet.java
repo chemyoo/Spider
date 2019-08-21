@@ -75,15 +75,20 @@ public class Snippet {
 	    } 
 	}
 	
+	public static String toHtml(Elements elements) {
+		Iterator<Element> it = elements.iterator();
+		StringBuilder sb = new StringBuilder();
+		while(it.hasNext()) {
+			sb.append(it.next().html()).append("\r\n");
+		}
+		return sb.toString();
+	}
+	
 	public static void main(String[] args) {
 		try {
 			Document doc = Jsoup.parse(Snippet.fetch_url("http://www.netbian.com//desk/20665-1920x1080.htm", "gb2312"));
 			Elements body = doc.getElementsByTag("body");
-			Iterator<Element> it = body.iterator();
-			while(it.hasNext()) {
-				System.err.println(it.next().html());
-			}
-			
+			System.err.println(toHtml(body));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
