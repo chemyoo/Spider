@@ -79,7 +79,7 @@ public class LinkQueue {
 		if(isNotBlank(index) && !pageUrls.containsKey(index)) {
 			String mdhex = DigestUtils.md5Hex(pageUrl);
 			if(!visitPage.contains(mdhex)) {
-				pageUrls.putIfAbsent(index, pageUrl);
+				pageUrls.put(index, pageUrl);
 				visitPage.add(mdhex);
 			}
 		}
