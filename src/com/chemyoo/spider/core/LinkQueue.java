@@ -1,10 +1,13 @@
 package com.chemyoo.spider.core;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -14,25 +17,33 @@ public class LinkQueue {
 	
 	private static int count = 0;
 	
+	private static String curPage = "1";
+	
 	// 未访问的url
 	private static List<String> unVisited = new LinkedList<>();
 	
 	// 未访问的图片路径
 	private static List<String> imageUrl = new ArrayList<>();
 	
-	private static Set<String> visited = new HashSet<>();
+	private static Map<String, String> pageUrls = new TreeMap<>(new Comparator<String>() {
+		@Override
+		public int compare(String s1, String s2) {
+			int num = s1.length() - s2.length();
+            int num2 = num == 0 ? s1.compareTo(s2) : num;
+            return num2;
+		}
+		
+	});
 	
-	private static Set<String> menuUrl = new HashSet<>();
+	private static Set<String> visited = new HashSet<>();
+	private static Set<String> visitPage = new HashSet<>();
 	
 	// 未访问的URL出队列
 	public static String unVisitedPop() {
-		
 		if (!unVisited.isEmpty()) {
 			String link = unVisited.remove(0);
-			if(visited.size() > 60000 && menuUrl.size() > 10000) {
+			if(visited.size() > 60000) {
 				visited.clear();
-				visited.addAll(menuUrl);
-				menuUrl.clear();
 			}
 			visited.add(DigestUtils.md5Hex(link));
 			return link;
@@ -64,15 +75,39 @@ public class LinkQueue {
 		return null;
 	}
 	
-	
-	public static void addmenuUrl(String value) {
-		if(isNotBlank(value) && !menuUrl.contains(value)) {
-			menuUrl.add(value);
+	public static void addPageUrl(String pageUrl, String index) {
+		if(isNotBlank(index) && !pageUrls.containsKey(index)) {
+			String mdhex = DigestUtils.md5Hex(pageUrl);
+			if(!visitPage.contains(mdhex)) {
+				pageUrls.putIfAbsent(index, pageUrl);
+				visitPage.add(mdhex);
+			}
 		}
 	}
 	
+	public static String getPageUrl() {
+		if (!pageUrls.isEmpty()) {
+			Map.Entry<String, String> en = null;
+			for(Map.Entry<String, String> entry : pageUrls.entrySet()) {
+				en = entry;
+				break;
+			}
+			if(en != null) {
+				pageUrls.remove(en.getKey());
+				curPage = en.getKey();
+				return en.getValue();
+			}
+		}
+		return null;
+	}
+	
+	public static String getCurPage() {
+		return curPage;
+	}
+	
+	
 	public static void imageUrlpush(String url) {
-		if (isNotBlank(url) && url.startsWith("http") && !imageUrl.contains(url) && !menuUrl.contains(url))
+		if (isNotBlank(url) && url.startsWith("http") && !imageUrl.contains(url))
 			imageUrl.add(url);
 	}
 	
@@ -84,7 +119,7 @@ public class LinkQueue {
 	
 	// 判断未访问的URL队列中是否为空
 	public static boolean unVisitedEmpty() {
-		return unVisited.isEmpty();
+		return unVisited.isEmpty() && pageUrls.isEmpty();
 	}
 	
 	public static boolean imageUrlEmpty() {
@@ -103,8 +138,9 @@ public class LinkQueue {
 	public static synchronized void clear() {
 		unVisited.clear();
 		visited.clear();
-		menuUrl.clear();
+		pageUrls.clear();
 		imageUrl.clear();
+		visitPage.clear();
 		count = 0;
 	}
 	

@@ -4,9 +4,7 @@ import java.io.Closeable;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Timer;
@@ -15,7 +13,6 @@ import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -64,8 +61,6 @@ public class Spider {
 	
 	private static final String PICTURE_EXT = "gif,png,jpg,jpeg,bmp"; 
 	
-	private Map<String,Integer> urlVisitedCount = new HashMap<>();
-	
 	private String errorUrlFilePath;
 	
 	private FileWriter writer;
@@ -109,7 +104,11 @@ public class Spider {
 		
 		if(Message.SUCCESS.equals(res)) {
 			while(!LinkQueue.unVisitedEmpty() && !button.isEnabled() && !button.isSelected()) {
-				String link = URLDecoder.decode(LinkQueue.unVisitedPop(), "utf-8");
+				String unVisited = LinkQueue.unVisitedPop();
+				if(unVisited == null) {
+					unVisited = LinkQueue.getPageUrl();
+				}
+				String link = URLDecoder.decode(unVisited, "utf-8");
 				this.message.setText("正在访问网址链接:" + link);
 				this.connectUrl(link);
 				ImagesUtils.downloadPic(this.dir, this.getReferer());
@@ -158,37 +157,6 @@ public class Spider {
 		}}, 30 * 1000L, 5 * 60 * 1000L);
 	}
 	
-	/*private void openUrl(String url) {
-		try (WebClient wc = new WebClient(BrowserVersion.CHROME);){
-			
-		    wc.getOptions().setUseInsecureSSL(true);  
-		    wc.getOptions().setJavaScriptEnabled(true); // 启用JS解释器，默认为true  
-		    wc.getOptions().setCssEnabled(false); // 禁用css支持  
-		    wc.getOptions().setThrowExceptionOnScriptError(false); // js运行错误时，是否抛出异常  
-		    wc.getOptions().setTimeout(100000); // 设置连接超时时间 ，这里是10S。如果为0，则无限期等待  
-		    wc.getOptions().setDoNotTrackEnabled(false);  
-		    HtmlPage page = wc.getPage(url);
-		    HtmlElement body = page.getBody();
-		    body.asText();
-		    Iterable<DomNode> domnode = body.getChildren();
-		    Iterator<DomNode> it = domnode.iterator();
-		    while(it.hasNext()) {
-		    	LOG.debug(it.next().asText());
-		    }
-		    
-		    DomNodeList<HtmlElement> imgNode= body.getElementsByTagName("img");
-		    this.getHtmlElement(imgNode, 1);
-		    DomNodeList<HtmlElement> aHref = body.getElementsByTagName("a");
-		    this.getHtmlElement(aHref, 2);
-		    DomNodeList<HtmlElement> frame = body.getElementsByTagName("frame");
-		    this.getHtmlElement(frame, 2);
-			    
-		} catch (IOException e) {
-			LOG.error("打开网页发生异常");
-		}
-			
-	}*/
-	
 	private void connectUrl(String url) throws IOException {
 		LOG.info("连接网址：【" + url + "】");
 		try {
@@ -209,6 +177,7 @@ public class Spider {
 			
 			Elements body = doc.getElementsByTag("body");
 			this.getUrls(body);
+			this.getPageUrls(body);
 			this.getImagesUrls(body);
 			this.getIframe(body);
 		} catch (Exception e) {
@@ -217,6 +186,10 @@ public class Spider {
 		}
 	}
 
+	/**
+	 * 从IFrame中获取链接
+	 * @param body
+	 */
 	private void getIframe(Elements body){
 		Elements href = body.select("iframe");
 		Iterator<Element> it = href.iterator();
@@ -226,7 +199,6 @@ public class Spider {
 		while(it.hasNext()) {
 			ele = it.next();
 			herfurl = ele.absUrl("src");
-			this.recognizeUrl(herfurl);
 
 			if(herfurl.equals(baseUrl) || (herfurl.endsWith("/") && herfurl.equals(baseUrl+"/"))) {
 				continue;
@@ -239,14 +211,61 @@ public class Spider {
 		}
 	}
 	
-	private void getUrls(Elements body) {
-		String classSelector = getProperties("dom.class.first", "a[href]");
-		String classSelector2 = properties.getProperty("dom.class.second");
-		String removeItem = properties.getProperty("dom.not");
-		String keyWord = properties.getProperty("key.word");
-		String notEndWith = properties.getProperty("not.end.with");
-		String filterUrl = properties.getProperty("filter.url");
+	/**
+	 * 获取页码区域链接
+	 * @param body
+	 */
+	private void getPageUrls(Elements body) {
+		String pageSelector =  properties.getProperty("dom.page");
 		String notContain = properties.getProperty("not.contain");
+		// 筛选出主区域
+		Elements mainPage = new Elements();
+		if(StringUtils.isNotBlank(pageSelector)) {
+			String[] cssSelector = pageSelector.split(",");
+			for(String css : cssSelector) {
+				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[") || css.endsWith("a[href]")) {
+					mainPage.addAll(body.select(css.trim()));
+				} else {
+					mainPage.addAll(body.select(css.trim() + " a[href]"));
+				}
+			}
+		}
+		Iterator<Element> it = mainPage.iterator();
+		label:
+		while(it.hasNext()) {
+			Element ele = it.next();
+			String href = ele.absUrl("href");
+			String text = ele.text();
+			if(StringUtils.isNotBlank(href) && !href.startsWith("javascript:")) {
+				if(StringUtils.isNotBlank(notContain)) {
+					String[] words = notContain.split("[|]");
+					for(String word : words) {
+						boolean isNotAdd = true;
+						String[] andWord = word.split("[+]");
+						for(String and : andWord) {
+							isNotAdd = isNotAdd && text.contains(and.trim());
+						}
+						if(isNotAdd)
+							continue label;
+					}
+				}
+				LinkQueue.addPageUrl(href, text);
+			}
+		}
+	}
+	
+	private void getUrls(Elements body) {
+		// 主区域选择器
+		String classSelector = getProperties("dom.main", "a[href]");
+		// 收集链接选择器
+		String hrefSelect = properties.getProperty("dom.href.select");
+		// 收集链接非选择器
+		String removeItem = properties.getProperty("dom.href.not");
+		// 关键字选择器
+		String keyWord = properties.getProperty("key.word");
+		String notContain = properties.getProperty("not.contain");
+		
+		// 筛选出主区域
 		Elements main = new Elements();
 		if(StringUtils.isNotBlank(classSelector)) {
 			String[] cssSelector = classSelector.split(",");
@@ -254,9 +273,11 @@ public class Spider {
 				main.addAll(body.select(css.trim()));
 			}
 		}
+		
+		// 收集链接
 		Elements href = new Elements();
-		if(StringUtils.isNotBlank(classSelector2)) {
-			String[] cssSelector = classSelector2.split(",");
+		if(StringUtils.isNotBlank(hrefSelect)) {
+			String[] cssSelector = hrefSelect.split(",");
 			for(String css : cssSelector) {
 				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[")) {
 					href.addAll(main.select(css.trim()));
@@ -265,14 +286,17 @@ public class Spider {
 				}
 			}
 		}
+		
+		// 需要过滤掉的链接
 		Elements removeHref = new Elements();
 		if(StringUtils.isNotBlank(removeItem)) {
 			String[] cssSelector = removeItem.split(",");
 			for(String css : cssSelector) {
-				if(css.startsWith("a."))
+				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[")) {
 					removeHref.addAll(main.select(css.trim()));
-				else
+				} else {
 					removeHref.addAll(main.select(css.trim() + " a[href]"));
+				}
 			}
 		}
 		href.removeAll(removeHref);
@@ -289,14 +313,6 @@ public class Spider {
 				continue;
 			}
 			
-			if(StringUtils.isNotBlank(filterUrl)) {
-				String[] words = filterUrl.split(",");
-				for(String word : words) {
-					if(herfurl.contains(word.trim())) {
-						continue label;
-					}
-				}
-			}
 			
 			if(StringUtils.isNotBlank(notContain)) {
 				String[] words = notContain.split("[|]");
@@ -311,20 +327,6 @@ public class Spider {
 				}
 			}
 			
-			if(StringUtils.isNotBlank(notEndWith)) {
-				String[] words = notEndWith.split("[|]");
-				for(String word : words) {
-					boolean isNotAdd = true;
-					String[] andWord = word.split("[+]");
-					for(String and : andWord) {
-						isNotAdd = isNotAdd && herfurl.endsWith(and.trim());
-					}
-					if(isNotAdd)
-						continue label;
-				}
-			}
-			
-			this.recognizeUrl(herfurl);
 			
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
@@ -353,28 +355,8 @@ public class Spider {
 		return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
 	}
 
-	/**
-	 * 辨识URL,对重复出现多次的URL可认为是网站的导航链接
-	 * @param url
-	 */
-	private void recognizeUrl(String url) {
-		if(urlVisitedCount.size() > 50000) {
-			urlVisitedCount.clear();
-		}
-		String value = DigestUtils.md5Hex(url);
-		if(urlVisitedCount.containsKey(value)) {
-			int count = urlVisitedCount.get(value) + 1;
-			if(count < 3){
-				urlVisitedCount.put(value, count + 1);
-				LinkQueue.addmenuUrl(value);
-			}
-		} else {
-			urlVisitedCount.put(value, 1);
-		}
-	}
-	
 	private void getImagesUrls(Elements body) {
-		String main = getProperties("dom.class.first","img[src]");
+		String main = getProperties("dom.main","img[src]");
 		String classSelector2 = properties.getProperty("dom.img.select");
 //		String removeItem = properties.getProperty("dom.not");
 		String notDownImg = properties.getProperty("dom.img.not");
@@ -421,7 +403,6 @@ public class Spider {
 				}
 			}
 			LinkQueue.imageUrlpush(src);
-			this.recognizeUrl(src);
 		}
 	}
 	

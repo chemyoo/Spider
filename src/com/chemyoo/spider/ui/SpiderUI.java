@@ -64,7 +64,7 @@ public class SpiderUI extends JFrame{
 		this.setTitle("SpiderUI");  
         this.setUndecorated(true); // 去掉窗口的装饰 
         this.getRootPane().setWindowDecorationStyle(JRootPane.QUESTION_DIALOG);//采用指定的窗口装饰风格
-        this.setSize(550, 280);
+        this.setSize(560, 280);
         this.setLocationRelativeTo(null);//窗体居中显示  
         final JPanel contentPane= new JPanel();  
         contentPane.setBorder(new EmptyBorder(20,5,5,5));  
@@ -165,14 +165,14 @@ public class SpiderUI extends JFrame{
 		
 		final JLabel urlNumLable = new JLabel();
 		urlNumLable.setVisible(true);
-		urlNumLable.setText("当前链接数量:");
+		urlNumLable.setText("当前在第");
 		urlNumLable.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(urlNumLable);
 		urlNumLable.setForeground(darkGreen);
 		
 		final JLabel urlNum = new JLabel();
 		urlNum.setVisible(true);
-		urlNum.setText("0个 已下载0张图片");
+		urlNum.setText("1页 0个未访问链接 已下载0张图片");
 		urlNum.setHorizontalAlignment(JTextField.LEFT);
 		pane6.add(urlNum);
 		
@@ -407,8 +407,8 @@ public class SpiderUI extends JFrame{
 					Long spend = System.currentTimeMillis() - startTime;
 					runTime.setText(long2TimeStr(spend));
 					StringBuilder urlText = new StringBuilder();
-					urlText.append(LinkQueue.getUnVisitedSize());
-					urlText.append("个 已下载").append(LinkQueue.getImageSize()).append("张图片");
+					urlText.append(LinkQueue.getCurPage() + "页 " + LinkQueue.getUnVisitedSize());
+					urlText.append("个未访问链接 已下载").append(LinkQueue.getImageSize()).append("张图片");
 					urlNum.setText(urlText.toString());
 					if(spend > 0 && spend > 10000) {
 						int velocity = LinkQueue.getVisitedSize();
