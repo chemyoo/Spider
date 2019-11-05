@@ -126,6 +126,7 @@ public class DeleteImages {
 		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
 		try {
 			FileUtils.moveToDirectory(file, new File(path), true);
+			LinkQueue.sizeAddOne();
 		} catch (IOException e) {
 			LOG.error("保存失败：【"+ file.getPath() + "】，文件已存在，正在进行图像相似度分析...");
 			// 如果图片相似度大于0.95则删除图片，否则进行重命名
@@ -137,9 +138,9 @@ public class DeleteImages {
 			} else {
 				LOG.info("文件相似度不大于0.90，进行文件重命名...");
 				reName(file, dir);
+				LinkQueue.sizeAddOne();
 			}
 		} 
-		LinkQueue.sizeAddOne();
 	}
 
 	private static double pictrueSimilarity(File f1, File f2){

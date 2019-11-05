@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -23,6 +25,10 @@ public class MainTest {
 	private static int countz = 0;
 	
 	private static CountDownLatch countDownLatch = null;
+	
+	private static int total = 0;
+	
+	private static final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
 	public static void main(String[] args) {
 		File file = SelectFiles.getSavePath();
@@ -32,9 +38,9 @@ public class MainTest {
 //			directory = new File("F:/deletedir");
 			Map<String,String> md5Values = new ConcurrentHashMap<>();
 //			getMd5Values(file, md5Values);
-			LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
-			getFiles(file, queue);
-			getMd5Values(queue, md5Values);
+			getFiles(file);
+//			getMd5Values(md5Values);
+			compare();
 			System.out.println("处理文件个数：" + md5Values.size());
 			md5Values.clear();
 			md5Values = null;
@@ -49,12 +55,12 @@ public class MainTest {
 		}
 	}
 	
-	private static void getFiles(File file, LinkedBlockingQueue<String> queue) {
+	private static void getFiles(File file) {
 		if(file != null && file.isDirectory()) {
 			File[] dir = file.listFiles();
 			for(File f : dir)
 				if(f.isDirectory()) {
-					getFiles(f, queue);
+					getFiles(f);
 				} else {
 					queue.add(f.getAbsolutePath());
 				}
@@ -79,11 +85,12 @@ public class MainTest {
 //		}
 //	}
 	
-	private static void getMd5Values(LinkedBlockingQueue<String> queue,Map<String,String> md5Values) {
+	private static void getMd5Values(Map<String,String> md5Values) {
 		int size = Runtime.getRuntime().availableProcessors();
+		total = queue.size();
 		countDownLatch = new CountDownLatch(size);
 		for(int i = 0; i < size; i++) {
-			run(queue, md5Values);
+			run(md5Values);
 		}
 		try {
 			countDownLatch.await();
@@ -92,7 +99,7 @@ public class MainTest {
 		}
 	}
 	
-	private static void run(final LinkedBlockingQueue<String> queue, final Map<String,String> md5Values) {
+	private static void run(final Map<String,String> md5Values) {
 		new Thread() {
 			@Override
 			public void run() {
@@ -103,13 +110,50 @@ public class MainTest {
 						if (!md5Values.containsKey(md5)) {
 							md5Values.put(md5, f.getAbsolutePath());
 						} else {
+							String temp = "正在比较%s和%s的相似度";
+							System.out.println(String.format(temp, f.getName(),md5Values.get(md5)));
 							checkExists(f, new File(md5Values.get(md5)));
 						}
 					}
+					System.out.println(queue.size());
 				} 
 				countDownLatch.countDown();
 			}
 		}.start();
+	}
+	
+	private static void compare() {
+		Semaphore semaphore = new Semaphore(4);
+		while (!queue.isEmpty()) {
+			File f = new File(queue.poll());
+			String [] array = queue.toArray(new String[0]);
+			int index = 0;
+			int length = array.length;
+			if(length == 0) length = 1;
+			for(String path : array) {
+				index ++;
+				moreCompare(new File(path), f, semaphore);
+				System.out.println("单轮进度：" + (index * 1D / length) * 100 +"%");
+			}
+			System.out.println("总进度：" + (queue.size() * 1D / total) * 100 +"%");
+		} 
+	}
+	
+	private static void moreCompare(final File file1, final File file2, final Semaphore semaphore) {
+		try {
+			while(semaphore.availablePermits() == 0) {
+				TimeUnit.MILLISECONDS.sleep(100);
+			}
+			semaphore.acquire();
+			new Thread() {
+				public void run() {
+					checkExists(file1, file2);
+					semaphore.release();
+				}; 
+			}.start();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} 
 	}
 	
 	private static String getMD5(File file) {
@@ -132,7 +176,7 @@ public class MainTest {
 //			count.incrementAndGet();
 			countz ++;
 		} else {
-			System.err.println("保留文件：" + curfile.getAbsolutePath());
+//			System.err.println("保留文件：" + curfile.getAbsolutePath());
 		}
 	}
 
