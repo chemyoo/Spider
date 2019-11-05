@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+
 import com.chemyoo.image.analysis.SimilarityAnalysisor;
 import com.chemyoo.spider.core.SelectFiles;
 
@@ -173,7 +174,7 @@ public class MainTest {
 			FileUtils.deleteQuietly(curfile);
 			System.err.println("删除文件：" + curfile.getAbsolutePath());
 //			FileUtils.moveFileToDirectory(curfile, directory, true);
-//			count.incrementAndGet();
+			count.incrementAndGet();
 			countz ++;
 		} else {
 //			System.err.println("保留文件：" + curfile.getAbsolutePath());

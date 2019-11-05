@@ -11,7 +11,10 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.*;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -208,7 +211,7 @@ public class Spider {
 			this.getUrls(body);
 			this.getImagesUrls(body);
 			this.getIframe(body);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOG.error("打开网页发生异常",e);
 			writer.write(url + PropertiesUtil.getLineSeparator());
 		}
@@ -373,7 +376,7 @@ public class Spider {
 	private void getImagesUrls(Elements body) {
 		String main = getProperties("dom.class.first","img[src]");
 		String classSelector2 = properties.getProperty("dom.img.select");
-		String removeItem = properties.getProperty("dom.not");
+//		String removeItem = properties.getProperty("dom.not");
 		String notDownImg = properties.getProperty("dom.img.not");
 		Elements mainDiv = new Elements();
 		if(StringUtils.isNotBlank(main)) {
@@ -390,12 +393,12 @@ public class Spider {
 			}
 		}
 		Elements removeHref = new Elements();
-		if(StringUtils.isNotBlank(removeItem)) {
-			String[] cssSelector = removeItem.split(",");
-			for(String css : cssSelector) {
-				removeHref.addAll(mainDiv.select(css.trim() + " img[src]"));
-			}
-		}
+//		if(StringUtils.isNotBlank(removeItem)) {
+//			String[] cssSelector = removeItem.split(",");
+//			for(String css : cssSelector) {
+//				removeHref.addAll(mainDiv.select(css.trim() + " img[src]"));
+//			}
+//		}
 		if(StringUtils.isNotBlank(notDownImg)) {
 			String[] cssSelector = notDownImg.split(",");
 			for(String css : cssSelector) {
@@ -477,13 +480,7 @@ public class Spider {
 	
 	public static void closeQuietly(Closeable... closeables) {
 		for(Closeable closeable : closeables) {
-			try {
-				if (closeable != null) {
-					closeable.close();
-				}
-			} catch (IOException ioe) {
-				// ignore
-			}
+			closeQuietly(closeable);
 		}
 	}
 	
