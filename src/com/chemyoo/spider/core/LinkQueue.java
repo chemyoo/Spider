@@ -28,11 +28,38 @@ public class LinkQueue {
 	private static Map<String, String> pageUrls = new TreeMap<>(new Comparator<String>() {
 		@Override
 		public int compare(String s1, String s2) {
-			int num = s1.length() - s2.length();
-            int num2 = num == 0 ? s1.compareTo(s2) : num;
-            return num2;
+			if((!s1.contains(".") && !s2.contains("."))) {
+				int num = s1.length() - s2.length();
+				return num == 0 ? s1.compareTo(s2) : num;
+			} else if(s1.contains(".") && !s2.contains(".")){
+				String t1 = s1.substring(0, s1.indexOf('.'));
+				String t2 = s2;
+				int num = t1.length() - t2.length();
+				return num == 0 ? t1.compareTo(t2) : num;
+			}else if(!s1.contains(".") && s2.contains(".")){
+				String t2 = s2.substring(0, s2.indexOf('.'));
+				String t1 = s1;
+				int num = t1.length() - t2.length();
+				return num == 0 ? t1.compareTo(t2) : num;
+			} else if(s1.contains(".") && s2.contains(".")) {
+				String t1 = s1.substring(0, s1.indexOf('.'));
+				String t2 = s2.substring(0, s2.indexOf('.'));
+				int num = t1.length() - t2.length();
+				if(num == 0) {
+					int temp = t1.compareTo(t2);
+					if(temp == 0) {
+						t1 = s1.substring(s1.indexOf('.') + 1);
+						t2 = s2.substring(s2.indexOf('.') + 1);
+						num = t1.length() - t2.length();
+						return num == 0 ? t1.compareTo(t2) : num;
+					} else {
+						return temp;
+					}
+				}
+				return num;
+			}
+			return 0;
 		}
-		
 	});
 	
 	private static Set<String> visited = new HashSet<>();
@@ -76,10 +103,19 @@ public class LinkQueue {
 	}
 	
 	public static void addPageUrl(String pageUrl, String index) {
-		if(isNotBlank(index) && !pageUrls.containsKey(index)) {
+		if(isNotBlank(index, pageUrl) && !pageUrls.containsKey(index)) {
 			String mdhex = DigestUtils.md5Hex(pageUrl);
 			if(!visitPage.contains(mdhex)) {
 				pageUrls.put(index, pageUrl);
+				visitPage.add(mdhex);
+			}
+		} else if(isNotBlank(pageUrl, index) && !pageUrls.containsValue(pageUrl)){
+			String mdhex = DigestUtils.md5Hex(pageUrl);
+			if(!visitPage.contains(mdhex)) {
+				if(curPage.contains(".")) { 
+					curPage = curPage.substring(0, curPage.indexOf('.'));
+				}
+				pageUrls.put(curPage + "." + index, pageUrl);
 				visitPage.add(mdhex);
 			}
 		}
