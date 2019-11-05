@@ -142,6 +142,7 @@ public class LinkQueue {
 		imageUrl.clear();
 		visitPage.clear();
 		count = 0;
+		curPage = "1";
 	}
 	
 	public static synchronized int find(String url) {
