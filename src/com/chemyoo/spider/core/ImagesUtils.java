@@ -6,6 +6,10 @@ import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +74,13 @@ public class ImagesUtils {
 				}
 				
 				URL uri = new URL(url);
+				HttpsURLConnection.setDefaultSSLSocketFactory(SelfSSLSocket.getSSLSocketFactory());
+				HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+					@Override
+					public boolean verify(String hostname, SSLSession session) {
+						return true;
+					}
+				});
 				httpConnection = (HttpURLConnection) uri.openConnection();
 				/**
 				 * 如果有cookie限制则可添加cookies值：
