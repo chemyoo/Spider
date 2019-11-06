@@ -330,7 +330,7 @@ public class Spider {
 			
 			if(PICTURE_EXT.contains(getFileExt(herfurl))) {
 				LinkQueue.imageUrlpush(herfurl);
-			} else if(herfurl.startsWith(baseUrl) || (herfurl.contains(".htm") || herfurl.contains(".html")
+			} else if(herfurl.startsWith(baseUrl) && (herfurl.contains(".htm") || herfurl.contains(".html")
 					|| herfurl.contains(".shtml"))) {
 				LinkQueue.push(herfurl);
 			} else if(StringUtils.isNotBlank(keyWord)) {
