@@ -248,8 +248,10 @@ public class Spider {
 						if(isNotAdd)
 							continue label;
 					}
+				} else if(href.startsWith(this.referer)) {
+					// 只收集本网站地址
+					LinkQueue.addPageUrl(href);
 				}
-				LinkQueue.addPageUrl(href);
 			}
 		}
 	}
