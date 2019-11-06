@@ -48,7 +48,7 @@ public class LinkQueue {
 		return null;
 	}
 	
-	public static void sizeAddOne() {
+	public static synchronized void sizeAddOne() {
 			count ++;
 	}
 	
