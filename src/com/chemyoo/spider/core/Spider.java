@@ -249,7 +249,7 @@ public class Spider {
 							continue label;
 					}
 				}
-				LinkQueue.addPageUrl(href, text);
+				LinkQueue.addPageUrl(href);
 			}
 		}
 	}

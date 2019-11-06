@@ -17,8 +17,6 @@ public class LinkQueue {
 	
 	private static int count = 0;
 	
-	private static String curPage = "1";
-	
 	// 未访问的url
 	private static List<String> unVisited = new LinkedList<>();
 	
@@ -28,37 +26,8 @@ public class LinkQueue {
 	private static Map<String, String> pageUrls = new TreeMap<>(new Comparator<String>() {
 		@Override
 		public int compare(String s1, String s2) {
-			if((!s1.contains(".") && !s2.contains("."))) {
-				int num = s1.length() - s2.length();
-				return num == 0 ? s1.compareTo(s2) : num;
-			} else if(s1.contains(".") && !s2.contains(".")){
-				String t1 = s1.substring(0, s1.indexOf('.'));
-				String t2 = s2;
-				int num = t1.length() - t2.length();
-				return num == 0 ? t1.compareTo(t2) : num;
-			}else if(!s1.contains(".") && s2.contains(".")){
-				String t2 = s2.substring(0, s2.indexOf('.'));
-				String t1 = s1;
-				int num = t1.length() - t2.length();
-				return num == 0 ? t1.compareTo(t2) : num;
-			} else if(s1.contains(".") && s2.contains(".")) {
-				String t1 = s1.substring(0, s1.indexOf('.'));
-				String t2 = s2.substring(0, s2.indexOf('.'));
-				int num = t1.length() - t2.length();
-				if(num == 0) {
-					int temp = t1.compareTo(t2);
-					if(temp == 0) {
-						t1 = s1.substring(s1.indexOf('.') + 1);
-						t2 = s2.substring(s2.indexOf('.') + 1);
-						num = t1.length() - t2.length();
-						return num == 0 ? t1.compareTo(t2) : num;
-					} else {
-						return temp;
-					}
-				}
-				return num;
-			}
-			return 0;
+			int num = s1.length() - s2.length();
+			return num == 0 ? s1.compareTo(s2) : num;
 		}
 	});
 	
@@ -71,6 +40,7 @@ public class LinkQueue {
 			String link = unVisited.remove(0);
 			if(visited.size() > 60000) {
 				visited.clear();
+				visitPage.clear();
 			}
 			visited.add(DigestUtils.md5Hex(link));
 			return link;
@@ -83,11 +53,11 @@ public class LinkQueue {
 	}
 	
 	public static int getUnVisitedSize() {
-		return unVisited.size();
+		return unVisited.size() + pageUrls.size();
 	}
 	
 	public static int getVisitedSize() {
-		return visited.size();
+		return visited.size() + visitPage.size();
 	}
 	
 	public static synchronized int getImageSize() {
@@ -102,23 +72,14 @@ public class LinkQueue {
 		return null;
 	}
 	
-	public static void addPageUrl(String pageUrl, String index) {
-		if(isNotBlank(index, pageUrl) && !pageUrls.containsKey(index)) {
+	public static void addPageUrl(String pageUrl) {
+		if(isNotBlank(pageUrl)) {
 			String mdhex = DigestUtils.md5Hex(pageUrl);
-			if(!visitPage.contains(mdhex)) {
-				pageUrls.put(index, pageUrl);
+			if(!visitPage.contains(mdhex) && !pageUrls.containsKey(mdhex)) {
+				pageUrls.put(mdhex, pageUrl);
 				visitPage.add(mdhex);
 			}
-		} else if(isNotBlank(pageUrl, index) && !pageUrls.containsValue(pageUrl)){
-			String mdhex = DigestUtils.md5Hex(pageUrl);
-			if(!visitPage.contains(mdhex)) {
-				if(curPage.contains(".")) { 
-					curPage = curPage.substring(0, curPage.indexOf('.'));
-				}
-				pageUrls.put(curPage + "." + index, pageUrl);
-				visitPage.add(mdhex);
-			}
-		}
+		} 
 	}
 	
 	public static String getPageUrl() {
@@ -130,17 +91,11 @@ public class LinkQueue {
 			}
 			if(en != null) {
 				pageUrls.remove(en.getKey());
-				curPage = en.getKey();
 				return en.getValue();
 			}
 		}
 		return null;
 	}
-	
-	public static String getCurPage() {
-		return curPage;
-	}
-	
 	
 	public static void imageUrlpush(String url) {
 		if (isNotBlank(url) && url.startsWith("http") && !imageUrl.contains(url))
@@ -178,7 +133,6 @@ public class LinkQueue {
 		imageUrl.clear();
 		visitPage.clear();
 		count = 0;
-		curPage = "1";
 	}
 	
 	public static synchronized int find(String url) {
@@ -188,6 +142,16 @@ public class LinkQueue {
 				return index + 1;
 			}
 			index ++;
+		}
+		if(index == 0) {
+			String mdhex = DigestUtils.md5Hex(url);
+			int temp = 0;
+			for(Map.Entry<String, String> entry : pageUrls.entrySet()) {
+				if(entry.getKey().equals(mdhex)) {
+					return unVisited.size() + temp + 1;
+				}
+				temp ++;
+			}
 		}
 		url = DigestUtils.md5Hex(url);
 		for(String a : visited) {
