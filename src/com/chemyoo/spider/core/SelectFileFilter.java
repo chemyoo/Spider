@@ -10,7 +10,7 @@ import javax.swing.filechooser.FileFilter;
  * @since 2018年6月8日 下午2:30:32 
  * @description 文件夹过滤类
  */
-public class SelectFileFilter extends FileFilter implements Filter{
+public class SelectFileFilter extends FileFilter {
 
 	@Override
 	public String getDescription() {
@@ -22,9 +22,4 @@ public class SelectFileFilter extends FileFilter implements Filter{
 		return f.isDirectory();
 	}
 
-	@Override
-	public boolean accept(String url) {
-		return true;
-	}
-	
 }
