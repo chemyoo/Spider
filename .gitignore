@@ -2,10 +2,13 @@
 /.project
 /.classpath
 /.fatjar
-/Spider.jar
 /.git
 /logs/
 /Spider.iml
 *.class
 /out/
 /.settings
+/Spider2.0.jar
+/Spider*.jar
+/*.properties
+/*.task

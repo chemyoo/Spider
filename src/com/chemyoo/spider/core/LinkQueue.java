@@ -1,7 +1,6 @@
 package com.chemyoo.spider.core;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,13 +22,13 @@ public class LinkQueue {
 	// 未访问的图片路径
 	private static List<String> imageUrl = new ArrayList<>();
 	
-	private static Map<String, String> pageUrls = new TreeMap<>(new Comparator<String>() {
+	private static Map<String, String> pageUrls = new TreeMap<>(/*new Comparator<String>() {
 		@Override
 		public int compare(String s1, String s2) {
 			int num = s1.length() - s2.length();
 			return num == 0 ? s1.compareTo(s2) : num;
 		}
-	});
+	}*/);
 	
 	private static Set<String> visited = new HashSet<>();
 	private static Set<String> visitPage = new HashSet<>();

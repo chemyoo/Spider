@@ -282,7 +282,7 @@ public class Spider {
 		if(StringUtils.isNotBlank(hrefSelect)) {
 			String[] cssSelector = hrefSelect.split(",");
 			for(String css : cssSelector) {
-				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[")) {
+				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[") || css.endsWith("a[href]")) {
 					href.addAll(main.select(css.trim()));
 				} else {
 					href.addAll(main.select(css.trim() + " a[href]"));
@@ -295,7 +295,7 @@ public class Spider {
 		if(StringUtils.isNotBlank(removeItem)) {
 			String[] cssSelector = removeItem.split(",");
 			for(String css : cssSelector) {
-				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[")) {
+				if(css.startsWith("a.") || css.startsWith("a#") || css.startsWith("a[") || css.endsWith("a[href]")) {
 					removeHref.addAll(main.select(css.trim()));
 				} else {
 					removeHref.addAll(main.select(css.trim() + " a[href]"));
