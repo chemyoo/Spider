@@ -363,6 +363,7 @@ public class Spider {
 //		String removeItem = properties.getProperty("dom.not");
 		String notDownImg = properties.getProperty("dom.img.not");
 		Elements mainDiv = new Elements();
+		String base = body.get(0).baseUri();
 		if(StringUtils.isNotBlank(main)) {
 			String[] cssSelector = main.split(",");
 			for(String css : cssSelector) {
@@ -404,7 +405,9 @@ public class Spider {
 					}
 				}
 			}
-			LinkQueue.imageUrlpush(src);
+			String[] split = base.split("/");
+			String tag = split[split.length - 2];
+			LinkQueue.imageUrlpush(src + "=-----=" + tag);
 		}
 	}
 	

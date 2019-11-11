@@ -58,7 +58,8 @@ public class ImagesUtils {
 		Boolean enableMd5 = Boolean.valueOf(PropertiesUtil.getInstance().getProperty("enable.md5", "false"));
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
-				String url = LinkQueue.imageUrlPop();
+				String[] value = LinkQueue.imageUrlPop().split("=-----=");
+				String url = value[0];
 				if(enableMd5) {
 					imageName = DigestUtils.md5Hex(url) 
 							+ url.substring(url.lastIndexOf('/') + 1, url.length());
@@ -75,8 +76,7 @@ public class ImagesUtils {
 					continue;
 				}
 				
-				String[] split = url.split("/");
-				tag = split[split.length - 2];
+				tag = value[1];
 				
 				URL uri = new URL(url);
 				HttpsURLConnection.setDefaultSSLSocketFactory(SelfSSLSocket.getSSLSocketFactory());
