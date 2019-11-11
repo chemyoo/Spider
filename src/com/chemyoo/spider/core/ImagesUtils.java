@@ -56,6 +56,7 @@ public class ImagesUtils {
 		long milliseconds = 0;
 //		enable.md5
 		Boolean enableMd5 = Boolean.valueOf(PropertiesUtil.getInstance().getProperty("enable.md5", "false"));
+		Boolean enableClass = Boolean.valueOf(PropertiesUtil.getInstance().getProperty("enable.class", "false"));
 		while(!LinkQueue.imageUrlEmpty()) {
 			try {
 				String[] value = LinkQueue.imageUrlPop().split("=-----=");
@@ -75,8 +76,11 @@ public class ImagesUtils {
 				if(!"gif,png,jpg,jpeg,bmp".contains(getFileExt(imageName))) {
 					continue;
 				}
-				
-				tag = value[1];
+				if(enableClass) {
+					tag = value[1];
+				} else if(!"".equals(tag)){
+					tag = "";
+				}
 				
 				URL uri = new URL(url);
 				HttpsURLConnection.setDefaultSSLSocketFactory(SelfSSLSocket.getSSLSocketFactory());
