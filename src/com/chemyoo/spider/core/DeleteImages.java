@@ -123,7 +123,7 @@ public class DeleteImages {
 	}
 	
 	private static void moveFile(File file,final String dir) {
-		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
+		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator() + ImagesUtils.tag + getFileSeparator();
 		try {
 			FileUtils.moveToDirectory(file, new File(path), true);
 		} catch (IOException e) {
@@ -156,7 +156,7 @@ public class DeleteImages {
 	
 	private static void reName(File file, String dir) {
 		int index = 0;
-		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator();
+		String path = dir + IMAGES_DIR + convertDateToString() + getFileSeparator() + ImagesUtils.tag + getFileSeparator();
 		File newFile = new File(path + apendString() + file.getName());
 		while(newFile.exists()) {
 			String fileName = file.getName();

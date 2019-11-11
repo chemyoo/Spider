@@ -22,6 +22,8 @@ import com.chemyoo.spider.util.PropertiesUtil;
  */
 public class ImagesUtils {
 	
+	public static String tag = null;
+	
 	protected static Random random = new Random();
 	
 	private ImagesUtils() {}
@@ -72,6 +74,9 @@ public class ImagesUtils {
 				if(!"gif,png,jpg,jpeg,bmp".contains(getFileExt(imageName))) {
 					continue;
 				}
+				
+				String[] split = url.split("/");
+				tag = split[split.length - 2];
 				
 				URL uri = new URL(url);
 				HttpsURLConnection.setDefaultSSLSocketFactory(SelfSSLSocket.getSSLSocketFactory());
