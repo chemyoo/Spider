@@ -271,7 +271,8 @@ public class SpiderUI extends JFrame{
 							DeleteImages.delete(fileDir.trim());
 						}
 					};
-					
+					// 设置为守护线程
+					thread.setDaemon(true);
 					thread.start();
 					
 				} else {
@@ -538,7 +539,7 @@ public class SpiderUI extends JFrame{
 		while(!LinkQueue.unVisitedEmpty()) {
 			buider.append(LinkQueue.unVisitedPop()).append(PropertiesUtil.getLineSeparator());
 			index ++;
-			if(index > 5000)
+			if(index > 50000)
 				break;
 		}
 		String fileName = DEFAULT_PATH + PropertiesUtil.getFileSeparator() 
