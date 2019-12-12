@@ -1,21 +1,19 @@
 package com.chemyoo.spider.ui;
 
-import com.chemyoo.spider.core.DeleteImages;
-import com.chemyoo.spider.core.ICallback;
-import com.chemyoo.spider.core.LinkQueue;
-import com.chemyoo.spider.core.MouseEventAdapter;
-import com.chemyoo.spider.core.SelectFiles;
-import com.chemyoo.spider.core.Spider;
-import com.chemyoo.spider.util.Message;
-import com.chemyoo.spider.util.PropertiesUtil;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTException;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,6 +23,29 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
+import com.chemyoo.spider.core.DeleteImages;
+import com.chemyoo.spider.core.ICallback;
+import com.chemyoo.spider.core.LinkQueue;
+import com.chemyoo.spider.core.MouseEventAdapter;
+import com.chemyoo.spider.core.RightCornerPopMessage;
+import com.chemyoo.spider.core.SelectFiles;
+import com.chemyoo.spider.core.Spider;
+import com.chemyoo.spider.util.Message;
+import com.chemyoo.spider.util.PropertiesUtil;
 
 /** 
  * @author 作者 : jianqing.liu
@@ -269,6 +290,7 @@ public class SpiderUI extends JFrame{
 							start.setText("开始爬取");
 							start.setEnabled(true);
 							DeleteImages.delete(fileDir.trim());
+							new RightCornerPopMessage("网站爬取完成...");
 						}
 					};
 					// 设置为守护线程

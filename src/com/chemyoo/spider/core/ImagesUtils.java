@@ -93,7 +93,7 @@ public class ImagesUtils {
 				httpConnection = (HttpURLConnection) uri.openConnection();
 				/**
 				 * 如果有cookie限制则可添加cookies值：
-				 * httpConnection.setRequestProperty("cookie", "");
+				 * httpConnection.setRequestProperty("cookie", "JSESSIONID=3512AF124F51E7B0266B3326B4712493;");
 				 */
 				if(StringUtils.isNotBlank(referer))
 					httpConnection.setRequestProperty("referer", referer);

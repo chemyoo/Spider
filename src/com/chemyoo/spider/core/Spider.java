@@ -14,7 +14,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,9 +36,7 @@ import com.chemyoo.spider.util.PropertiesUtil;
  * @since 2018年5月30日 上午11:44:29 
  * @description 类说明 
  */
-public class Spider {
-	
-	private static final Logger LOG = Logger.getLogger(Spider.class);
+public class Spider extends BaseLogger {
 	
 	private String url;
 	
@@ -98,7 +95,7 @@ public class Spider {
 	}
 	
 	public String start() throws IOException {
-		LOG.info("程序已启动...");
+		logger.info("程序已启动...");
 		this.message.setText("");
 		String res = Auth.login();
 		
@@ -115,9 +112,9 @@ public class Spider {
 				this.count ++;
 			}
 			if(button.isSelected())
-				LOG.info("程序暂停...");
+				logger.info("程序暂停...");
 			else
-				LOG.info("程序终止...");
+				logger.info("程序终止...");
 		} else {
 			this.message.setText("登入失败:" + res);
 			return Message.FAILURE;
@@ -140,17 +137,17 @@ public class Spider {
 			@Override
 			public void run() {
 				try {
-					LOG.info("定时任务已启动...");
+					logger.info("定时任务已启动...");
 					DeleteImages.delete(dir);
 					int size = LinkQueue.getUnVisitedSize();
-					LOG.info("待访问的网址数量：" + size);
-					LOG.info("定时任务执行完成...");
+					logger.info("待访问的网址数量：" + size);
+					logger.info("定时任务执行完成...");
 					double rate = count / 5D;
-					LOG.info("网址连接速度：" + rate + "个/分钟");
+					logger.info("网址连接速度：" + rate + "个/分钟");
 					if(rate > 0)
-						LOG.info("预计完成需要：" + NumberUtils.setScale(size / rate, 3)+ "分钟");
+						logger.info("预计完成需要：" + NumberUtils.setScale(size / rate, 3)+ "分钟");
 				} catch (Exception e) {
-					LOG.error("定时任务执行异常", e);
+					logger.error("定时任务执行异常", e);
 				} finally {
 					count = 0;
 				}
@@ -158,7 +155,7 @@ public class Spider {
 	}
 	
 	private void connectUrl(String url) throws IOException {
-		LOG.info("连接网址：【" + url + "】");
+		logger.info("连接网址：【" + url + "】");
 		try {
 			if(PICTURE_EXT.contains(getFileExt(url))) {
 				LinkQueue.imageUrlpush(url);
@@ -173,6 +170,7 @@ public class Spider {
 			//Mozilla 为大多数浏览器
 			Document doc = Jsoup.connect(url)
 					.userAgent(userAgent)
+					.cookie("JSESSIONID", "3512AF124F51E7B0266B3326B4712493")
 					.timeout(30 * 1000).get();
 			
 			Elements body = doc.getElementsByTag("body");
@@ -181,7 +179,7 @@ public class Spider {
 			this.getImagesUrls(body);
 			this.getIframe(body);
 		} catch (Exception e) {
-			LOG.error("打开网页发生异常",e);
+			logger.error("打开网页发生异常",e);
 			writer.write(url + PropertiesUtil.getLineSeparator());
 		}
 	}
@@ -415,7 +413,7 @@ public class Spider {
 		Elements body = doc.getElementsByTag("body");
 		Iterator<Element> it = body.iterator();
 		while(it.hasNext()) {
-			LOG.debug(it.next().toString());
+			logger.debug(it.next().toString());
 		}
 	}/*
 	
@@ -424,8 +422,8 @@ public class Spider {
 		Element ele;
 		while(it.hasNext()) {
 			ele = it.next();
-			LOG.debug(ele.toString());
-			LOG.debug(ele.absUrl("href"));
+			logger.debug(ele.toString());
+			logger.debug(ele.absUrl("href"));
 		}
 	}*/
 	
