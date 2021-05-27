@@ -18,6 +18,11 @@ public class MusicMove
 		{
 			File root = file.getParentFile();
 			handle(file, root);
+			File[] child = file.listFiles();
+			if (child != null && child.length == 0)
+			{
+				FileUtils.deleteQuietly(file);
+			}
 		}
 	}
 
