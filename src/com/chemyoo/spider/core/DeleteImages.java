@@ -134,6 +134,7 @@ public class DeleteImages {
 			if(similar > 0.90D) {
 				LOG.info("图片基本相似，删除图片不保存...");
 				FileUtils.deleteQuietly(file);
+				return;
 			} else {
 				LOG.info("文件相似度不大于0.90，进行文件重命名...");
 				reName(file, dir);
