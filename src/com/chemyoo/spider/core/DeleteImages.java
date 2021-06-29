@@ -20,6 +20,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -252,13 +253,12 @@ public class DeleteImages
 	}
 
 	/**
-	 * 文件分割
+	 * 文件分割,对zip分割会，合并文件或造成压缩包损坏
 	 * 
 	 * @param filePath
 	 * @param fileCount
 	 * @throws IOException
 	 */
-	@SuppressWarnings("deprecation")
 	public static void splitFile(String filePath, int fileCount) throws IOException
 	{
 		FileInputStream fis = null;
@@ -326,6 +326,52 @@ public class DeleteImages
 
 	}
 
+	public static List<File> splitAllFile(File targetfile, int fileCount) throws IOException
+	{
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		List<File> splitFiles = new ArrayList<>();
+		try
+		{
+			fis = new FileInputStream(targetfile);
+			FileChannel inputChannel = fis.getChannel();
+			final long fileSize = inputChannel.size();
+			long average = fileSize / fileCount;// 平均值
+			long startPosition = 0; // 子文件开始位置
+			long endPosition = average;// 子文件结束位置
+			for (int i = 0; i < fileCount - 1; i++)
+			{
+				File file = new File(targetfile.getPath() + ".part" + (i + 1));
+				fos = new FileOutputStream(file);
+				FileChannel outputChannel = fos.getChannel();
+				inputChannel.transferTo(startPosition, endPosition - startPosition, outputChannel);// 通道传输文件数据
+				fos.close();
+				startPosition += average;
+				endPosition += average;
+				splitFiles.add(file);
+			}
+			File file = new File(targetfile.getPath() + ".part" + fileCount);
+			fos = new FileOutputStream(file);
+			FileChannel outputChannel = fos.getChannel();
+			inputChannel.transferTo(startPosition, fileSize, outputChannel);// 通道传输文件数据
+			inputChannel.close();
+			fos.close();
+			splitFiles.add(file);
+		}
+		finally
+		{
+			if (fis != null)
+			{
+				fis.close();
+			}
+			if (fos != null)
+			{
+				fos.close();
+			}
+		}
+		return splitFiles;
+	}
+
 	/**
 	 * fileOutputStream 关闭通道时会自动关闭， 文件合并
 	 * 
@@ -365,12 +411,14 @@ public class DeleteImages
 
 	public static void main(String[] args) throws IOException
 	{
-		splitFile("D:/全国行政区划2020年-数据来源国家统计局 - 副本.csv", 3);
-		List<File> fileChunkList = new ArrayList<>();
-		fileChunkList.add(new File("D:/全国行政区划2020年-数据来源国家统计局 - 副本.csv.part1"));
-		fileChunkList.add(new File("D:/全国行政区划2020年-数据来源国家统计局 - 副本.csv.part2"));
-		fileChunkList.add(new File("D:/全国行政区划2020年-数据来源国家统计局 - 副本.csv.part3"));
-		mergeChunkFiles(fileChunkList, new File("D:/cs.csv"));
+		File file = new File("D:\\bwdata\\cn_visio_professional_2013_x64_1138440.exe");
+		List<File> fileChunkList = splitAllFile(file, 1);
+		mergeChunkFiles(fileChunkList, new File(file.getParent(), FilenameUtils.getBaseName(file.getName()) + "-new." + FilenameUtils.getExtension(file.getName())));
+		for (File f : fileChunkList)
+		{
+			FileUtils.deleteQuietly(f);
+		}
+		System.err.println(pictrueSimilarity(new File("D:/a.jpg"), new File("D:/b.jpg")));
 	}
 
 }
